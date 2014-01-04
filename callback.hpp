@@ -1,0 +1,645 @@
+/* Copyright (c) 2014, The Nuria Project
+ * This software is provided 'as-is', without any express or implied
+ * warranty. In no event will the authors be held liable for any damages
+ * arising from the use of this software.
+ * Permission is granted to anyone to use this software for any purpose,
+ * including commercial applications, and to alter it and redistribute it
+ * freely, subject to the following restrictions:
+ *    1. The origin of this software must not be misrepresented; you must not
+ *       claim that you wrote the original software. If you use this software
+ *       in a product, an acknowledgment in the product documentation would be
+ *       appreciated but is not required.
+ *    2. Altered source versions must be plainly marked as such, and must not be
+ *       misrepresented as being the original software.
+ *    3. This notice may not be removed or altered from any source
+ *       distribution.
+ */
+
+#ifndef NURIA_CALLBACK_HPP
+#define NURIA_CALLBACK_HPP
+
+#include <type_traits>
+#include <functional>
+#include <QMetaType>
+#include <QVariant>
+#include <QList>
+
+#include "essentials.hpp"
+#include "variant.hpp"
+#include "future.hpp"
+
+namespace Nuria {
+class CallbackPrivate;
+
+/** \internal */
+namespace CallbackHelper {
+	template< int ... Index >
+	struct IndexTuple {
+		template< int N >
+		using append = IndexTuple< Index ..., N >;
+	};
+	
+	template< int Size >
+	struct CreateIndexTuple {
+		typedef typename CreateIndexTuple< Size - 1 >::type::template append< Size - 1 > type;
+	};
+	
+	template< >
+	struct CreateIndexTuple< 1 > {
+		typedef IndexTuple< > type;
+	};
+	
+	template< typename... Types >
+	using buildIndexTuple = typename CreateIndexTuple< sizeof...(Types) + 1 >::type;
+	
+}
+
+/**
+ * \brief A modern style callback mechanism which can be bound to various method
+ * types including slots.
+ * 
+ * The Nuria::Callback class can be used when developers don't want to use the
+ * default signal/slots mechanism Qt provides for various reasons. Callback
+ * is designed to mimic parts of the std::function methods which makes it easy
+ * to use.
+ * 
+ * \note This class is \b explicitly \b shared. This means that changes to the
+ * instance will \b not copy the data, but instead alter the instance directly.
+ * 
+ * \par Methods
+ * Callback can be created out of all available method types - Essentially
+ * everything that has a <i>operator()</i>. This includes:
+ * 
+ * - Static methods, including static member methods
+ * - Class member methods
+ * - QObject slots
+ * - std::function
+ * - Lambdas
+ * - Nuria::Future
+ * 
+ * For all of the above types Callback provides a convenient constructors with
+ * the exception of lambdas (See fromLambda).
+ * 
+ * \par Argument and return types
+ * Please note that \b all types which are passed to or from the callback must
+ * be registered to the Qt Meta System using the Q_DECLARE_METATYPE macro.
+ * 
+ * Another point is that Callback will always try its best to invoke a method.
+ * Passed arguments are checked if they match the type of the target method.
+ * If a argument doesn't, Callback will try to use Nuria::Variant::convert to
+ * convert the passed argument to the expected argument type. If this still
+ * fails, it will \b construct a temporary instance of the expected type and
+ * pass it instead, \b silently discarding the original argument.
+ * 
+ * It is also possible to use variadic callbacks. This means that on invocation,
+ * all passed arguments are packed into a single QVariantList. This list is now
+ * treated as it would've been passed as only argument, meaning that bound
+ * variables are applied after this process. The placeholder \a _1 points to the
+ * QVariantList.
+ * 
+ * \par Binding
+ * Just like std::function Callback supports a mechanism to bind arguments to
+ * a callback. Placeholders are also supported (Using _1, ..., _10).
+ * 
+ * \sa bind bound boundLambda
+ * 
+ * \par Behaviour with QObject slots
+ * When a callback uses a slot as target method, it can be used for thread to
+ * thread communication. If the slot returns \a void (nothing), then the slot
+ * will be invoked using a Qt::QueuedConnection, that means, the caller won't
+ * be blocked until the callee (The slot) has finished its operation. If the
+ * callee returns something different than a \a void, then the caller will be
+ * \b blocked until the callee finished and returned the result to the calling
+ * thread.
+ *  
+ * \par Multi-threading
+ * Callback is \b re-entrant. Do not change a instance from multiple threads
+ * concurrently. Target methods will be invoked in the \a calling thread, when
+ * not using a QObject slot as target.
+ */
+class NURIA_CORE_EXPORT Callback {
+	
+	// Forward declare helper structures
+	struct TrampolineBase;
+	template< typename T > struct FutureHelper;
+	template< typename Ret, typename ... Args > struct MethodHelper;
+	template< typename Class, typename Ret, typename ... Args > struct MemberMethodHelper;
+	template< typename Ret, typename ... Args > struct LambdaHelper;
+	
+public:
+	
+	/**
+	 * Possible types of callbacks.
+	 */
+	enum Type {
+		Invalid = 0, /// Invalid instance
+		StaticMethod = 1, /// Invokes a static method
+		MemberMethod = 2, /// Invokes a member method
+		Slot = 3, /// Invokes a slot
+		Lambda = 4, /// Invokes a lambda
+		
+		/**
+		 * Pseudo callback which sets the value of a Future< QVariant >.
+		 */
+		Future = 5,
+		Condition = 6, /// LazyCondition evaluator
+		
+		/**
+		 * Trampoline implemented by the user.
+		 */
+		UserTrampoline = 100
+	};
+	
+	/**
+	 * Placeholders for bind().
+	 */
+	enum Placeholder {
+		_1 = 0,
+		_2,
+		_3,
+		_4,
+		_5,
+		_6,
+		_7,
+		_8,
+		_9,
+		_10
+	};
+	
+	/**
+	 * Constructs an invalid instance.
+	 */
+	Callback ();
+	
+	/** Constructs a callback out of a slot. */
+	Callback (QObject *receiver, const char *slot, bool variadic = false);
+	
+	/** Copy constructor. */
+	Callback (const Callback &other);
+	
+	/** Constructs a callback from a static method. */
+	template< typename Ret, typename ... Args >
+	Callback (Ret (*func)(Args ...), bool variadic = false)
+		: d (0) { setCallback (func); setVariadic (variadic); }
+	
+	/** Constructs a callback from a member method. */
+	template< typename Class, typename Ret, typename ... Args >
+	Callback (Class *instance, Ret (Class::*func)(Args ...), bool variadic = false)
+		: d (0) { setCallback (instance, func); setVariadic (variadic); }
+	
+	template< typename Ret, typename ... Args >
+	Callback (const std::function< Ret(Args ...) > &func, bool variadic = false)
+		: d (0) { setCallback (func); setVariadic (variadic); }
+	
+	/** Constructs a callback out of a lambda. */
+	template< typename Lambda >
+	static Callback fromLambda (Lambda l, bool variadic = false) {
+		Callback cb = fromLambdaImpl (l, &Lambda::operator());
+		cb.setVariadic (variadic);
+		return cb;
+	}
+	
+	/**
+	 * Constructs a callback from a Future instance.
+	 * When the callback is invoked which hosts a Future instance, the first
+	 * argument passed to the callback will be set to \a future. The future
+	 * is finished afterwards. If \a future expects a different type than
+	 * the first argument, it will be converted. If conversion is not
+	 * possible, a default instance will be assigned to \a future of the
+	 * type it expects. Invoking a future callback always returns a invalid
+	 * QVariant.
+	 */
+	Callback (Nuria::Future< QVariant > future, bool variadic = false);
+	
+	/** Destructor. */
+	~Callback ();
+	
+	/** Assignment operator. */
+	Callback &operator= (const Callback &other);
+	
+	/**
+	 * Comparison operator.
+	 * Returns \c true if both callbacks point to the very same method (and
+	 * instance).
+	 * 
+	 * \warning Bound arguments aren't taken into account for this
+	 * operation.
+	 */
+	bool operator== (const Callback &other) const;
+	
+	/** Returns \c true when this callback is valid i.e. callable. */
+	bool isValid () const;
+	
+	/** Returns the type of this callback. */
+	Type type () const;
+	
+	/** Returns if this callback is variadic. */
+	bool isVariadic () const;
+	
+	/** Sets if this callback is variadic or not. */
+	void setVariadic (bool variadic);
+	
+	/** Returns the return-type of the callback. */
+	int returnType () const;
+	
+	/** Returns a list of arguments expected by this callback. */
+	QList< int > argumentTypes () const;
+	
+	/** \addtogroup Callback setters
+	 * @{
+	 */
+	
+	// 
+	template< typename Ret, typename ... Args >
+	bool setCallback (Ret (*func)(Args ...)) {
+		QList< int > args;
+		buildArgList< Args ... > (args);
+		return initBase (new MethodHelper< Ret, Args ... > (func), qMetaTypeId< Ret > (), args);
+	}
+	
+	template< typename ... Args >
+	bool setCallback (void (*func)(Args ...)) {
+		QList< int > args;
+		buildArgList< Args ... > (args);
+		return initBase (new MethodHelper< void, Args ... > (func), 0, args);
+	}
+	
+	// Member methods
+	template< typename Class, typename Ret, typename ... Args >
+	bool setCallback (Class *instance, Ret (Class::*func)(Args ...)) {
+		QList< int > args;
+		buildArgList< Args ... > (args);
+		return initBase (new MemberMethodHelper< Class, Ret, Args ... > (instance, func),
+				 qMetaTypeId< Ret > (), args);
+	}
+	
+	template< typename Class, typename ... Args >
+	bool setCallback (Class *instance, void (Class::*func)(Args ...)) {
+		QList< int > args;
+		buildArgList< Args ... > (args);
+		return initBase (new MemberMethodHelper< Class, void, Args ... > (instance, func), 0, args);
+	}
+	
+	// std::function
+	template< typename Ret, typename ... Args >
+	bool setCallback (std::function< Ret(Args ...) > func) {
+		QList< int > args;
+		buildArgList< Args ... > (args);
+		return initBase (new LambdaHelper< Ret, Args ... > (func), qMetaTypeId< Ret > (), args);
+	}
+	
+	template< typename ... Args >
+	bool setCallback (std::function< void(Args ...) > func) {
+		QList< int > args;
+		buildArgList< Args ... > (args);
+		return initBase (new LambdaHelper< void, Args ... > (func), 0, args);
+	}
+	
+	/*
+	template< typename Ret >
+	bool setCallback (std::function< Ret() > func) {
+		QList< int > args;
+		return initLambda (new LambdaHelper< Ret > (func), qMetaTypeId< Ret > (), args);
+	}
+	
+	bool setCallback (std::function< void() > func) {
+		QList< int > args;
+		return initLambda (new LambdaHelper (func), 0, args);
+	}		
+	*/
+	
+	// Lambda
+	/*
+	template< typename Lambda >
+	bool setCallback (const Lambda &lambda) {
+		Q_UNUSED(ptr)
+		std::function< Ret(Args ...) > func = lambda;
+		return setCallback (func);
+	}
+	*/
+	
+	// QObject slot and future
+	bool setCallback (QObject *receiver, const char *slot);
+	bool setCallback (const Nuria::Future< QVariant > &future);
+	
+	// Convenience assignment operators
+	template< typename Ret, typename ... Args >
+	Callback &operator= (Ret (*func)(Args ...)) { setCallback (func); return *this; }
+	
+	template< typename ... Args >
+	Callback &operator= (void (*func)(Args ...)) { setCallback (func); return *this; }
+	
+	template< typename Ret >
+	Callback &operator= (Ret (*func)()) { setCallback (func); return *this; }
+	
+	Callback &operator= (void (*func)()) { setCallback (func); return *this; }
+	
+	/** @} */
+	
+	/**
+	 * Binds arguments to the callback. This essentially works like
+	 * std::bind(). If no placeholders are used additional arguments
+	 * are appended to the final argument list when invoked. If
+	 * placeholders are used only the arguments whose positions are set
+	 * with a placeholder are passed, the others are silently discarded.
+	 */
+	void bind (const QVariantList &arguments = QVariantList());
+	
+	/**
+	 * Convenience function which takes a static method or std::function
+	 * and returns a instance where \a args are already bound.
+	 */
+	template< typename Func, typename ... Args >
+	static Callback bound (Func func, Args ... args) {
+		Callback cb (func);
+		cb.bind (args ...);
+		return cb;
+	}
+	
+	/**
+	 * Takes a class and a member method, binds the passed arguments and
+	 * returns the instance.
+	 */
+	template< typename Class, typename Func, typename First, typename ... Args >
+	static Callback bound (Class *ptr, Func func, First arg, Args ... args) {
+		Callback cb (ptr, func);
+		cb.bind (arg, args ...);
+		return cb;
+	}
+	
+	/**
+	 * Returns a callback which invokes \a slot on \a receiver with bound
+	 * variables.
+	 */
+	template< typename ... Args >
+	static Callback bound (QObject *receiver, const char *slot, Args ... args) {
+		Callback cb (receiver, slot);
+		cb.bind (args ...);
+		return cb;
+	}
+	
+	/**
+	 * Exactly like bound(), but takes a lambda as first argument instead
+	 * of a function.
+	 * \sa bound
+	 */
+	template< typename Lambda, typename ... Args >
+	static Callback boundLambda (Lambda func, Args ... args) {
+		Callback cb = fromLambdaImpl (func, &Lambda::operator());
+		cb.bind (args ...);
+		return cb;
+	}
+	
+	/**
+	 * \overload
+	 * This method offers a more std::bind-like functionality.
+	 * 
+	 * \warning If you want to bind a single QVariantList as argument
+	 * you have to manually convert to a QVariant before. Else, the other
+	 * bind() overload will be called which would lead to unexpected
+	 * results.
+	 */
+	template< typename ... Args >
+	inline void bind (Args ... args)
+	{ bind (Variant::buildList (args ...)); }
+	
+	/**
+	 * Invokes the callback.
+	 * \sa operator()
+	 */
+	QVariant invoke (const QVariantList &arguments);
+	
+	/** Invokes the callback in a convenient way. */
+	template< typename ... Args >
+	QVariant operator() (Args ... args) {
+		void *list[sizeof... (Args)];
+		int types[sizeof... (Args)];
+		getArguments (list, types, 0, &args ...);
+		return invoke (sizeof... (Args), list, types);
+	}
+	
+	/** Invokes the callback without arguments. */
+	inline QVariant operator() () {
+		return invoke (0, 0, 0);
+	}
+	
+private:
+	
+	friend class CallbackPrivate;
+	
+	QVariant invoke (int count, void **args, int *types);
+	QVariant invokePrepared (const QVariantList &arguments);
+	
+	/** \internal */
+	QVariant invokeInternal (int count, void **args, int *types);
+	
+	/** \internal Helper structure based on std::remove_reference<> */
+	// If you have a error on line struct removeRef< T & >:
+	// T& is not allowed for values. Use const T & or just T instead.
+	template< typename T > struct removeRef { typedef T type; };
+        template< typename T > struct removeRef< T & >; // Not allowed!
+	template< typename T > struct removeRef< const T & > { typedef T type; };
+	
+	/**
+	 * \internal
+	 */
+	template< typename Lambda, typename Ret, typename ... Args >
+	inline static Callback fromLambdaImpl (Lambda l, Ret (Lambda::*)(Args ...) const) {
+		return Callback (std::function< Ret(Args ...) > (l));
+	}
+	
+	/**
+	 * \internal
+	 *  Initializes a native function.
+	 */
+	bool initBase (TrampolineBase *base, int retType, const QList< int > &args);
+	
+	template< typename T1, typename ... T2 >
+	inline void buildArgListDo (QList< int > &list, T1 cur, T2 ... next) {
+		list.append (cur);
+		buildArgListDo (list, next ...);
+	}
+	
+	template< typename T >
+	inline void buildArgListDo (QList< int > &list, T cur)
+	{ list.append (cur); }
+	
+	/** \overload No-op. */
+	inline void buildArgListDo (QList< int > &) { }
+	
+	/**
+	 * \internal
+	 * This variadic template function populates \a list with the type ids
+	 * of the typenames passed in as template.
+	 */
+	template< typename ... Args >
+	inline void buildArgList (QList< int > &list) {
+		buildArgListDo (list, qMetaTypeId< typename removeRef< Args >::type > () ...);
+	}
+	
+	/** \internal */
+	template< typename T, typename T2, typename ... Args >
+	void getArguments (void **list, int *types, int idx,
+			   T *cur, T2 *next, Args * ... args) {
+		getArguments (list, types, idx, cur);
+		getArguments (list, types, idx + 1, next, args ...);
+	}
+	
+	/** \overload */
+	template< typename T >
+	void getArguments (void **list, int *types, int idx, T *cur) {
+		list[idx] = cur;
+		types[idx] = qMetaTypeId< T > ();
+	}
+	
+	/**
+	 * \internal
+	 * Helper structure for creating trampoline functions needed to invoke
+	 * functions.
+	 */
+	struct TrampolineBase {
+		Type type;
+		TrampolineBase (Type t) : type (t) {}
+		
+		virtual ~TrampolineBase () {}
+		virtual void trampoline (void **) = 0;
+	};
+	
+	struct MemberTrampolineBase : TrampolineBase {
+		MemberTrampolineBase (void *inst) : TrampolineBase (MemberMethod), instance (inst) {}
+		void *instance;
+	};
+	
+	// Nuria::Future< T >
+	template< typename T >
+	struct FutureHelper : public TrampolineBase {
+		Nuria::Future< T > fut;
+		
+		FutureHelper (const Nuria::Future< T > &f) : TrampolineBase (Future), fut (f) {}
+		
+		void trampoline (void **args)
+		{ fut.setValue (QVariant (fut.type (), args[1])); }
+		
+	};
+	
+	// Static methods
+	template< typename Ret, typename ... Args >
+	struct MethodHelper : public TrampolineBase {
+		typedef Ret (*Prototype)(Args ...);
+		Prototype func;
+		
+		MethodHelper (Prototype f) : TrampolineBase (StaticMethod), func (f) {}
+		
+		template< int ... Index >
+		inline void trampolineImpl (void **args, CallbackHelper::IndexTuple< Index... >) {
+			(*reinterpret_cast< typename removeRef< Ret >::type * > (args[0])) =
+				func (*reinterpret_cast< typename removeRef< Args >::type * >(args[Index]) ...);
+		}
+		
+		void trampoline (void **args)
+		{ trampolineImpl (args, CallbackHelper::buildIndexTuple< Args ... > ()); }
+		
+	};
+	
+	template< typename ... Args >
+	struct MethodHelper< void, Args ... > : public TrampolineBase {
+		typedef void (*Prototype)(Args ...);
+		Prototype func;
+		
+		MethodHelper (Prototype f) : TrampolineBase (StaticMethod), func (f) {}
+		
+		template< int ... Index >
+		inline void trampolineImpl (void **args, CallbackHelper::IndexTuple< Index... >) {
+			Q_UNUSED(args)
+			func (*reinterpret_cast< typename removeRef< Args >::type * >(args[Index]) ...);
+		}
+		
+		void trampoline (void **args)
+		{ trampolineImpl (args, CallbackHelper::buildIndexTuple< Args ... > ()); }
+		
+	};
+	
+	// Member methods
+	template< typename Class, typename Ret, typename ... Args >
+	struct MemberMethodHelper : public MemberTrampolineBase {
+		typedef Ret (Class::*Prototype)(Args ...);
+		Prototype func;
+		
+		MemberMethodHelper (Class *inst, Prototype f) : MemberTrampolineBase (inst), func (f) {}
+		
+		template< int ... Index >
+		inline void trampolineImpl (void **args, CallbackHelper::IndexTuple< Index... >) {
+			(*reinterpret_cast< typename removeRef< Ret >::type * > (args[0])) =
+					(reinterpret_cast< Class * > (instance)->*func)
+					(*reinterpret_cast< typename removeRef< Args >::type * >(args[Index]) ...);
+		}
+		
+		void trampoline (void **args)
+		{ trampolineImpl (args, CallbackHelper::buildIndexTuple< Args ... > ()); }
+		
+	};
+	
+	template< typename Class, typename ... Args >
+	struct MemberMethodHelper< Class, void, Args ... > : public MemberTrampolineBase {
+		typedef void (Class::*Prototype)(Args ...);
+		Prototype func;
+		
+		MemberMethodHelper (Class *inst, Prototype f) : MemberTrampolineBase (inst), func (f) {}
+		
+		template< int ... Index >
+		inline void trampolineImpl (void **args, CallbackHelper::IndexTuple< Index... >) {
+			(reinterpret_cast< Class * > (instance)->*func)
+				(*reinterpret_cast< typename removeRef< Args >::type * >(args[Index]) ...);
+		}
+		
+		void trampoline (void **args)
+		{ trampolineImpl (args, CallbackHelper::buildIndexTuple< Args ... > ()); }
+		
+	};
+	
+	// std::function< ... >
+	template< typename Ret, typename ... Args >
+	struct LambdaHelper : public TrampolineBase {
+		std::function< Ret(Args ...) > func;
+		
+		LambdaHelper (const std::function< Ret(Args ...) > &f) : TrampolineBase (Lambda), func (f) {}
+		
+		template< int ... Index >
+		inline void trampolineImpl (void **args, CallbackHelper::IndexTuple< Index... >) {
+			(*reinterpret_cast< typename removeRef< Ret >::type * > (args[0])) =
+				func (*reinterpret_cast< typename removeRef< Args >::type * >(args[Index]) ...);
+		}
+		
+		void trampoline (void **args)
+		{ trampolineImpl (args, CallbackHelper::buildIndexTuple< Args ... > ()); }
+		
+	};
+	
+	template< typename ... Args >
+	struct LambdaHelper< void, Args ... > : public TrampolineBase {
+		std::function< void(Args ...) > func;
+		
+		LambdaHelper (const std::function< void(Args ...) > &f) : TrampolineBase (Lambda), func (f) {}
+		
+		template< int ... Index >
+		inline void trampolineImpl (void **args, CallbackHelper::IndexTuple< Index... >) {
+			Q_UNUSED(args);
+			func (*reinterpret_cast< typename removeRef< Args >::type * >(args[Index]) ...);
+		}
+		
+		void trampoline (void **args)
+		{ trampolineImpl (args, CallbackHelper::buildIndexTuple< Args ... > ()); }
+		
+	};
+	
+	// d-ptr
+	CallbackPrivate *d;
+	
+};
+}
+
+// 
+Q_DECLARE_METATYPE(Nuria::Callback)
+Q_DECLARE_METATYPE(Nuria::Callback::Placeholder)
+
+#endif // NURIA_CALLBACK_HPP
