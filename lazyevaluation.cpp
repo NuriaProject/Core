@@ -161,8 +161,8 @@ Nuria::Field::Field ()
 {
 }
 
-Nuria::Field::Field (Nuria::Field::Type type, const QVariant &data)
-	: m_type (type), m_value (data)
+Nuria::Field::Field (int type, const QVariant &data)
+	: m_type (Type (type)), m_value (data)
 {
 }
 
@@ -175,6 +175,14 @@ const QVariant &Nuria::Field::value () const {
 }
 
 Nuria::Field::Type Nuria::Field::type () const {
+	if (this->m_type >= Custom) {
+		return Custom;
+	}
+	
+	return this->m_type;
+}
+
+int Nuria::Field::customType () const {
 	return this->m_type;
 }
 

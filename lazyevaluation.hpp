@@ -158,19 +158,63 @@ private:
 	QSharedDataPointer< LazyConditionPrivate > d;
 };
 
+/**
+ * \brief Field encapsulates a value-field for LazyCondition.
+ * 
+ * This class acts as a generic container for LazyConditions. You usually don't
+ * use it explicitly, but instead use the already defined methods to create
+ * instances of this class.
+ * 
+ * \sa val arg
+ */
 class NURIA_CORE_EXPORT Field {
 public:
 	
+	/**
+	 * Field types.
+	 */
 	enum Type {
-		Empty,
+		/** Empty, invalid field. */
+		Empty = 0,
+		
+		/** Value field. \sa val */
 		Value,
+		
+		/**
+		 * Argument reference, the value will be of type int.
+		 * \sa arg
+		 */
 		Argument,
-		TestCall
+		
+		/**
+		 * A call to a named method. To be defined by the evaluator.
+		 */
+		TestCall,
+		
+		/**
+		 * A custom type used in domain-specific environments, like
+		 * references to table columns. This acts as a base value,
+		 * users of this features should try to use unique type values.
+		 * 
+		 * Example:
+		 * \codeline enum { MyField = Nuria::Field::Custom + 1 };
+		 */
+		Custom = 50
 	};
 	
+	/** Creates a instance of type Empty. */
 	Field ();
-	Field (Type type, const QVariant &data);
+	
+	/** Creates a instance of \type with value \a data. */
+	Field (int type, const QVariant &data);
+	
+	/** Copy constructor. */
 	Field (const Field &other);
+	
+	/**
+	 * \addtogroup Operators
+	 * @{
+	 */
 	
 	// 
 	LazyCondition operator== (const Field &other);
@@ -205,9 +249,31 @@ public:
 	LazyCondition operator>= (const T &other)
 	{ return LazyCondition (toVariant (), LazyCondition::GreaterEqual, QVariant::fromValue (other)); }
 	
-	// 
+	/** @} */
+	
+	/**
+	 * Returns the value of this instance.
+	 */
 	const QVariant &value () const;
+	
+	/**
+	 * Returns the type of this instance. If this is a custom instance,
+	 * Custom will be returned.
+	 * \sa customType
+	 */
 	Type type () const;
+	
+	/**
+	 * Returns the custom type id if this is a custom type, or the regular
+	 * type.
+	 */
+	int customType () const;
+	
+	/**
+	 * Puts this instance into a QVariant. If the type of this instance is
+	 * of Empty or Value, the value itself will be returned. Else this
+	 * instance will be put into a QVariant and then returned.
+	 */
 	QVariant toVariant () const;
 	
 private:
@@ -233,11 +299,25 @@ private:
 	QVariantList m_args;
 };
 
+/**
+ * Turns any \a value into a Field of type Field::Value. Use this to force the
+ * compiler to use LazyCondition semantics.
+ * \sa LazyCondition arg
+ */
 template< typename T > inline Field val (const T &value)
 { return Field (Field::Value, QVariant::fromValue (value)); }
 
+/**
+ * Returns a Field of type Field::Argument refering to the n'th argument at
+ * \a index.
+ */
 NURIA_CORE_EXPORT Field arg (int index);
 
+/**
+ * Returns a Field of type Field::TestCall. This can be used to call named
+ * methods in LazyConditions. Which methods are available is up to the
+ * definition of the used evaluator.
+ */
 template< typename ... Args >
 NURIA_CORE_EXPORT Field test (const QString &method, const Args &... args) {
 	TestCall call (method, Variant::buildList (args ...));
@@ -246,9 +326,14 @@ NURIA_CORE_EXPORT Field test (const QString &method, const Args &... args) {
 
 }
 
+/**
+ * \addtogroup Debug operators
+ * @{
+ */
 NURIA_CORE_EXPORT QDebug operator<< (QDebug dbg, const Nuria::LazyCondition &condition);
 NURIA_CORE_EXPORT QDebug operator<< (QDebug dbg, const Nuria::TestCall &call);
 NURIA_CORE_EXPORT QDebug operator<< (QDebug dbg, const Nuria::Field &field);
+/** @} */
 
 // 
 Q_DECLARE_METATYPE(Nuria::LazyCondition)
