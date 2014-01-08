@@ -27,6 +27,7 @@ public:
 	int neededArguments;
 	QStringList neededMethods;
 	LazyCondition condition;
+	QMap< QString, Callback > methods;
 	
 };
 }
@@ -55,7 +56,29 @@ bool Nuria::ConditionEvaluator::compile (const Nuria::LazyCondition &condition) 
 	return true;
 }
 
-static QVariant variantValue (const QVariant &variant, const QVariantList &arguments, bool &error) {
+static QVariant variantValue (Nuria::ConditionEvaluatorPrivate *d, const QVariant &variant,
+			      const QVariantList &arguments, bool &error);
+
+static QVariant callMethod (Nuria::ConditionEvaluatorPrivate *d, Nuria::Callback callback,
+			    QVariantList methodArgs, const QVariantList &conditionArgs, bool &error) {
+	
+	// Prepare arguments, replacing sub-fields
+	for (int i = 0; i < methodArgs.length (); i++) {
+		const QVariant &cur = methodArgs.at (i);
+		methodArgs.replace (i, variantValue (d, cur, conditionArgs, error));
+		if (error) {
+			return false;
+		}
+		
+	}
+	
+	// Invoke!
+	return callback.invoke (methodArgs);
+	
+}
+
+static QVariant variantValue (Nuria::ConditionEvaluatorPrivate *d, const QVariant &variant,
+			      const QVariantList &arguments, bool &error) {
 	if (variant.userType () != qMetaTypeId< Nuria::Field > ()) {
 		return variant;
 	}
@@ -73,15 +96,32 @@ static QVariant variantValue (const QVariant &variant, const QVariantList &argum
 		
 		return arguments.at (idx);
 	} else if (f.type () == Nuria::Field::TestCall) {
-		error = true;
-		return QVariant ();
+		Nuria::TestCall method (f.value ().value< Nuria::TestCall > ());
+		Nuria::Callback callback;
+		
+		if (method.isNative ()) {
+			callback = method.callback ();
+		} else {
+			auto it = d->methods.constFind (method.name ());
+			if (it == d->methods.constEnd ()) {
+				error = true;
+				return false;
+			}
+			
+			callback = *it;
+		}
+		
+		// 
+		return callMethod (d, callback, method.arguments (), arguments, error);
+		
 	}
 	
 	// 
 	return variant;
 }
 
-static bool runCondition (const Nuria::LazyCondition &condition, const QVariantList &arguments, bool &error) {
+static bool runCondition (Nuria::ConditionEvaluatorPrivate *d, const Nuria::LazyCondition &condition,
+			  const QVariantList &arguments, bool &error) {
 	using namespace Nuria;
 	if (condition.type () == LazyCondition::Empty) {
 		return false;
@@ -94,10 +134,10 @@ static bool runCondition (const Nuria::LazyCondition &condition, const QVariantL
 	// 
 	if (condition.type () == LazyCondition::Single) {
 		if (leftIsCondition) {
-			return runCondition (lhs.value< LazyCondition > (), arguments, error);
+			return runCondition (d, lhs.value< LazyCondition > (), arguments, error);
 		}
 		
-		lhs = variantValue (lhs, arguments, error);
+		lhs = variantValue (d, lhs, arguments, error);
 		if (lhs.type () == QVariant::Bool) {
 			return lhs.toBool ();
 		}
@@ -117,8 +157,8 @@ static bool runCondition (const Nuria::LazyCondition &condition, const QVariantL
 	bool rightError = false;
 	
 	// 
-	QVariant left (leftIsCondition ? QVariant (runCondition (lhs.value< LazyCondition > (), arguments, leftError))
-				       : variantValue (lhs, arguments, error));
+	QVariant left (leftIsCondition ? QVariant (runCondition (d, lhs.value< LazyCondition > (), arguments, leftError))
+				       : variantValue (d, lhs, arguments, error));
 	if (leftError) {
 		error = true;
 		return false;
@@ -135,9 +175,9 @@ static bool runCondition (const Nuria::LazyCondition &condition, const QVariantL
 	}
 	
 	// 
-	QVariant right (rightIsCondition ? QVariant (runCondition (rhs.value< LazyCondition > (),
+	QVariant right (rightIsCondition ? QVariant (runCondition (d, rhs.value< LazyCondition > (),
 								   arguments, rightError))
-					 : variantValue (rhs, arguments, error));
+					 : variantValue (d, rhs, arguments, error));
 	if (rightError) {
 		error = true;
 		return false;
@@ -171,6 +211,10 @@ static bool runCondition (const Nuria::LazyCondition &condition, const QVariantL
 }
 
 bool Nuria::ConditionEvaluator::evaluate (const QVariantList &arguments, bool &error) {
-	return runCondition (this->d_ptr->condition, arguments, error);
+	return runCondition (this->d_ptr, this->d_ptr->condition, arguments, error);
 	
+}
+
+void Nuria::ConditionEvaluator::registerMethod (const QString &name, const Nuria::Callback &method) {
+	this->d_ptr->methods.insert (name, method);
 }

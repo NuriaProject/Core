@@ -19,6 +19,7 @@
 #define NURIA_LAZYEVALUATION_HPP
 
 #include "essentials.hpp"
+#include "callback.hpp"
 #include "variant.hpp"
 #include <QSharedData>
 #include <QMetaType>
@@ -281,21 +282,63 @@ private:
 	QVariant m_value;
 };
 
+/**
+ * \brief The TestCall class encapsulates a call to a test function for
+ * LazyCondition.
+ * 
+ * \note Usually you don't interact with this class directly, instead see test.
+ * 
+ * This class makes it possible for LazyCondition and evaluators to interact
+ * with test methods. Methods can be of two types: Named or native.
+ * 
+ * A named method can be used with any evaluator, but it's up to the evaluator
+ * which methods are supported. A evaluator may support registering methods or
+ * may only provide pre-specified ones.
+ * 
+ * Native methods on the other hand are stored as Callback and thus are only
+ * usable if the evaluator is run in the application itself. These conditions
+ * can't be serialized and should be used with care.
+ * 
+ * \sa Nuria::test
+ */
 class TestCall {
 public:
-	TestCall () {}
-	TestCall (const QString &name, const QVariantList &args)
-		: m_name (name), m_args (args)
-	{}
 	
-	const QString &name () const
-	{ return this->m_name; }
+	/** Creates a invalid instance. */
+	TestCall ();
 	
-	const QVariantList &arguments () const
-	{ return this->m_args; }
+	/** Creates a instance refering to a \b named method. */
+	TestCall (const QString &name, const QVariantList &args);
+	
+	/** Creates a instance refering to a \b native method. */
+	TestCall (const Nuria::Callback &callback, const QVariantList &args);
+	
+	/**
+	 * Returns \c true if this is a native method.
+	 * \sa name callback
+	 */
+	bool isNative () const;
+	
+	/**
+	 * Returns the name of the method if this is a named method. Else a
+	 * empty string is returned. \sa isNative
+	 */
+	QString name () const;
+	
+	/**
+	 * Returns the Callback instance if this is a native method. Else a
+	 * invalid Callback is returned. \sa isNative
+	 */
+	Nuria::Callback callback () const;
+	
+	/**
+	 * Returns the arguments which are passed to the method. May contain
+	 * other Nuria::Field instances, including method calls.
+	 */
+	const QVariantList &arguments () const;
 	
 private:
-	QString m_name;
+	QVariant m_method;
 	QVariantList m_args;
 };
 
@@ -320,6 +363,17 @@ NURIA_CORE_EXPORT Field arg (int index);
  */
 template< typename ... Args >
 NURIA_CORE_EXPORT Field test (const QString &method, const Args &... args) {
+	TestCall call (method, Variant::buildList (args ...));
+	return Field (Field::TestCall, QVariant::fromValue (call));
+}
+
+/**
+ * Returns a Field of type Field::TestCall. It will directly call \a callback
+ * with \a args.
+ * \warning This is only supported by native condition evaluators!
+ */
+template< typename ... Args >
+NURIA_CORE_EXPORT Field test (const Nuria::Callback &method, const Args &... args) {
 	TestCall call (method, Variant::buildList (args ...));
 	return Field (Field::TestCall, QVariant::fromValue (call));
 }

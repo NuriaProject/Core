@@ -197,6 +197,38 @@ QVariant Nuria::Field::toVariant () const {
 }
 
 // 
+Nuria::TestCall::TestCall () {
+	
+}
+
+
+Nuria::TestCall::TestCall(const QString &name, const QVariantList &args)
+	: m_method (name), m_args (args)
+{
+}
+
+Nuria::TestCall::TestCall(const Callback &callback, const QVariantList &args)
+	: m_method (QVariant::fromValue (callback)), m_args (args)
+{
+}
+
+QString Nuria::TestCall::name () const {
+	return this->m_method.toString ();
+}
+
+Nuria::Callback Nuria::TestCall::callback () const {
+	return this->m_method.value< Nuria::Callback > ();
+}
+
+bool Nuria::TestCall::isNative () const {
+	return (this->m_method.userType () != QMetaType::QString);
+}
+
+const QVariantList &Nuria::TestCall::arguments () const {
+	return this->m_args;
+}
+
+// 
 static void writeDebugStream (QDebug &dbg, const QVariant &var) {
 	int type = var.userType ();
 	

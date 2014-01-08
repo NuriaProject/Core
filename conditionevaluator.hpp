@@ -20,6 +20,7 @@
 
 #include "lazyevaluation.hpp"
 #include "essentials.hpp"
+#include "callback.hpp"
 
 namespace Nuria {
 class ConditionEvaluatorPrivate;
@@ -51,6 +52,8 @@ public:
 	
 	bool compile (const LazyCondition &condition) override;
 	bool evaluate (const QVariantList &arguments, bool &error) override;
+	
+	void registerMethod (const QString &name, const Callback &method);
 	
 private:
 	ConditionEvaluatorPrivate *d_ptr;
