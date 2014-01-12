@@ -78,6 +78,10 @@ Nuria::LazyCondition &Nuria::LazyCondition::operator= (const Nuria::LazyConditio
 	return *this;
 }
 
+bool Nuria::LazyCondition::isValid () const {
+	return (this->d->type != Empty);
+}
+
 Nuria::LazyCondition::Type Nuria::LazyCondition::type () const {
 	return this->d->type;
 }
@@ -270,7 +274,15 @@ QDebug operator<< (QDebug dbg, const Nuria::LazyCondition &condition) {
 }
 
 QDebug operator<< (QDebug dbg, const Nuria::TestCall &call) {
-	dbg.nospace() << "TestCall<" << call.name () << "(";
+	dbg.nospace() << "TestCall<";
+	
+	if (call.isNative ()) {
+		dbg << "Native";
+	} else {
+		dbg << call.name ();
+	}
+	
+	dbg << "(";
 	const QVariantList &args = call.arguments ();
 	
 	for (int i = 0; i < args.length (); i++) {

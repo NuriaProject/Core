@@ -101,6 +101,11 @@ public:
 	LazyCondition &operator= (const LazyCondition &other);
 	
 	/**
+	 * Returns \c true if the type of this condition is not Empty.
+	 */
+	bool isValid () const;
+	
+	/**
 	 * Returns the type of this instance.
 	 * \sa Type
 	 */
