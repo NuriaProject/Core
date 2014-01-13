@@ -329,6 +329,13 @@ static bool argumentHelper (void **args, bool *delMe, void *value, int valType,
 		return true;
 	}
 	
+	// Do we have the value in a QVariant?
+	if (valType == QMetaType::QVariant) {
+		QVariant *variant = reinterpret_cast< QVariant * > (value);
+		valType = variant->userType ();
+		value = const_cast< void * > (variant->constData ());
+	}
+	
 	// Check value
 	if (valType == type) {
 		args[pos + off] = value;
