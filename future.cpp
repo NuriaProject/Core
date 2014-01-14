@@ -20,11 +20,11 @@
 #include <QCoreApplication>
 #include <QWaitCondition>
 #include <QEventLoop>
-#include <debug.hpp>
 #include <QTimer>
 #include <QMutex>
 
 #include "futurewatcher.hpp"
+#include "debug.hpp"
 
 namespace Nuria {
 class FuturePrivate {
