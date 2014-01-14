@@ -42,12 +42,12 @@ struct CallbackSlot {
 
 // 
 namespace Nuria {
-class CallbackPrivate {
+class CallbackPrivate : public QSharedData {
 public:
 	
 	CallbackPrivate ()
-	: type (Callback::Invalid), boundValues (0), boundTypes (0),
-	  boundCount (0), variadic (false), ref (1), retType (0)
+		: type (Callback::Invalid), boundValues (nullptr), boundTypes (nullptr),
+		  boundCount (0), variadic (false), retType (0)
 	{ }
 	
 	~CallbackPrivate () {
@@ -71,7 +71,6 @@ public:
 	void freeBoundValues () {
 		for (int i = 0; i < boundCount; i++) {
 			QMetaType::destroy (boundTypes[i], boundValues[i]);
-			
 		}
 		
 		// 
@@ -79,8 +78,8 @@ public:
 		delete[] boundTypes;
 		
 		// 
-		boundValues = 0;
-		boundTypes = 0;
+		boundValues = nullptr;
+		boundTypes = nullptr;
 		boundCount = 0;
 	}
 	
@@ -98,7 +97,6 @@ public:
 	bool variadic;
 	
 	// 
-	QAtomicInt ref;
 	int retType;
 	QList< int > args;
 };
@@ -111,7 +109,7 @@ Nuria::Callback::Callback ()
 }
 
 Nuria::Callback::Callback (QObject *receiver, const char *slot, bool variadic)
-	: d (new CallbackPrivate) 
+	: d (new CallbackPrivate)
 {
 	
 	this->d->variadic = variadic;
@@ -122,11 +120,10 @@ Nuria::Callback::Callback (QObject *receiver, const char *slot, bool variadic)
 Nuria::Callback::Callback (const Callback &other)
 	: d (other.d)
 {
-	this->d->ref.ref ();
 	
 }
 
-Nuria::Callback::Callback (Nuria::Future< QVariant > future, bool variadic)
+Nuria::Callback::Callback (const Nuria::Future< QVariant > &future, bool variadic)
 	: d (new CallbackPrivate)
 {
 	
@@ -136,7 +133,6 @@ Nuria::Callback::Callback (Nuria::Future< QVariant > future, bool variadic)
 }
 
 Nuria::Callback::~Callback () {
-	
 	if (!this->d->ref.deref ()) {
 		delete this->d;
 	}
@@ -144,7 +140,6 @@ Nuria::Callback::~Callback () {
 }
 
 Nuria::Callback &Nuria::Callback::operator= (const Callback &other) {
-	
 	other.d->ref.ref ();
 	if (!this->d->ref.deref ()) {
 		delete this->d;
@@ -156,7 +151,6 @@ Nuria::Callback &Nuria::Callback::operator= (const Callback &other) {
 
 bool Nuria::Callback::operator== (const Callback &other) const {
 	return (this->d == other.d);
-	
 }
 
 bool Nuria::Callback::isValid () const {
@@ -231,7 +225,7 @@ bool Nuria::Callback::setCallback (const Nuria::Future< QVariant > &future) {
 	return true;
 }
 
-void Nuria::Callback::bind (const QVariantList &arguments) {
+void Nuria::Callback::bindList (const QVariantList &arguments) {
 	
 	//
 	this->d->freeBoundValues ();
@@ -239,7 +233,7 @@ void Nuria::Callback::bind (const QVariantList &arguments) {
 		return;
 	}
 	
-	// Aquire memory
+	// Acquire memory
 	int count = arguments.length ();
 	void **args = new void *[count];
 	int *types = new int[count];
@@ -276,12 +270,7 @@ void Nuria::Callback::bind (const QVariantList &arguments) {
 		}
 		
 		// Copy new instance...
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
 		args[i] = QMetaType::create (types[i], instance);
-#else
-		args[i] = QMetaType::construct (types[i], instance);
-#endif
-		
 	}
 	
 	// Store and done.
@@ -302,11 +291,7 @@ static bool argumentHelper (void **args, bool *delMe, void *value, int valType,
 	
 	// Construct anyway?
 	if (!value) {
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
 		void *inst = QMetaType::create (type, 0);
-#else
-		void *inst = QMetaType::construct (type);
-#endif
 		
 		args[pos + off] = inst;
 		delMe[pos] = true;
@@ -349,7 +334,7 @@ static bool argumentHelper (void **args, bool *delMe, void *value, int valType,
 	QVariant v = Nuria::Variant::convert (QVariant (valType, value), type);
 	if (!v.isValid ()) {
 #else
-	QVariant v = QVariant (valType, value);
+	QVariant v (valType, value);
 	if (!v.convert (type)) {
 #endif
 		// Conversion failed.
@@ -358,11 +343,7 @@ static bool argumentHelper (void **args, bool *delMe, void *value, int valType,
 	}
 	
 	// Conversion succeeded!
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
 	args[pos + off] = QMetaType::create (type, v.constData ());
-#else
-	args[pos + off] = QMetaType::construct (type, v.constData ());
-#endif
 	
 	delMe[pos] = true;
 	return true;

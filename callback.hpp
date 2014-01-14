@@ -20,6 +20,8 @@
 
 #include <type_traits>
 #include <functional>
+
+#include <QSharedData>
 #include <QMetaType>
 #include <QVariant>
 #include <QList>
@@ -172,7 +174,7 @@ public:
 	Callback ();
 	
 	/** Constructs a callback out of a slot. */
-	Callback (QObject *receiver, const char *slot, bool variadic = false);
+	explicit Callback (QObject *receiver, const char *slot, bool variadic = false);
 	
 	/** Copy constructor. */
 	Callback (const Callback &other);
@@ -209,7 +211,7 @@ public:
 	 * type it expects. Invoking a future callback always returns a invalid
 	 * QVariant.
 	 */
-	Callback (Nuria::Future< QVariant > future, bool variadic = false);
+	explicit Callback (const Nuria::Future< QVariant > &future, bool variadic = false);
 	
 	/** Destructor. */
 	~Callback ();
@@ -343,7 +345,7 @@ public:
 	 * placeholders are used only the arguments whose positions are set
 	 * with a placeholder are passed, the others are silently discarded.
 	 */
-	void bind (const QVariantList &arguments = QVariantList());
+	void bindList (const QVariantList &arguments = QVariantList());
 	
 	/**
 	 * Convenience function which takes a static method or std::function
@@ -351,7 +353,7 @@ public:
 	 */
 	template< typename Func, typename ... Args >
 	static Callback bound (Func func, Args ... args) {
-		Callback cb (func);
+		Callback cb (func, false);
 		cb.bind (args ...);
 		return cb;
 	}
@@ -360,10 +362,10 @@ public:
 	 * Takes a class and a member method, binds the passed arguments and
 	 * returns the instance.
 	 */
-	template< typename Class, typename Func, typename First, typename ... Args >
-	static Callback bound (Class *ptr, Func func, First arg, Args ... args) {
-		Callback cb (ptr, func);
-		cb.bind (arg, args ...);
+	template< class Class, typename Func, typename ... Args >
+	static Callback bound (Class *ptr, Func func, const Args &... args) {
+		Callback cb (ptr, func, false);
+		cb.bind (args ...);
 		return cb;
 	}
 	
@@ -373,7 +375,7 @@ public:
 	 */
 	template< typename ... Args >
 	static Callback bound (QObject *receiver, const char *slot, Args ... args) {
-		Callback cb (receiver, slot);
+		Callback cb (receiver, slot, false);
 		cb.bind (args ...);
 		return cb;
 	}
@@ -400,8 +402,8 @@ public:
 	 * results.
 	 */
 	template< typename ... Args >
-	inline void bind (Args ... args)
-	{ bind (Variant::buildList (args ...)); }
+	inline void bind (const Args &... args)
+	{ bindList (Variant::buildList (args ...)); }
 	
 	/**
 	 * Invokes the callback.
