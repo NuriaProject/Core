@@ -72,8 +72,7 @@ Nuria::LazyCondition Nuria::LazyConditionWalker::walk (const Nuria::LazyConditio
 	return conditionVariant.value< LazyCondition > ();
 }
 
-template< typename T >
-static bool invokeHandler (T &t, const HandlerMap &handlers, int type, const QVariantList &stack) {
+static bool invokeHandler (QVariant &t, const HandlerMap &handlers, int type, const QVariantList &stack) {
 	using namespace Nuria;
 	auto it = handlers.constFind (type);
 	
@@ -81,8 +80,8 @@ static bool invokeHandler (T &t, const HandlerMap &handlers, int type, const QVa
 		Callback cb (*it);
 		QVariant result = cb (stack, t);
 		
-		if (result.userType () == qMetaTypeId< T > ()) {
-			t = result.value< T > ();
+		if (result.isValid ()) {
+			t = result;
 			return true;
 		}
 		
@@ -92,7 +91,9 @@ static bool invokeHandler (T &t, const HandlerMap &handlers, int type, const QVa
 	return false;
 }
 
-bool Nuria::LazyConditionWalker::walkCondition (Nuria::LazyCondition &condition, QVariantList &stack, bool walkArguments) {
+bool Nuria::LazyConditionWalker::walkCondition (QVariant &conditionVariant, QVariantList &stack, bool walkArguments) {
+	LazyCondition condition (conditionVariant.value< LazyCondition > ());
+	
 	QVariant left (condition.left ());
 	QVariant right (condition.right ());
 	
@@ -100,32 +101,36 @@ bool Nuria::LazyConditionWalker::walkCondition (Nuria::LazyCondition &condition,
 	bool changedRight = walkVariant (right, stack, walkArguments);
 	
 	if (changedLeft || changedRight) {
-		condition = LazyCondition (left, condition.type (), right);
+		conditionVariant = QVariant::fromValue (LazyCondition (left, condition.type (), right));
 	}
 	
-	bool changed = invokeHandler (condition, this->d->condition, condition.type (), stack);
+	bool changed = invokeHandler (conditionVariant, this->d->condition, condition.type (), stack);
 	return (changedLeft || changedRight || changed);
 }
 
-bool Nuria::LazyConditionWalker::walkField (Nuria::Field &field, QVariantList &stack, bool walkArguments) {
+bool Nuria::LazyConditionWalker::walkField (QVariant &fieldVariant, QVariantList &stack, bool walkArguments) {
 	bool changed = false;
+	Field field (fieldVariant.value< Field > ());
 	
 	if (walkArguments && field.type () == Field::TestCall) {
-		TestCall call (field.value ().value< TestCall > ());
-		if (walkTestCall (call, stack, walkArguments)) {
-			field = Field (Field::TestCall, QVariant::fromValue (call));
+		QVariant value (field.value ());
+		if (walkTestCall (value, stack, walkArguments)) {
 			changed = true;
+			fieldVariant = QVariant::fromValue (Field (Field::TestCall, value));
 		}
 		
 	}
 	
 	// 
-	bool handlerChange = invokeHandler (field, this->d->field, field.customType (), stack);
+	bool handlerChange = invokeHandler (fieldVariant, this->d->field, field.customType (), stack);
 	return (handlerChange || changed);
 }
 
-bool Nuria::LazyConditionWalker::walkTestCall (Nuria::TestCall &call, QVariantList &stack, bool walkArguments) {
+bool Nuria::LazyConditionWalker::walkTestCall (QVariant &callVariant, QVariantList &stack, bool walkArguments) {
+	TestCall call (callVariant.value< TestCall > ());
+	
 	QVariantList args (call.arguments ());
+	
 	int changed = 0;
 	int count = args.length ();
 	
@@ -136,7 +141,13 @@ bool Nuria::LazyConditionWalker::walkTestCall (Nuria::TestCall &call, QVariantLi
 		
 	}
 	
-	return (changed != count);
+	// Has a argument changed?
+	if (changed > 0) {
+		callVariant = QVariant::fromValue (TestCall (call.name (), args));
+		return true;
+	}
+	
+	return false;
 }
 
 bool Nuria::LazyConditionWalker::walkVariant (QVariant &variant, QVariantList &stack, bool walkArguments) {
@@ -145,22 +156,11 @@ bool Nuria::LazyConditionWalker::walkVariant (QVariant &variant, QVariantList &s
 	stack.append (variant);
 	
 	if (type == qMetaTypeId< LazyCondition > ()) {
-		LazyCondition condition (variant.value< LazyCondition > ());
-		if (walkCondition (condition, stack, walkArguments)) {
-			variant = QVariant::fromValue (condition);
-			changed = true;
-		}
-		
+		changed = walkCondition (variant, stack, walkArguments);
 	} else if (type == qMetaTypeId< Field > ()) {
-		Field field (variant.value< Field > ());
-		if (walkField (field, stack, walkArguments)) {
-			variant = QVariant::fromValue (field);
-			changed = true;
-		}
-		
+		changed = walkField (variant, stack, walkArguments);
 	} else {
 		changed = invokeHandler (variant, this->d->variant, variant.userType (), stack);
-		
 	}
 	
 	// Pop stack and return

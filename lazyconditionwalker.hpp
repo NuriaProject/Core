@@ -95,9 +95,9 @@ public:
 	
 private:
 	bool walkVariant (QVariant &variant, QVariantList &stack, bool walkArguments);
-	bool walkCondition(LazyCondition &condition, QVariantList &stack, bool walkArguments);
-	bool walkField (Field &field, QVariantList &stack, bool walkArguments);
-	bool walkTestCall (TestCall &call, QVariantList &stack, bool walkArguments);
+	bool walkCondition (QVariant &conditionVariant, QVariantList &stack, bool walkArguments);
+	bool walkField (QVariant &fieldVariant, QVariantList &stack, bool walkArguments);
+	bool walkTestCall (QVariant &callVariant, QVariantList &stack, bool walkArguments);
 	
 	QSharedDataPointer< LazyConditionWalkerPrivate > d;
 	
