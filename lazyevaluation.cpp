@@ -107,7 +107,7 @@ bool Nuria::LazyCondition::evaluate (const QVariantList &arguments) const {
 		const_cast< LazyCondition * > (this)->compile ();
 	}
 	
-	bool error;
+	bool error = false;
 	bool result = this->d->evaluator->evaluate (arguments, error);
 	
 	if (error) {

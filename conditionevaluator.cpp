@@ -65,7 +65,13 @@ static QVariant callMethod (Nuria::ConditionEvaluatorPrivate *d, Nuria::Callback
 	// Prepare arguments, replacing sub-fields
 	for (int i = 0; i < methodArgs.length (); i++) {
 		const QVariant &cur = methodArgs.at (i);
+		if (cur.userType () != qMetaTypeId< Nuria::Field > () &&
+		    cur.userType () != qMetaTypeId< Nuria::LazyCondition > ()) {
+			continue;
+		}
+		
 		methodArgs.replace (i, variantValue (d, cur, conditionArgs, error));
+		
 		if (error) {
 			return false;
 		}
@@ -74,7 +80,6 @@ static QVariant callMethod (Nuria::ConditionEvaluatorPrivate *d, Nuria::Callback
 	
 	// Invoke!
 	return callback.invoke (methodArgs);
-	
 }
 
 static QVariant variantValue (Nuria::ConditionEvaluatorPrivate *d, const QVariant &variant,
