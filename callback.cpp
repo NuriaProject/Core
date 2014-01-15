@@ -349,7 +349,7 @@ static bool argumentHelper (void **args, bool *delMe, void *value, int valType,
 	return true;
 }
 
-QVariant Nuria::Callback::invoke (const QVariantList &arguments) {
+QVariant Nuria::Callback::invoke (const QVariantList &arguments) const {
 	
 	// Sanity check
 	if (this->d->type == Invalid) {
@@ -364,7 +364,7 @@ QVariant Nuria::Callback::invoke (const QVariantList &arguments) {
 	return invokePrepared (arguments);
 }
 
-QVariant Nuria::Callback::invokePrepared (const QVariantList &arguments) {
+QVariant Nuria::Callback::invokePrepared (const QVariantList &arguments) const {
 	
 	// Convert the QVariantList...
 	int count = arguments.length ();
@@ -382,7 +382,7 @@ QVariant Nuria::Callback::invokePrepared (const QVariantList &arguments) {
 	
 }
 
-QVariant Nuria::Callback::invoke (int count, void **args, int *types) {
+QVariant Nuria::Callback::invoke (int count, void **args, int *types) const {
 	if (this->d->type == Invalid) {
 		return QVariant();
 	}
@@ -428,7 +428,7 @@ public:
 	
 };
 
-QVariant Nuria::Callback::invokeInternal (int count, void **args, int *types) {
+QVariant Nuria::Callback::invokeInternal (int count, void **args, int *types) const {
 	
 	// Argument array, works like the one from qt_metacall().
 	void *rawArgs[this->d->args.length () + 1];

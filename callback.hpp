@@ -54,6 +54,27 @@ namespace CallbackHelper {
 	template< typename... Types >
 	using buildIndexTuple = typename CreateIndexTuple< sizeof...(Types) + 1 >::type;
 	
+	// qMetaTypeId wrapper, which returns 0 for T = void.
+	template< typename T >
+	constexpr int typeId () { return qMetaTypeId< T > (); }
+	
+	template< >
+	constexpr int typeId< void > () { return 0; }
+	
+	// Creates a raw list of type ids and values from 'args'
+	template< typename T >
+        void getArguments (void **list, int *types, int idx, T *cur) {
+	        list[idx] = cur;
+	        types[idx] = qMetaTypeId< typename std::remove_const< T >::type > ();
+        }
+	
+	template< typename T, typename T2, typename ... Args >
+	void getArguments (void **list, int *types, int idx,
+			   T *cur, T2 *next, Args * ... args) {
+		getArguments (list, types, idx, cur);
+		getArguments (list, types, idx + 1, next, args ...);
+	}
+	
 }
 
 /**
@@ -143,13 +164,7 @@ public:
 		/**
 		 * Pseudo callback which sets the value of a Future< QVariant >.
 		 */
-		Future = 5,
-		Condition = 6, /// LazyCondition evaluator
-		
-		/**
-		 * Trampoline implemented by the user.
-		 */
-		UserTrampoline = 100
+		Future = 5
 	};
 	
 	/**
@@ -168,9 +183,7 @@ public:
 		_10
 	};
 	
-	/**
-	 * Constructs an invalid instance.
-	 */
+	/** Constructs an invalid instance. */
 	Callback ();
 	
 	/** Constructs a callback out of a slot. */
@@ -202,7 +215,8 @@ public:
 	}
 	
 	/**
-	 * Constructs a callback from a Future instance.
+	 * \brief Constructs a callback from a Future instance.
+	 * 
 	 * When the callback is invoked which hosts a Future instance, the first
 	 * argument passed to the callback will be set to \a future. The future
 	 * is finished afterwards. If \a future expects a different type than
@@ -221,6 +235,7 @@ public:
 	
 	/**
 	 * Comparison operator.
+	 * 
 	 * Returns \c true if both callbacks point to the very same method (and
 	 * instance).
 	 * 
@@ -256,14 +271,8 @@ public:
 	bool setCallback (Ret (*func)(Args ...)) {
 		QList< int > args;
 		buildArgList< Args ... > (args);
-		return initBase (new MethodHelper< Ret, Args ... > (func), qMetaTypeId< Ret > (), args);
-	}
-	
-	template< typename ... Args >
-	bool setCallback (void (*func)(Args ...)) {
-		QList< int > args;
-		buildArgList< Args ... > (args);
-		return initBase (new MethodHelper< void, Args ... > (func), 0, args);
+		return initBase (new MethodHelper< Ret, Args ... > (func),
+				 CallbackHelper::typeId< Ret > (), args);
 	}
 	
 	// Member methods
@@ -272,14 +281,7 @@ public:
 		QList< int > args;
 		buildArgList< Args ... > (args);
 		return initBase (new MemberMethodHelper< Class, Ret, Args ... > (instance, func),
-				 qMetaTypeId< Ret > (), args);
-	}
-	
-	template< typename Class, typename ... Args >
-	bool setCallback (Class *instance, void (Class::*func)(Args ...)) {
-		QList< int > args;
-		buildArgList< Args ... > (args);
-		return initBase (new MemberMethodHelper< Class, void, Args ... > (instance, func), 0, args);
+				 CallbackHelper::typeId< Ret > (), args);
 	}
 	
 	// std::function
@@ -287,38 +289,9 @@ public:
 	bool setCallback (std::function< Ret(Args ...) > func) {
 		QList< int > args;
 		buildArgList< Args ... > (args);
-		return initBase (new LambdaHelper< Ret, Args ... > (func), qMetaTypeId< Ret > (), args);
+		return initBase (new LambdaHelper< Ret, Args ... > (func),
+				 CallbackHelper::typeId< Ret > (), args);
 	}
-	
-	template< typename ... Args >
-	bool setCallback (std::function< void(Args ...) > func) {
-		QList< int > args;
-		buildArgList< Args ... > (args);
-		return initBase (new LambdaHelper< void, Args ... > (func), 0, args);
-	}
-	
-	/*
-	template< typename Ret >
-	bool setCallback (std::function< Ret() > func) {
-		QList< int > args;
-		return initLambda (new LambdaHelper< Ret > (func), qMetaTypeId< Ret > (), args);
-	}
-	
-	bool setCallback (std::function< void() > func) {
-		QList< int > args;
-		return initLambda (new LambdaHelper (func), 0, args);
-	}		
-	*/
-	
-	// Lambda
-	/*
-	template< typename Lambda >
-	bool setCallback (const Lambda &lambda) {
-		Q_UNUSED(ptr)
-		std::function< Ret(Args ...) > func = lambda;
-		return setCallback (func);
-	}
-	*/
 	
 	// QObject slot and future
 	bool setCallback (QObject *receiver, const char *slot);
@@ -327,14 +300,6 @@ public:
 	// Convenience assignment operators
 	template< typename Ret, typename ... Args >
 	Callback &operator= (Ret (*func)(Args ...)) { setCallback (func); return *this; }
-	
-	template< typename ... Args >
-	Callback &operator= (void (*func)(Args ...)) { setCallback (func); return *this; }
-	
-	template< typename Ret >
-	Callback &operator= (Ret (*func)()) { setCallback (func); return *this; }
-	
-	Callback &operator= (void (*func)()) { setCallback (func); return *this; }
 	
 	/** @} */
 	
@@ -348,45 +313,11 @@ public:
 	void bindList (const QVariantList &arguments = QVariantList());
 	
 	/**
-	 * Convenience function which takes a static method or std::function
-	 * and returns a instance where \a args are already bound.
-	 */
-	template< typename Func, typename ... Args >
-	static Callback bound (Func func, Args ... args) {
-		Callback cb (func, false);
-		cb.bind (args ...);
-		return cb;
-	}
-	
-	/**
-	 * Takes a class and a member method, binds the passed arguments and
-	 * returns the instance.
-	 */
-	template< class Class, typename Func, typename ... Args >
-	static Callback bound (Class *ptr, Func func, const Args &... args) {
-		Callback cb (ptr, func, false);
-		cb.bind (args ...);
-		return cb;
-	}
-	
-	/**
-	 * Returns a callback which invokes \a slot on \a receiver with bound
-	 * variables.
-	 */
-	template< typename ... Args >
-	static Callback bound (QObject *receiver, const char *slot, Args ... args) {
-		Callback cb (receiver, slot, false);
-		cb.bind (args ...);
-		return cb;
-	}
-	
-	/**
-	 * Exactly like bound(), but takes a lambda as first argument instead
-	 * of a function.
+	 * Takes a lambda and returns a Callback with \a args already bound.
 	 * \sa bound
 	 */
 	template< typename Lambda, typename ... Args >
-	static Callback boundLambda (Lambda func, Args ... args) {
+	static Callback boundLambda (Lambda func, const Args &... args) {
 		Callback cb = fromLambdaImpl (func, &Lambda::operator());
 		cb.bind (args ...);
 		return cb;
@@ -395,28 +326,29 @@ public:
 	/**
 	 * \overload
 	 * This method offers a more std::bind-like functionality.
-	 * 
-	 * \warning If you want to bind a single QVariantList as argument
-	 * you have to manually convert to a QVariant before. Else, the other
-	 * bind() overload will be called which would lead to unexpected
-	 * results.
+	 * Use bindList if you have a QVariantList of these arguments.
 	 */
 	template< typename ... Args >
-	inline void bind (const Args &... args)
-	{ bindList (Variant::buildList (args ...)); }
+	inline Callback &bind (const Args &... args) {
+		bindList (Variant::buildList (args ...));
+		return *this;
+	}
 	
 	/**
-	 * Invokes the callback.
+	 * Invokes the callback using \a arguments. Use this method if you have
+	 * the arguments themself as list.
 	 * \sa operator()
 	 */
-	QVariant invoke (const QVariantList &arguments);
+	QVariant invoke (const QVariantList &arguments) const;
 	
-	/** Invokes the callback in a convenient way. */
+	/**
+	 * Invokes the callback method, passing \a args.
+	 */
 	template< typename ... Args >
-	QVariant operator() (Args ... args) {
+	QVariant operator() (const Args &... args) const {
 		void *list[sizeof... (Args)];
 		int types[sizeof... (Args)];
-		getArguments (list, types, 0, &args ...);
+		CallbackHelper::getArguments (list, types, 0, const_cast< Args * > (&args) ...);
 		return invoke (sizeof... (Args), list, types);
 	}
 	
@@ -429,11 +361,11 @@ private:
 	
 	friend class CallbackPrivate;
 	
-	QVariant invoke (int count, void **args, int *types);
-	QVariant invokePrepared (const QVariantList &arguments);
+	QVariant invoke (int count, void **args, int *types) const;
+	QVariant invokePrepared (const QVariantList &arguments) const;
 	
 	/** \internal */
-	QVariant invokeInternal (int count, void **args, int *types);
+	QVariant invokeInternal (int count, void **args, int *types) const;
 	
 	/** \internal Helper structure based on std::remove_reference<> */
 	// If you have a error on line struct removeRef< T & >:
@@ -477,21 +409,6 @@ private:
 	template< typename ... Args >
 	inline void buildArgList (QList< int > &list) {
 		buildArgListDo (list, qMetaTypeId< typename removeRef< Args >::type > () ...);
-	}
-	
-	/** \internal */
-	template< typename T, typename T2, typename ... Args >
-	void getArguments (void **list, int *types, int idx,
-			   T *cur, T2 *next, Args * ... args) {
-		getArguments (list, types, idx, cur);
-		getArguments (list, types, idx + 1, next, args ...);
-	}
-	
-	/** \overload */
-	template< typename T >
-	void getArguments (void **list, int *types, int idx, T *cur) {
-		list[idx] = cur;
-		types[idx] = qMetaTypeId< T > ();
 	}
 	
 	/**
@@ -552,7 +469,7 @@ private:
 		
 		template< int ... Index >
 		inline void trampolineImpl (void **args, CallbackHelper::IndexTuple< Index... >) {
-			Q_UNUSED(args)
+			Q_UNUSED(args);
 			func (*reinterpret_cast< typename removeRef< Args >::type * >(args[Index]) ...);
 		}
 		
@@ -590,6 +507,7 @@ private:
 		
 		template< int ... Index >
 		inline void trampolineImpl (void **args, CallbackHelper::IndexTuple< Index... >) {
+			Q_UNUSED(args);
 			(reinterpret_cast< Class * > (instance)->*func)
 				(*reinterpret_cast< typename removeRef< Args >::type * >(args[Index]) ...);
 		}
