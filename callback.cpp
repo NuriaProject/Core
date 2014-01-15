@@ -105,13 +105,14 @@ public:
 Nuria::Callback::Callback ()
 	: d (new CallbackPrivate)
 {
-	
+	this->d->ref.ref ();
 }
 
 Nuria::Callback::Callback (QObject *receiver, const char *slot, bool variadic)
 	: d (new CallbackPrivate)
 {
 	
+	this->d->ref.ref ();
 	this->d->variadic = variadic;
 	setCallback (receiver, slot);
 	
@@ -120,13 +121,14 @@ Nuria::Callback::Callback (QObject *receiver, const char *slot, bool variadic)
 Nuria::Callback::Callback (const Callback &other)
 	: d (other.d)
 {
+	this->d->ref.ref ();
 	
 }
 
 Nuria::Callback::Callback (const Nuria::Future< QVariant > &future, bool variadic)
 	: d (new CallbackPrivate)
 {
-	
+	this->d->ref.ref ();
 	this->d->variadic = variadic;
 	setCallback (future);
 	
@@ -566,6 +568,7 @@ bool Nuria::Callback::initBase (Nuria::Callback::TrampolineBase *base,
 	// 
 	if (!this->d) {
 		this->d = new CallbackPrivate;
+		this->d->ref.ref ();
 	} else {
 		this->d->freeBoundValues ();
 		this->d->clear ();
