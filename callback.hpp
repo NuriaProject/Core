@@ -124,7 +124,7 @@ namespace CallbackHelper {
  * Just like std::function Callback supports a mechanism to bind arguments to
  * a callback. Placeholders are also supported (Using _1, ..., _10).
  * 
- * \sa bind bound boundLambda
+ * \sa bind boundLambda
  * 
  * \par Behaviour with QObject slots
  * When a callback uses a slot as target method, it can be used for thread to
@@ -314,7 +314,6 @@ public:
 	
 	/**
 	 * Takes a lambda and returns a Callback with \a args already bound.
-	 * \sa bound
 	 */
 	template< typename Lambda, typename ... Args >
 	static Callback boundLambda (Lambda func, const Args &... args) {
