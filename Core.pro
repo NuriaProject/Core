@@ -29,7 +29,8 @@ SOURCES += \
     serializer.cpp \
     conditionevaluator.cpp \
     lazyevaluation.cpp \
-    lazyconditionwalker.cpp
+    lazyconditionwalker.cpp \
+    metaobject.cpp
 
 HEADERS +=\
     debug.hpp \
@@ -47,7 +48,8 @@ HEADERS +=\
     serializer.hpp \
     conditionevaluator.hpp \
     lazyevaluation.hpp \
-    lazyconditionwalker.hpp
+    lazyconditionwalker.hpp \
+    metaobject.hpp
 
 # Install stuff
 includes.path = $$INCDIR/nuria

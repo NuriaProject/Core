@@ -24,12 +24,19 @@
 #define NURIA_VERSION 0x000100
 #define NURIA_VERSION_STR "0.1.0"
 
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
-#  define NURIA_USING_QT5
-#  define NURIA_BUILD_KEY ""
+// Tria annotations.
+// See Nuria::MetaObject for information.
+#ifdef TRIA_RUN
+// Clang parses attributes in reversed order
+#define NURIA_ANNOTATE(name, ...) \
+	__attribute__((annotate(# __VA_ARGS__))) \
+	__attribute__((annotate("nuria_annotate:" #name)))
+#define NURIA_INTROSPECT __attribute__((annotate("nuria_introspect")))
+#define NURIA_SKIP __attribute__((annotate("nuria_skip")))
 #else
-#  define NURIA_USING_QT4
-#  define NURIA_BUILD_KEY QT_BUILD_KEY
+#define NURIA_ANNOTATE(name, ...)
+#define NURIA_INTROSPECT
+#define NURIA_SKIP
 #endif
 
 // 
