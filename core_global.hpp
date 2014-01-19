@@ -18,7 +18,7 @@
 #ifndef NURIA_CORE_GLOBAL_HPP
 #define NURIA_CORE_GLOBAL_HPP
 
-#include <QtCore/qglobal.h>
+#include <qglobal.h>
 
 // Version info
 #define NURIA_VERSION 0x000100
