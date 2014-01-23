@@ -37,13 +37,17 @@ static Nuria::MetaObjectMap g_metaObjects;
 // f(index, value) returns the result of storage[index] < value.
 template< typename T, typename Func >
 static int binaryFind (int total, const T &value, Func f) {
+	if (!total) {
+		return -1;
+	}
+	
 	int min = 0;
 	while (min < total) {
-		int mid = (total - min) / 2;
+		int mid = min + (total - min) / 2;
 		if (f (mid, value)) {
 			min = mid + 1;
 		} else {
-			total = min;
+			total = mid;
 		}
 		
 	}
@@ -59,8 +63,6 @@ static int binaryFind (int total, const T &value, Func f) {
 // 
 Nuria::MetaObject *Nuria::MetaObject::byName (const QByteArray &type) {
 	MetaObject *meta = nullptr;
-	
-	nDebug() << type;
 	
 	g_lock.lockForRead ();
 	meta = g_metaObjects.value (type);
@@ -121,7 +123,7 @@ Nuria::MetaObjectMap Nuria::MetaObject::allTypes () {
 void Nuria::MetaObject::registerMetaObject (Nuria::MetaObject *object) {
 	QByteArray name = object->className ();
 	
-	nDebug() << "Registering" << object << name;
+//	nDebug() << "Registering" << object << name;
 	
 	g_lock.lockForWrite ();
 	if (g_metaObjects.value (name, object) != object) {
@@ -166,6 +168,95 @@ Nuria::MetaMethod Nuria::MetaObject::method (int idx) {
 	return MetaMethod (this, idx);
 }
 
+int Nuria::MetaObject::methodLowerBound (const QByteArray &name) {
+	auto compare = [&name](int i, MetaObject *obj) {
+		return obj->method (i).name () < name;
+	};
+	
+	int total = methodCount ();
+	int mid = binaryFind (total, this, compare);
+	
+	if (mid < 0) {
+		return -1;
+	}
+	
+	for (; mid >= 0 && method (mid).name () == name; mid--);
+	return mid + 1;
+	
+}
+
+int Nuria::MetaObject::methodUpperBound (const QByteArray &name) {
+	auto compare = [&name](int i, MetaObject *obj) {
+		return obj->method (i).name () < name;
+	};
+	
+	int total = methodCount ();
+	int mid = binaryFind (total, this, compare);
+	
+	if (mid < 0) {
+		return -1;
+	}
+	
+	for (; mid < total && method (mid).name () == name; mid++);
+	return mid - 1;
+	
+}
+
+inline static bool methodArgumentCheck (const QVector< QByteArray > &prototype,
+					const QVector< QByteArray > &arguments) {
+	int match = 0;
+	for (; match < arguments.length () &&
+	     arguments.at (match) == prototype.at (match + 1); match++);
+	return (match == arguments.length ());
+}
+
+Nuria::MetaMethod Nuria::MetaObject::method (const QVector< QByteArray > &prototype) {
+	int lowerBound = methodLowerBound (prototype.first ());
+	int upperBound = methodUpperBound (prototype.first ());
+	
+	// Found?
+	if (lowerBound < 0) {
+		return MetaMethod ();
+	}
+	
+	// Not overloaded?
+	if (lowerBound == upperBound) {
+		QVector< QByteArray > args = MetaMethod (this, lowerBound).argumentTypes ();
+		if (args.length () + 1 == prototype.length () &&
+		    methodArgumentCheck (prototype, args)) {
+			return MetaMethod (this, lowerBound);
+			
+		}
+		
+		return MetaMethod ();
+	}
+	
+	// Argument count
+	int argumentCount = prototype.length () - 1;
+	int leastArguments = MetaMethod (this, lowerBound).argumentTypes ().length ();
+	int maxArguments = MetaMethod (this, upperBound).argumentTypes ().length ();
+	
+	if (argumentCount < leastArguments || argumentCount > maxArguments) {
+		return MetaMethod ();
+	}
+	
+	// Test possible methods
+	for (int i = lowerBound; i <= upperBound; i++) {
+		QVector< QByteArray > args = MetaMethod (this, i).argumentTypes ();
+		
+		// Test argument count and types
+		if (prototype.length () == argumentCount &&
+		    methodArgumentCheck (prototype, args)) {
+			return MetaMethod (this, i);
+		}
+		
+	}
+	
+	// Not found.
+	return MetaMethod ();
+	
+}
+
 void Nuria::MetaObject::destroyInstance (void *instance) {
 	gateCall (GateMethod::DestroyInstance, 0, 0, 0, nullptr, instance);
 }
@@ -180,6 +271,19 @@ Nuria::MetaField Nuria::MetaObject::field (int idx) {
 	return MetaField (this, idx);
 }
 
+Nuria::MetaField Nuria::MetaObject::fieldByName (const QByteArray &name) {
+	auto compare = [&name](int i, MetaObject *obj) {
+		return obj->field (i).name () < name;
+	};
+	
+	int index = binaryFind (fieldCount (), this, compare);
+	if (index < 0) {
+		return MetaField ();
+	}
+	
+	return MetaField (this, index);
+}
+
 int Nuria::MetaObject::enumCount () {
 	int count = 0;
 	gateCall (GateMethod::EnumCount, 0, 0, 0, &count);
@@ -188,6 +292,19 @@ int Nuria::MetaObject::enumCount () {
 
 Nuria::MetaEnum Nuria::MetaObject::enumAt (int idx) {
 	return MetaEnum (this, idx);
+}
+
+Nuria::MetaEnum Nuria::MetaObject::enumByName (const QByteArray &name) {
+	auto compare = [&name](int i, MetaObject *obj) {
+		return MetaEnum (obj, i).name () < name;
+	};
+	
+	int index = binaryFind (enumCount (), this, compare);
+	if (index < 0) {
+		return MetaEnum ();
+	}
+	
+	return MetaEnum (this, index);
 }
 
 Nuria::MetaAnnotation::MetaAnnotation ()
