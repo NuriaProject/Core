@@ -82,13 +82,13 @@ public:
 	enum Type {
 		
 		/** Member method. \b Requires a valid instance. */
-		Method,
+		Method = 0,
 		
 		/** Static method. */
-		Static,
+		Static = 1,
 		
 		/** Constructor. */
-		Constructor
+		Constructor = 2
 	};
 	
 	/** Creates a invalid instance. */
@@ -296,12 +296,14 @@ public:
 	 * to sub-class MetaObject yourself.
 	 */
 	enum class GateMethod {
-		ClassName = 0, // QByteArray 
-		BaseClasses = 1, // QVector< QByteArray >
-		AnnotationCount = 2, // int
-		MethodCount = 3, // int
-		FieldCount = 4, // int
-		EnumCount = 5, // int
+		ClassName = 0, // QByteArray
+		MetaTypeId = 1, // int
+		PointerMetaTypeId = 2, // int
+		BaseClasses = 3, // QVector< QByteArray >
+		AnnotationCount = 4, // int
+		MethodCount = 5, // int
+		FieldCount = 6, // int
+		EnumCount = 7, // int
 		
 		AnnotationName = 10, // QByteArray
 		AnnotationValue = 11, // QVariant
@@ -375,6 +377,17 @@ public:
 	 * Returns the class name of the represented type.
 	 */
 	QByteArray className ();
+	
+	/**
+	 * Returns the Qt meta-type id of this type. Returns \c 0 if this type
+	 * doesn't have value-type semantics.
+	 */
+	int metaTypeId ();
+	
+	/**
+	 * Returns the Qt meta-type id of this type as pointer.
+	 */
+	int pointerMetaTypeId ();
 	
 	/**
 	 * Returns a list of types this type inherits.

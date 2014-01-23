@@ -141,6 +141,18 @@ QByteArray Nuria::MetaObject::className () {
 	return name;
 }
 
+int Nuria::MetaObject::metaTypeId () {
+	int type = 0;
+	gateCall (GateMethod::MetaTypeId, 0, 0, 0, &type);
+	return type;
+}
+
+int Nuria::MetaObject::pointerMetaTypeId () {
+	int type = 0;
+	gateCall (GateMethod::PointerMetaTypeId, 0, 0, 0, &type);
+	return type;
+}
+
 QVector< QByteArray > Nuria::MetaObject::parents () {
 	QVector< QByteArray > bases;
 	gateCall (GateMethod::BaseClasses, 0, 0, 0, &bases);
@@ -204,10 +216,9 @@ int Nuria::MetaObject::methodUpperBound (const QByteArray &name) {
 
 inline static bool methodArgumentCheck (const QVector< QByteArray > &prototype,
 					const QVector< QByteArray > &arguments) {
-	int match = 0;
-	for (; match < arguments.length () &&
-	     arguments.at (match) == prototype.at (match + 1); match++);
-	return (match == arguments.length ());
+	int i = 0;
+	for (; i < arguments.length () && arguments.at (i) == prototype.at (i + 1); i++);
+	return (i == arguments.length ());
 }
 
 Nuria::MetaMethod Nuria::MetaObject::method (const QVector< QByteArray > &prototype) {
@@ -245,7 +256,7 @@ Nuria::MetaMethod Nuria::MetaObject::method (const QVector< QByteArray > &protot
 		QVector< QByteArray > args = MetaMethod (this, i).argumentTypes ();
 		
 		// Test argument count and types
-		if (prototype.length () == argumentCount &&
+		if (args.length () == argumentCount &&
 		    methodArgumentCheck (prototype, args)) {
 			return MetaMethod (this, i);
 		}
@@ -512,7 +523,7 @@ int Nuria::MetaEnum::keyToValue (const QByteArray &key) const {
 
 int Nuria::MetaEnum::annotationCount () const {
 	int result = 0;
-	RETURN_CALL_GATE(MetaObject::GateMethod::EnumElementValue, EnumCategory, this->m_index, 0);
+	RETURN_CALL_GATE(MetaObject::GateMethod::AnnotationCount, EnumCategory, this->m_index, 0);
 }
 
 Nuria::MetaAnnotation Nuria::MetaEnum::annotation (int idx) {
