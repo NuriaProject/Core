@@ -681,7 +681,7 @@ private:
 
 }
 
-#ifndef NURIA_NO_VARIANT_COMPARISON
+#ifdef NURIA_VARIANT_COMPARISON
 inline bool operator== (const QVariant &left, const QVariant &right)
 { return Nuria::Variant::equal (left, right); }
 
