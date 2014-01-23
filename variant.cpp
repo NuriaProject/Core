@@ -15,6 +15,7 @@
  *       distribution.
  */
 
+#define NURIA_VARIANT_COMPARISON
 #include "variant.hpp"
 
 #include <QReadWriteLock>
