@@ -33,7 +33,8 @@ enum Categories {
 static QReadWriteLock g_lock;
 static Nuria::MetaObjectMap g_metaObjects;
 
-// Binary find in the range 0 to total.
+// Binary find in the range 0 to total. If not found, returns the position
+// the element would've been.
 // f(index, value) returns the result of storage[index] < value.
 template< typename T, typename Func >
 static int binaryFind (int total, const T &value, Func f) {
@@ -52,7 +53,7 @@ static int binaryFind (int total, const T &value, Func f) {
 		
 	}
 	
-	return ((total == min) && (!f (min, value))) ? min : -1;
+	return (total == min) ? min : -1;
 }
 
 #define RETURN_CALL_GATE(Method, Category, Index, Nth) \
@@ -104,8 +105,9 @@ Nuria::MetaObjectMap Nuria::MetaObject::typesWithAnnotation (const QByteArray &n
 	
 	for (; it != end; ++it) {
 		MetaObject *cur = *it;
+		int idx = binaryFind (cur->annotationCount (), cur, compare);
 		
-		if (binaryFind (cur->annotationCount (), cur, compare) != -1) {
+		if (idx != -1 && cur->annotation (idx).name () == name) {
 			map.insert (it.key (), cur);
 		}
 		
@@ -188,11 +190,11 @@ int Nuria::MetaObject::methodLowerBound (const QByteArray &name) {
 	int total = methodCount ();
 	int mid = binaryFind (total, this, compare);
 	
-	if (mid < 0) {
+	if (mid < 0 || MetaMethod (this, mid).name () != name) {
 		return -1;
 	}
 	
-	for (; mid >= 0 && method (mid).name () == name; mid--);
+	for (mid--; mid >= 0 && method (mid).name () == name; mid--);
 	return mid + 1;
 	
 }
@@ -205,11 +207,11 @@ int Nuria::MetaObject::methodUpperBound (const QByteArray &name) {
 	int total = methodCount ();
 	int mid = binaryFind (total, this, compare);
 	
-	if (mid < 0) {
+	if (mid < 0 || MetaMethod (this, mid).name () != name) {
 		return -1;
 	}
 	
-	for (; mid < total && method (mid).name () == name; mid++);
+	for (mid++; mid < total && method (mid).name () == name; mid++);
 	return mid - 1;
 	
 }
@@ -288,7 +290,7 @@ Nuria::MetaField Nuria::MetaObject::fieldByName (const QByteArray &name) {
 	};
 	
 	int index = binaryFind (fieldCount (), this, compare);
-	if (index < 0) {
+	if (index < 0 || MetaField (this, index).name () != name) {
 		return MetaField ();
 	}
 	
@@ -311,7 +313,7 @@ Nuria::MetaEnum Nuria::MetaObject::enumByName (const QByteArray &name) {
 	};
 	
 	int index = binaryFind (enumCount (), this, compare);
-	if (index < 0) {
+	if (index < 0 || MetaEnum (this, index).name () != name) {
 		return MetaEnum ();
 	}
 	
