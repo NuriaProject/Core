@@ -422,6 +422,11 @@ QByteArray Nuria::MetaField::typeName () const {
 	RETURN_CALL_GATE(MetaObject::GateMethod::FieldType, 0, this->m_index, 0);
 }
 
+Nuria::MetaField::Access Nuria::MetaField::access() const {
+	MetaField::Access result = NoAccess;
+	RETURN_CALL_GATE(MetaObject::GateMethod::FieldAccess, 0, this->m_index, 0);
+}
+
 QVariant Nuria::MetaField::read (void *instance) const {
 	QVariant result;
 	if (!this->m_meta) {

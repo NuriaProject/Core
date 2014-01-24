@@ -159,9 +159,9 @@ private:
  */
 class NURIA_CORE_EXPORT MetaField {
 public:
-	
-	/**  */
+	/** Access right flags. */
 	enum Access {
+		NoAccess = 0x00,
 		ReadOnly = 0x01,
 		WriteOnly = 0x02,
 		ReadWrite = ReadOnly | WriteOnly
@@ -178,6 +178,9 @@ public:
 	
 	/** Returns the type name of the field. */
 	QByteArray typeName () const;
+	
+	/** Returns access flags for this field. */
+	Access access () const;
 	
 	/** Attempts to read the current value from \a instance. */
 	QVariant read (void *instance) const;
@@ -319,6 +322,7 @@ public:
 		FieldType = 31, // QByteArray
 		FieldRead = 32, // QVariant, additional = void *instance
 		FieldWrite = 33, // bool, additional = void** = { instance, value }
+		FieldAccess = 34, // MetaField::Access
 		
 		EnumName = 40, // QByteArray
 		EnumElementCount = 41, // int
