@@ -33,10 +33,16 @@
 	__attribute__((annotate("nuria_annotate:" #name)))
 #define NURIA_INTROSPECT __attribute__((annotate("nuria_introspect")))
 #define NURIA_SKIP __attribute__((annotate("nuria_skip")))
+#define NURIA_READ(field) __attribute__((annotate("nuria_read:" #field)))
+#define NURIA_WRITE(field) __attribute__((annotate("nuria_write:" #field)))
+#define NURIA_REQUIRE(...) __attribute__((annotate("nuria_require:" #__VA_ARGS__)))
 #else
 #define NURIA_ANNOTATE(name, ...)
 #define NURIA_INTROSPECT
 #define NURIA_SKIP
+#define NURIA_READ(field) 
+#define NURIA_WRITE(field) 
+#define NURIA_REQUIRE(...)
 #endif
 
 // 
