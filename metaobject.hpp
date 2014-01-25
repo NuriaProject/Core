@@ -113,15 +113,34 @@ public:
 	QVector< QByteArray > argumentNames () const;
 	
 	/**
-	 * Returns the callback of this method. Invoking this will call the
+	 * Returns a callback of this method. Invoking it will call the
 	 * method itself. If type() is \c Method, then \a instance \b must point
 	 * to a valid instance of the type this instance is pointing to. Not
 	 * doing so will lead to undefined behaviour and probably crash the
 	 * application.
 	 * 
-	 * \sa Callback
+	 * The returned callback will also validate arguments if the method was
+	 * annotated using NURIA_REQUIRE.
+	 * 
+	 * \sa Callback unsafeCallback
 	 */
 	Callback callback (void *instance = nullptr) const;
+	
+	/**
+	 * Returns a callback pointing to the method. The only difference to
+	 * callback() is that this method will \b not validate any arguments.
+	 * 
+	 * Use with care.
+	 * \sa callback
+	 */
+	Callback unsafeCallback (void *instance = nullptr) const;
+	
+	/**
+	 * Returns a callback which returns \c true when calling with arguments
+	 * which would pass NURIA_REQUIRE tests. If the method doesn't have
+	 * a NURIA_REQUIRE annotation, the returned callback is invalid.
+	 */
+	Callback testCallback (void *instance = nullptr) const;
 	
 	/**
 	 * Returns the number of known annotations.
@@ -317,6 +336,8 @@ public:
 		MethodArgumentNames = 23, // QVector< QByteArray >
 		MethodArgumentTypes = 24, // QVector< QByteArray >
 		MethodCallback = 25, // Nuria::Callback, additional = void *instance
+		MethodUnsafeCallback = 26, // Nuria::Callback, additional = void *instance
+		MethodArgumentTest = 27, // Nuria::Callback, additional = void *instance
 		
 		FieldName = 30, // QByteArray
 		FieldType = 31, // QByteArray

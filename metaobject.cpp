@@ -388,6 +388,28 @@ Nuria::Callback Nuria::MetaMethod::callback (void *instance) const {
 	return result;
 }
 
+Nuria::Callback Nuria::MetaMethod::unsafeCallback (void *instance) const {
+	Callback result;
+	if (!this->m_meta) {
+		return result;
+	}
+	
+	this->m_meta->gateCall (MetaObject::GateMethod::MethodUnsafeCallback,
+				0, this->m_index, 0, &result, instance);
+	return result;
+}
+
+Nuria::Callback Nuria::MetaMethod::testCallback (void *instance) const {
+	Callback result;
+	if (!this->m_meta) {
+		return result;
+	}
+	
+	this->m_meta->gateCall (MetaObject::GateMethod::MethodArgumentTest,
+				0, this->m_index, 0, &result, instance);
+	return result;
+}
+
 int Nuria::MetaMethod::annotationCount () const {
 	int result = 0;
 	RETURN_CALL_GATE(MetaObject::GateMethod::AnnotationCount, MethodCategory, this->m_index, 0);
