@@ -35,10 +35,26 @@ class MetaEnum;
  * \brief The MetaAnnotation class allows access to annotations.
  * 
  * Annotations can be used to store user-defined meta-data for classes,
- * enums and methods.
- * \sa MetaObject::annotation MetaMethod::annotation
+ * enums, methods and fields.
  * 
- * For an example see MetaObject.
+ * \par Usage
+ * Annotations are basically a key-value pair. The key is always a QByteArray,
+ * while the value can be of arbitary type. This means you can also store
+ * complex types (Other than integers and strings) as long the type is
+ * registered in Qts meta system using Q_DECLARE_METATYPE.
+ * 
+ * The primary macro for this is NURIA_ANNOTATE. This macro takes two arguments,
+ * first being the key written as symbol and the second one being the value.
+ * 
+ * Annotations can be accessed using annotationCount() and annotation() in
+ * Nuria::Meta* classes.
+ * 
+ * \par Order of annotations
+ * Annotations are always sorted by key in ascending order. There may be
+ * multiple annotations of the same key in any given element. Please note
+ * that the behaviour when having multiple annotations with the same key
+ * is not defined.
+ * 
  */
 class NURIA_CORE_EXPORT MetaAnnotation {
 public:
@@ -73,6 +89,47 @@ private:
 
 /**
  * \brief The MetaMethod class lets you access methods from registered types.
+ * 
+ * By default, constructors, static and member methods are exported.
+ * 
+ * \par Order of methods
+ * Methods are sorted by name first and then by argument count in ascending
+ * order. If there are more than one methods with the same name and same
+ * argument count, only differing in argument types expected, the order is
+ * undefined.
+ * 
+ * \par Methods with default argument values
+ * Methods with default argument values are "expanded", meaning that for each
+ * possible function prototype a method is exposed of the same name.
+ * 
+ * Thus, the method
+ * \codeline int foo (int a = 1, int b = 2, int c = 3);
+ * would be expanded into four methods:
+ * \code
+ * int foo ();
+ * int foo (int a);
+ * int foo (int a, int b);
+ * int foo (int a, int b, int c);
+ * \endcode
+ * 
+ * \par Usage
+ * You can use callback() and unsafeCallback() to retrieve a Callback instance
+ * which, when invoked, will call the actual method. Those methods are only
+ * different when using NURIA_REQUIRE. When a method have a NURIA_REQUIRE
+ * annotation attached, it'll be used to validate arguments on invocation.
+ * Arguments can be checked by their name. 
+ * 
+ * \note Returned Callback instances are bound to whatever instance you passed
+ * to the getter method.
+ * \par Constructors
+ * Unlike the Qt API, constructors are exposed as methods and to be used like
+ * static methods. The returned QVariant will report a type of \c Type*.
+ * 
+ * \par Behaviour of NURIA_REQUIRE
+ * NURIA_REQUIRE gets evaluated before calling the method itself. If the call
+ * fails a invalid QVariant is returned. To check if a void method succeeded or
+ * not you'll have to use testCallback(). To avoid further checks after you did
+ * it yourself, you can use unsafeCallback().
  * 
  */
 class NURIA_CORE_EXPORT MetaMethod {
@@ -175,6 +232,51 @@ private:
  * explicit getters or setters associated. In the latter case Tria will
  * auto-generate these functions.
  * 
+ * \par NURIA_REQUIRE
+ * Fields support NURIA_REQUIRE backed value checks prior setting a value.
+ * Both raw fields and user-defined ones are supported. You can access other
+ * member variables and methods as well as the new value itself, which is called
+ * like the raw field, or like the first argument in a setter.
+ * 
+ * A new value is only set if the condition is \c true. If it doesn't, write()
+ * fails and nothing happens.
+ * 
+ * Please see MetaObject for further information on NURIA_REQUIRE.
+ * 
+ * \par Types
+ * Used types must be registered to the Qt meta system using Q_DECLARE_METATYPE.
+ * Please note that the usual restrictions apply, meaning you should use a
+ * typedef when registering a template type with more than one template
+ * parameters. Not registering types won't stop Tria nor the project from
+ * compiling though, as Tria will do it for you - But this won't apply to your
+ * sources as it's only in the generated output.
+ * 
+ * \par Raw fields
+ * When Tria stumbles upon a public member variable, it'll auto-generate
+ * accessors for it if it's not annotated using NURIA_SKIP (In which case
+ * it's ignored completely).
+ * 
+ * \par User-defined accessor methods
+ * Nuria allows the use of user-defiend accessor methods (That is, getter and
+ * setter) through the use of the NURIA_READ and NURIA_WRITE annotations. A
+ * field may only have one or both defined. Both macros take exactly one
+ * argument: The field name. The datatype is deduced by the accessor methods
+ * itself.
+ * 
+ * \note Tria will raise an error if getter and setter expect different types.
+ * 
+ * The getter must return the field value and may take optional arguments.
+ * The setter must take the field value as first argument and may take
+ * additional optional arguments. A setter is allowed to return either void
+ * or bool. In the latter case, a result value of \c true indicates success
+ * and \c false indicates failure. This is passed through to the caller through
+ * write().
+ * 
+ * Accessor methods won't be exposed as usual methods. Custom annotations tacked
+ * to accessor methods are applied to the field.
+ * 
+ * \note As usual, accessor methods must be public.
+ * \note Redefining accessors for a field will yield a warning.
  */
 class NURIA_CORE_EXPORT MetaField {
 public:
@@ -236,7 +338,8 @@ private:
 /**
  * \brief The MetaEnum class provides access to enum's in a MetaObject.
  * 
- * 
+ * \par Order of elements
+ * Elements in a enum are always sorted by key in ascending order.
  */
 class NURIA_CORE_EXPORT MetaEnum {
 public:
@@ -299,16 +402,123 @@ private:
 typedef QMap< QByteArray, MetaObject * > MetaObjectMap;
 
 /**
- * \brief The MetaObject class provides access to meta-data generated by Tria.
+ * \brief The MetaObject class provides access to meta-data of types at
+ * run-time.
+ * 
+ * Instances of this class are usually generated by Tria, the code-generator
+ * of the Nuria Framework. While this is the primary use-case, you're free
+ * to sub-class this class yourself to create types at run-time.
+ * 
+ * Using Tria you're able to "expose" arbitary structures to be used dynamically
+ * at run-time. 
+ * 
+ * \par How to use Tria
+ * Tria is a code-generator comparable to Qt's meta object compiler (moc). And
+ * like moc, Tria will be run on all header files in a project. All you need to
+ * do for this is to include the Nuria Framework in your project using the known
+ * mechanism:
+ * 
+ * \code
+ * CONFIG += nuria
+ * NURIA  += core
+ * \endcode
+ * 
+ * If you want to use tria without qmake, please see the nuria.prf file and
+ * tria itself for information (Calling it with "-h" as argument).
+ * 
+ * \par Preparing structures for Tria
+ * To tell Tria you want to a structure to be exported you'll use the
+ * NURIA_INTROSPECT annotation. Keep in mind that attributes of any kind
+ * go \b after the terminal for structs/classes and enums and go \b before
+ * methods and fields:
+ * 
+ * \code
+ * // structs/classes and enums expect annotations *after* the terminal.
+ * struct NURIA_INTROSPECT NURIA_ANNOTATE(IsAClass, true) {
+ *   enum NURIA_ANNOTATE(IsAEnum, 2 / 2) Foo { };
+ * 
+ *   // Methods and fields expect annotations in front.
+ *   NURIA_ANNOTATE(IsAMethod, "yes")
+ *   QVariant iAmAMethod ();
+ *   
+ *   NURIA_ANNOTATE(IsAField, true)
+ *   int field;
+ * };
+ * \endcode
+ * 
+ * That already covers the basics. You should probably Q_DECLARE_METATYPE your
+ * types. Tria will automatically do this in the generated code for all needed
+ * types though.
+ * 
+ * \par Automatically exported things
+ * Tria will export \b public methods (member methods, static methods and
+ * constructors), enums (Including elements) and fields ("raw fields" and
+ * user-defined ones with accessor methods). Everything else, including
+ * private and protected elements, is ignored. To explicitly ignore a element,
+ * annotate it with NURIA_SKIP.
+ * 
+ * \par Annotations in overview
+ * There are currently multiple annotations available.
+ * 
+ * \c NURIA_INTROSPECT will mark a struct or a class to be exported. It's
+ * ignored on anything else.
+ * 
+ * \c NURIA_SKIP can be used to explicitly mark elements (methods, enums,
+ * fields) to be ignored by Tria.
+ * 
+ * \c NURIA_READ and \c NURIA_WRITE mark a method to be used as getter or
+ * setter method for the field whose name is passed as only argument. Methods
+ * with this annotation will \b not be exposed as methods themselves. Please
+ * refer to MetaField for further information.
+ * 
+ * \c NURIA_REQUIRE is a powerful mechanism which lets you write a requirement
+ * which needs to be fulfilled for the operation to succeed. Can be applied to
+ * fields and methods (Of all kind). The macro itself takes a C++ condition
+ * as check. The condition can call methods as well as use fields directly, as
+ * long the method/field the macro is applied to requires a instance of the
+ * object itself (E.g., it's a member method). These conditions are embedded
+ * into the generated source by Tria, thus there's no notable overhead
+ * introduced here.
+ * 
+ * \par Detection of conversions in Tria
+ * Tria will automatically detect methods supporting conversions. These are:
+ * - Constructors taking only one argument
+ * - Static methods beginning with "from" taking one argument
+ * - Member methods beginning with "to" taking one argument
+ * - C++ conversion operators
+ * 
+ * Except for the conversion operators, all methods are still exposed as normal
+ * methods. Methods may take additional optional arguments.
+ * 
+ * \note The conversion is registered in Nuria::Variant, \b not in the QVariant
+ * conversion feature introduced in Qt5.2!
+ * \note This is a feature of Tria, not of MetaObject. Thus, custom sub-classes
+ * of MetaObject won't have this feature.
+ * 
+ * \sa Nuria::Variant::convert
  * 
  * \par Order of elements
  * All elements, that is, parent-class names, annotations, methods, fields and
- * enums are sorted by name by the MetaObject. Methods are sorted by name too,
- * but methods with the same name are sorted by argument count.
+ * enums are sorted by name by the MetaObject.
  * Annotations of enums, fields and methods are sorted too, as are enum keys.
  * 
  * This means that all elements are sorted in ascending order, which allows you
  * to use binary search algorithms.
+ * 
+ * \par Creating types at run-time
+ * You can sub-class MetaObject yourself if you need to create types at
+ * run-time, e.g. when embedding a scripting language. You'll need to implement
+ * the protected gateCall method. While it may look strange to only have a
+ * single virtual method for everything, this method was chosen as it reduces
+ * the size of a MetaObject significantly while offering marginal run-time
+ * overhead. On top of that it ensures that MetaObject can be extended in the
+ * future without breaking ABI or API compatibility.
+ * 
+ * Please refer to the GateMethod enum class. You can also read the source code
+ * of MetaObject or open a file generated by Tria.
+ * 
+ * \sa Nuria::MetaObject::GateMethod
+ * 
  */
 class NURIA_CORE_EXPORT MetaObject {
 public:
@@ -351,13 +561,6 @@ public:
 		EnumElementValue = 43, // int
 		
 		DestroyInstance = 50 // void, additional = void *instance
-	};
-	
-	/** C++ access specifiers. */
-	enum Access {
-		Public = 0,
-		Private,
-		Protected
 	};
 	
 	/**
@@ -515,9 +718,6 @@ protected:
 	/**
 	 * Calls the back-end. \a method will be called, passing \a category,
 	 * \a target and \a index, the result will be written to \a result.
-	 * 
-	 * This technique makes the vtable a lot smaller and allows further
-	 * expansion in the future while not breaking the ABI.
 	 */
 	virtual void gateCall (GateMethod method, int category, int index, int nth,
 			       void *result, void *additional = 0) = 0;
