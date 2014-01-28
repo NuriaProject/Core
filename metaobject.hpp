@@ -232,6 +232,8 @@ private:
  * explicit getters or setters associated. In the latter case Tria will
  * auto-generate these functions.
  * 
+ * \note Static variables are ignored.
+ * 
  * \par NURIA_REQUIRE
  * Fields support NURIA_REQUIRE backed value checks prior setting a value.
  * Both raw fields and user-defined ones are supported. You can access other
