@@ -19,5 +19,36 @@
 #define NURIA_ESSENTIALS_HPP
 
 #include "core_global.hpp"
+#include <cstdint>
+
+namespace Nuria {
+
+/** \internal Helper for Nuria::jenkinsHash */
+constexpr uint32_t jenkinsOne (uint32_t hash, const char *key, int len) {
+	return (len < 1)
+		? hash
+		: jenkinsOne ((hash + *key + ((hash + *key) << 10)) ^
+			      ((hash + *key + ((hash + *key) << 10)) >> 6),
+			      key + 1, len - 1);
+}
+
+/**
+ * \brief constexpr implementation of jenkins hashing algorithm.
+ * 
+ * This method will be evaluated by the compiler at compile-time, which is
+ * useful when needing a simple hash of compile-time constants.
+ * 
+ * Used in Nuria::Debug for quick checks if a specific module shall not be
+ * printed.
+ * 
+ */
+constexpr uint32_t jenkinsHash (const char *key, size_t len) {
+	return ((jenkinsOne (0, key, len) + (jenkinsOne (0, key, len) << 3)) ^
+	        ((jenkinsOne (0, key, len) + (jenkinsOne (0, key, len) << 3)) >> 11)) +
+	       (((jenkinsOne (0, key, len) + (jenkinsOne (0, key, len) << 3)) ^
+		((jenkinsOne (0, key, len) + (jenkinsOne (0, key, len) << 3)) >> 11)) << 15);
+}
+
+}
 
 #endif // NURIA_ESSENTIALS_HPP

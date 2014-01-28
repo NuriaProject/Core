@@ -29,7 +29,10 @@
 //#define RECURSION_PROTECTION
 
 // Static variables
-static QIODevice *g_device = 0;
+Nuria::Debug::Type Nuria::Debug::m_lowestLevel = Nuria::Debug::DefaultLowestMsgLevel;
+QMap< uint32_t, Nuria::Debug::Type > Nuria::Debug::m_disabledModules;
+
+static QIODevice *g_device = nullptr;
 static bool g_isFile = false;
 static bool g_deviceDisabled = false;
 static QVector< Nuria::Callback > g_handlers;
@@ -105,8 +108,8 @@ static void writeOutput (const char *type, const char *module, const char *file,
 			char b = format[pos + 2];
 			
 			if (a == 'D' && b == 'A') { // DATE
-				char dateString[9]; // 00/00/00
-				snprintf (dateString, sizeof(dateString), "%02i/%02i/%02i",
+				char dateString[11]; // 00/00/0000
+				snprintf (dateString, sizeof(dateString), "%02i/%02i/%04i",
 					  local.tm_mon + 1, local.tm_mday, local.tm_year + 1900);
 				output.append (dateString);
 				
@@ -235,6 +238,7 @@ Nuria::Debug::~Debug () {
 	case ErrorMsg: typeString = "Error"; break;
 	case CriticalMsg: typeString = "Critical"; break;
 	case LogMsg: typeString = "Log"; break;
+	case AllLevels: break;
 	}
 	
 	// Use the device output if enabled.
@@ -275,7 +279,30 @@ Nuria::Debug::~Debug () {
 	
 }
 
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
+void Nuria::Debug::setModuleLevel (const char *module, Nuria::Debug::Type leastLevel) {
+	if (!module) {
+		m_lowestLevel = leastLevel;
+		return;
+	}
+	
+	uint32_t hash = jenkinsHash (module, strlen(module));
+	if (leastLevel == DebugMsg) {
+		m_disabledModules.remove (hash);
+	} else {
+		m_disabledModules.insert (hash, leastLevel);
+	}
+	
+}
+
+bool Nuria::Debug::isModuleDisabled (const char *module, Nuria::Debug::Type level) {
+	if (!module) {
+		return (level < m_lowestLevel);
+	}
+	
+	uint32_t hash = jenkinsHash (module, strlen(module));
+	return isModuleDisabled (hash, level);
+}
+
 void Nuria::Debug::qtMessageHandler (QtMsgType type, const QMessageLogContext &context,
 				     const QString &message) {
 	
@@ -304,37 +331,6 @@ void Nuria::Debug::qtMessageHandler (QtMsgType type, const QMessageLogContext &c
 void Nuria::Debug::installMessageHandler () {
 	qInstallMessageHandler (qtMessageHandler);
 }
-
-#else
-
-void Nuria::Debug::qtMessageHandler (QtMsgType type, const char *message) {
-	
-	Type t = DebugMsg;
-	
-	// Translate QtMsgType to a Debug::Type value
-	switch (type) {
-	case QtDebugMsg:
-		t = DebugMsg;
-		break;
-	case QtWarningMsg:
-		t = WarnMsg;
-		break;
-	case QtCriticalMsg:
-	case QtFatalMsg:
-		t = CriticalMsg;
-		break;
-	}
-	
-	// Output.
-	Debug (t, "Qt", "", 0, "QDebug", "") << message;
-	
-}
-
-void Nuria::Debug::installMessageHandler () {
-	qInstallMsgHandler (qtMessageHandler);
-}
-
-#endif
 
 void Nuria::Debug::setOutputDisabled (bool disabled) {
 	g_deviceDisabled = disabled;
@@ -449,32 +445,3 @@ void Nuria::Debug::setOutputFormat (const char *format) {
 void Nuria::Debug::setBuffer (const QString &buffer) {
 	this->m_buffer = buffer;
 }
-
-#if 0
-Nuria::Debug &Nuria::Debug::operator<< (Nuria::Debug &dbg, const QVariant &variant) {
-	using namespace Nuria;
-	
-	// Output generic variants with the default QDebug operator<<
-	if (Variant::isGeneric (variant)) {
-		return operator<< (dbg, variant);
-	}
-	
-	// 
-	*this << "QVariant(" << variant.typeName () << ", (";
-	
-	// TODO: Implement Variant::keyType()/valueType()!
-	// 
-	Variant::Iterator it = Variant::begin (variant);
-	Variant::Iterator end = Variant::end (variant);
-	
-	// 
-	for (; it != end; ++it) {
-		
-		
-	}
-	
-	// 
-	*this << ") )";
-	return *this;
-}
-#endif

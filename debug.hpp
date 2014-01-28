@@ -30,34 +30,37 @@ namespace Nuria {
  * This class provides an easy way for outputting useful logging messages.
  * You can use this as a drop-in replacement for QDebug.
  * 
- * \note Despite its name it's also usable as a logger.
+ * Defining NURIA_DEBUG_NO_{DEBUG,LOG,WARN,ERROR,CRITICAL} will disable
+ * the level at compile-time, causing the corresponding logging macro to
+ * create code the compiler can optimize out.
  * 
- * \par Extending
- * As time of writing, Debug is not easily extendable in regards of message
- * types. It is possible through the setDestination methods to redirect the
- * output. If this isn't enough you can also install custom "output handlers"
- * using installOutputHandler.
+ * \par Redirecting output
+ * By default all output is sent to stdout. 
+ * 
+ * You can redirect it using setDestination(). Use installOutputHandler()
+ * to redirect logging data to a method of yours instead.
  * 
  * \par QDebug and Nuria::Debug
  * Nuria::Debug is meant as drop-in replacement for QDebug. You can still use
  * qDebug(), qWarning(), ... directly but still let Nuria::Debug do the work.
- * Please note that Nuria::Debug can't determine your module, the source file,
- * line number, class or method name when you use qDebug().
  * \sa qtMessageHandler
  * 
  * \par Module
- * Another thing to mention is that Nuria::Debug supports module names. But not
- * in a traditional manner where you pass the name to each logger instance.
- * Instead Nuria::Debug uses a #define named NURIA_MODULE. The value must be a
- * literal enclosed in "". It is important that you put this line \b before
- * including debug.hpp like this:
+ * Nuria::Debug knows the concept of "modules". A message can be in a single
+ * module, which is printed next to the message itself. Additionally, you can
+ * use enableModule and disableModule to change the logging behaviour at
+ * run-time.
  * 
+ * The module name of a translation unit can be set by #defining NURIA_MODULE.
+ * The value of it is expected to be a literal. The line containing the #define
+ * must appear before the line where debug.hpp is #include'd.
+ *
  * \code
  * #define NURIA_MODULE "ModuleName"
  * #include <nuria/debug.hpp>
  * \endcode
  * 
- * \note The default value is "" (A empty string literal) which is used if you
+ * \note The default module name is "" (Empty string) which is used if you
  * don't provide a value on your own. No warning is issued.
  * 
  * \par Example
@@ -67,10 +70,10 @@ namespace Nuria {
  * 
  * // 
  * nDebug() << "Hello, this is a debug message";
+ * nLog() << "Something worth logging happend!";
  * nWarn() << "I'm a warning";
  * nError() << "Some error occured :(";
  * nCritical() << "Some unrecoverable error occured.";
- * nLog() << "Something worth logging happend!";
  * \endcode
  * 
  * \par Outputting custom types
@@ -90,10 +93,14 @@ public:
 	/** Type enumeration. */
 	enum Type {
 		DebugMsg = 0,
-		WarnMsg = 1,
-		ErrorMsg = 2,
-		CriticalMsg = 3,
-		LogMsg = 4
+		LogMsg = 1,
+		WarnMsg = 2,
+		ErrorMsg = 3,
+		CriticalMsg = 4,
+		
+		AllLevels = CriticalMsg + 1,
+		DefaultLowestMsgLevel = DebugMsg
+		
 	};
 	
 	/**
@@ -109,6 +116,30 @@ public:
 	~Debug ();
 	
 	/**
+	 * Sets the logging level of a certain module. \a leastLevel is
+	 * non-inclusive, which means that passing \c LogMsg will output for
+	 * everything below that in \a module. To completely disable logging,
+	 * pass \c AllLevels.
+	 * 
+	 * Passing \c nullptr for \a module acts as a wildcard, affecting all
+	 * modules.
+	 * 
+	 * \sa enableCategory
+	 */
+	static void setModuleLevel (const char *module, Type leastLevel);
+	
+	/**
+	 * Returns \c true if \a module at \a level is disabled.
+	 */
+	static bool isModuleDisabled (const char *module, Type level);
+	
+	/** Fast access for logging macros. */
+	static inline bool isModuleDisabled (uint32_t module, Type level) {
+		return (level < m_lowestLevel ||
+			level < m_disabledModules.value (module, DefaultLowestMsgLevel));
+	}
+	
+	/**
 	 * Use this function in combination with qInstallMsgHandler to tunnel
 	 * all QDebug data through Debug. This way legacy code which uses
 	 * qDebug() etc. will still use the log paths you defined.
@@ -117,16 +148,9 @@ public:
 	 * line numbers and method names.
 	 * \sa installMessageHandler
 	 */
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
 	static void qtMessageHandler (QtMsgType type, const QMessageLogContext &context, const QString &message);
-#else
-	static void qtMessageHandler (QtMsgType type, const char *message);
-#endif
-	
-	/** 
-	 * Automatically installs the QDebug message handler.
-	 * Works on Qt4 and Qt5.
-	 */
+
+	/** Install the QDebug message handler. */
 	static void installMessageHandler ();
 	
 	/**
@@ -197,7 +221,7 @@ public:
 	 * "[%TIME%] %TYPE%/%MODULE%: %FILE%:%LINE% - %CLASS%::%METHOD%: %MESSAGE%"
 	 * 
 	 * \par Identifiers
-	 * - %DATE% The current date (MM/DD/YY)
+	 * - %DATE% The current date (MM/DD/YYYY)
 	 * - %TIME% The current time (HH:MM:SS)
 	 * - %TYPE% The message type ("Debug", "Warning", ...)
 	 * - %MODULE% The module name
@@ -213,17 +237,13 @@ public:
 	 */
 	static void setOutputFormat (const char *format);
 	
-#if 0
-	/**
-	 * Special output operator for QVariant which uses Nuria::Variant to
-	 * output more useful data.
-	 */
-	Debug &operator<< (Debug &dbg, const QVariant &variant);
-#endif
-	
 private:
 	
 	void setBuffer (const QString &buffer);
+	
+	// Exposing these for faster access
+	static Type m_lowestLevel;
+	static QMap< uint32_t, Type > m_disabledModules;
 	
 	QString m_buffer;
 	Type m_type;
@@ -235,6 +255,16 @@ private:
 	
 };
 
+/**
+ * \brief Helper class for Nuria::Debug, which does nothing.
+ */
+class NURIA_CORE_EXPORT DebugIgnore {
+public:
+	template< typename T >
+	inline DebugIgnore &operator<< (const T &)
+	{ return *this; }
+};
+
 }
 
 Q_DECLARE_METATYPE(Nuria::Debug::Type)
@@ -244,12 +274,39 @@ Q_DECLARE_METATYPE(Nuria::Debug::Type)
 # define NURIA_MODULE ""
 #endif
 
-#define NURIA_DEBUG(type) Nuria::Debug(type, NURIA_MODULE, __FILE__, __LINE__, Q_FUNC_INFO, 0)
+#define NURIA_DEBUG(type) \
+	if (Nuria::Debug::isModuleDisabled \
+	(Nuria::jenkinsHash (NURIA_MODULE, sizeof(NURIA_MODULE) - 1), type)) {} else \
+	Nuria::Debug(type, NURIA_MODULE, __FILE__, __LINE__, Q_FUNC_INFO, 0)
 
+#ifndef NURIA_DEBUG_NO_DEBUG
 #define nDebug() NURIA_DEBUG(Nuria::Debug::DebugMsg)
-#define nWarn() NURIA_DEBUG(Nuria::Debug::WarnMsg)
-#define nError() NURIA_DEBUG(Nuria::Debug::ErrorMsg)
-#define nCritical() NURIA_DEBUG(Nuria::Debug::CriticalMsg)
+#else
+#define nDebug() DebugIgnore()
+#endif
+
+#ifndef NURIA_DEBUG_NO_LOG
 #define nLog() NURIA_DEBUG(Nuria::Debug::LogMsg)
+#else
+#define nLog() DebugIgnore()
+#endif
+
+#ifndef NURIA_DEBUG_NO_WARN
+#define nWarn() NURIA_DEBUG(Nuria::Debug::WarnMsg)
+#else
+#define nWarn() DebugIgnore()
+#endif
+
+#ifndef NURIA_DEBUG_NO_ERROR
+#define nError() NURIA_DEBUG(Nuria::Debug::ErrorMsg)
+#else
+#define nError() DebugIgnore()
+#endif
+
+#ifndef NURIA_DEBUG_NO_CRITICAL
+#define nCritical() NURIA_DEBUG(Nuria::Debug::CriticalMsg)
+#else
+#define nCritical() DebugIgnore()
+#endif
 
 #endif // NURIA_DEBUG_HPP
