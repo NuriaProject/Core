@@ -219,8 +219,8 @@ int Nuria::MetaObject::methodUpperBound (const QByteArray &name) {
 inline static bool methodArgumentCheck (const QVector< QByteArray > &prototype,
 					const QVector< QByteArray > &arguments) {
 	int i = 0;
-	for (; i < arguments.length () && arguments.at (i) == prototype.at (i + 1); i++);
-	return (i == arguments.length ());
+    for (; i < arguments.size () && arguments.at (i) == prototype.at (i + 1); i++);
+    return (i == arguments.size ());
 }
 
 Nuria::MetaMethod Nuria::MetaObject::method (const QVector< QByteArray > &prototype) {
@@ -235,7 +235,7 @@ Nuria::MetaMethod Nuria::MetaObject::method (const QVector< QByteArray > &protot
 	// Not overloaded?
 	if (lowerBound == upperBound) {
 		QVector< QByteArray > args = MetaMethod (this, lowerBound).argumentTypes ();
-		if (args.length () + 1 == prototype.length () &&
+        if (args.size () + 1 == prototype.size () &&
 		    methodArgumentCheck (prototype, args)) {
 			return MetaMethod (this, lowerBound);
 			
@@ -245,9 +245,9 @@ Nuria::MetaMethod Nuria::MetaObject::method (const QVector< QByteArray > &protot
 	}
 	
 	// Argument count
-	int argumentCount = prototype.length () - 1;
-	int leastArguments = MetaMethod (this, lowerBound).argumentTypes ().length ();
-	int maxArguments = MetaMethod (this, upperBound).argumentTypes ().length ();
+    int argumentCount = prototype.size () - 1;
+    int leastArguments = MetaMethod (this, lowerBound).argumentTypes ().size ();
+    int maxArguments = MetaMethod (this, upperBound).argumentTypes ().size ();
 	
 	if (argumentCount < leastArguments || argumentCount > maxArguments) {
 		return MetaMethod ();
@@ -258,7 +258,7 @@ Nuria::MetaMethod Nuria::MetaObject::method (const QVector< QByteArray > &protot
 		QVector< QByteArray > args = MetaMethod (this, i).argumentTypes ();
 		
 		// Test argument count and types
-		if (args.length () == argumentCount &&
+        if (args.size () == argumentCount &&
 		    methodArgumentCheck (prototype, args)) {
 			return MetaMethod (this, i);
 		}
