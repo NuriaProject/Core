@@ -29,8 +29,7 @@
 #ifdef TRIA_RUN
 // Clang parses attributes in reversed order
 #define NURIA_ANNOTATE(name, ...) \
-	__attribute__((annotate(# __VA_ARGS__))) \
-	__attribute__((annotate("nuria_annotate:" #name)))
+	__attribute__((annotate("nuria_annotate:" QT_STRINGIFY(#name) "=" #__VA_ARGS__)))
 #define NURIA_INTROSPECT __attribute__((annotate("nuria_introspect")))
 #define NURIA_SKIP __attribute__((annotate("nuria_skip")))
 #define NURIA_READ(field) __attribute__((annotate("nuria_read:" #field)))
