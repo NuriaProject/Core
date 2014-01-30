@@ -209,7 +209,19 @@ public:
 	 * Returns the MetaAnnotation instance for the annotation at \a idx.
 	 * \sa annotationCount
 	 */
-	MetaAnnotation annotation (int idx);	
+	MetaAnnotation annotation (int idx) const;	
+	
+	/**
+	 * Returns the index of the first annotation \a name.
+	 * Returns \c -1 if there's no annotation called like that.
+	 */
+	int annotationLowerBound (const QByteArray &name) const;
+	
+	/**
+	 * Returns the index of the last annotation \a name.
+	 * Returns \c -1 if there's no annotation called like that.
+	 */
+	int annotationUpperBound (const QByteArray &name) const;
 	
 private:
 	friend class MetaObject;
@@ -324,7 +336,19 @@ public:
 	 * Returns the MetaAnnotation instance for the annotation at \a idx.
 	 * \sa annotationCount
 	 */
-	MetaAnnotation annotation (int idx);
+	MetaAnnotation annotation (int idx) const;
+	
+	/**
+	 * Returns the index of the first annotation \a name.
+	 * Returns \c -1 if there's no annotation called like that.
+	 */
+	int annotationLowerBound (const QByteArray &name) const;
+	
+	/**
+	 * Returns the index of the last annotation \a name.
+	 * Returns \c -1 if there's no annotation called like that.
+	 */
+	int annotationUpperBound (const QByteArray &name) const;
 	
 private:
 	friend class MetaObject;
@@ -386,7 +410,19 @@ public:
 	 * Returns the MetaAnnotation instance for the annotation at \a idx.
 	 * \sa annotationCount
 	 */
-	MetaAnnotation annotation (int idx);
+	MetaAnnotation annotation (int idx) const;
+	
+	/**
+	 * Returns the index of the first annotation \a name.
+	 * Returns \c -1 if there's no annotation called like that.
+	 */
+	int annotationLowerBound (const QByteArray &name) const;
+	
+	/**
+	 * Returns the index of the last annotation \a name.
+	 * Returns \c -1 if there's no annotation called like that.
+	 */
+	int annotationUpperBound (const QByteArray &name) const;
 	
 private:
 	friend class MetaObject;
@@ -634,7 +670,19 @@ public:
 	 * Returns the MetaAnnotation instance for the annotation at \a idx.
 	 * \sa annotationCount
 	 */
-	MetaAnnotation annotation (int idx);
+	MetaAnnotation annotation (int idx) const;
+	
+	/**
+	 * Returns the index of the first annotation \a name.
+	 * Returns \c -1 if there's no annotation called like that.
+	 */
+	int annotationLowerBound (const QByteArray &name) const;
+	
+	/**
+	 * Returns the index of the last annotation \a name.
+	 * Returns \c -1 if there's no annotation called like that.
+	 */
+	int annotationUpperBound (const QByteArray &name) const;
 	
 	/**
 	 * Returns the number of known methods.

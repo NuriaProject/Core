@@ -56,6 +56,43 @@ static int binaryFind (int total, const T &value, Func f) {
 	return (total == min) ? min : -1;
 }
 
+// Common implementation for lower-bound search of annotations.
+template< typename T >
+static int annotationLowerBoundImpl (T &self, const QByteArray &name) {
+	auto compare = [&self, &name](int i, const T &) {
+		return self.annotation (i).name () < name;
+	};
+	
+	int total = self.annotationCount ();
+	int mid = binaryFind (total, self, compare);
+	
+	if (mid < 0 || self.annotation (mid).name () != name) {
+		return -1;
+	}
+	
+	for (mid--; mid >= 0 && self.annotation (mid).name () == name; mid--);
+	return mid + 1;
+	
+}
+
+// Common implementation for upper-bound search of annotations.
+template< typename T >
+static int annotationUpperBoundImpl (T &self, const QByteArray &name) {
+	auto compare = [&self, &name](int i, const T &) {
+		return self.annotation (i).name () < name;
+	};
+	
+	int total = self.annotationCount ();
+	int mid = binaryFind (total, self, compare);
+	
+	if (mid < 0 || self.annotation (mid).name () != name) {
+		return -1;
+	}
+	
+	for (mid++; mid < total && self.annotation (mid).name () == name; mid++);
+	return mid - 1;
+}
+
 #define RETURN_CALL_GATE(Method, Category, Index, Nth) \
 	if (!this->m_meta) return result; \
 	this->m_meta->gateCall (Method, Category, Index, Nth, &result); \
@@ -168,8 +205,16 @@ int Nuria::MetaObject::annotationCount () {
 	return count;
 }
 
-Nuria::MetaAnnotation Nuria::MetaObject::annotation(int idx) {
-	return MetaAnnotation (this, ObjectCategory, 0, idx);
+Nuria::MetaAnnotation Nuria::MetaObject::annotation (int idx) const {
+	return MetaAnnotation (const_cast< MetaObject * > (this), ObjectCategory, 0, idx);
+}
+
+int Nuria::MetaObject::annotationLowerBound (const QByteArray &name) const {
+	return annotationLowerBoundImpl (*const_cast< MetaObject * > (this), name);
+}
+
+int Nuria::MetaObject::annotationUpperBound (const QByteArray &name) const {
+	return annotationUpperBoundImpl (*const_cast< MetaObject * > (this), name);
 }
 
 int Nuria::MetaObject::methodCount () {
@@ -415,13 +460,21 @@ int Nuria::MetaMethod::annotationCount () const {
 	RETURN_CALL_GATE(MetaObject::GateMethod::AnnotationCount, MethodCategory, this->m_index, 0);
 }
 
-Nuria::MetaAnnotation Nuria::MetaMethod::annotation (int idx) {
+Nuria::MetaAnnotation Nuria::MetaMethod::annotation (int idx) const {
 	if (!this->m_meta) {
 		return MetaAnnotation ();
 	}
 	
 	return MetaAnnotation (this->m_meta, MethodCategory, this->m_index, idx);
 	
+}
+
+int Nuria::MetaMethod::annotationLowerBound (const QByteArray &name) const {
+	return annotationLowerBoundImpl (*this, name);
+}
+
+int Nuria::MetaMethod::annotationUpperBound (const QByteArray &name) const {
+	return annotationUpperBoundImpl (*this, name);
 }
 
 Nuria::MetaField::MetaField ()
@@ -478,12 +531,20 @@ int Nuria::MetaField::annotationCount () const {
 	RETURN_CALL_GATE(MetaObject::GateMethod::AnnotationCount, FieldCategory, this->m_index, 0);
 }
 
-Nuria::MetaAnnotation Nuria::MetaField::annotation (int idx) {
+Nuria::MetaAnnotation Nuria::MetaField::annotation (int idx) const {
 	if (!this->m_meta) {
 		return MetaAnnotation ();
 	}
 	
 	return MetaAnnotation (this->m_meta, FieldCategory, this->m_index, idx);
+}
+
+int Nuria::MetaField::annotationLowerBound (const QByteArray &name) const {
+	return annotationLowerBoundImpl (*this, name);
+}
+
+int Nuria::MetaField::annotationUpperBound (const QByteArray &name) const {
+	return annotationUpperBoundImpl (*this, name);
 }
 
 
@@ -555,10 +616,18 @@ int Nuria::MetaEnum::annotationCount () const {
 	RETURN_CALL_GATE(MetaObject::GateMethod::AnnotationCount, EnumCategory, this->m_index, 0);
 }
 
-Nuria::MetaAnnotation Nuria::MetaEnum::annotation (int idx) {
+Nuria::MetaAnnotation Nuria::MetaEnum::annotation (int idx) const {
 	if (!this->m_meta) {
 		return MetaAnnotation ();
 	}
 	
 	return MetaAnnotation (this->m_meta, EnumCategory, this->m_index, idx);
+}
+
+int Nuria::MetaEnum::annotationLowerBound (const QByteArray &name) const {
+	return annotationLowerBoundImpl (*this, name);
+}
+
+int Nuria::MetaEnum::annotationUpperBound (const QByteArray &name) const {
+	return annotationLowerBoundImpl (*this, name);
 }
