@@ -404,7 +404,7 @@ public:
 	 * 
 	 * \warning This iterator does not support modifiying items.
 	 */
-	class Iterator {
+	class NURIA_CORE_EXPORT Iterator {
 	public:
 		
 		/**
