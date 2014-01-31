@@ -51,10 +51,9 @@ class MetaEnum;
  * 
  * \par Order of annotations
  * Annotations are always sorted by key in ascending order. There may be
- * multiple annotations of the same key in any given element. Please note
- * that the behaviour when having multiple annotations with the same key
- * is not defined.
- * 
+ * multiple annotations of the same key in any given element. If there are
+ * multiple annotations with the same key, the order they were written in
+ * is retained.
  */
 class NURIA_CORE_EXPORT MetaAnnotation {
 public:
