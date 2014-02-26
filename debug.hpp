@@ -282,31 +282,31 @@ Q_DECLARE_METATYPE(Nuria::Debug::Type)
 #ifndef NURIA_DEBUG_NO_DEBUG
 #define nDebug() NURIA_DEBUG(Nuria::Debug::DebugMsg)
 #else
-#define nDebug() DebugIgnore()
+#define nDebug() Nuria::DebugIgnore()
 #endif
 
 #ifndef NURIA_DEBUG_NO_LOG
 #define nLog() NURIA_DEBUG(Nuria::Debug::LogMsg)
 #else
-#define nLog() DebugIgnore()
+#define nLog() Nuria::DebugIgnore()
 #endif
 
 #ifndef NURIA_DEBUG_NO_WARN
 #define nWarn() NURIA_DEBUG(Nuria::Debug::WarnMsg)
 #else
-#define nWarn() DebugIgnore()
+#define nWarn() Nuria::DebugIgnore()
 #endif
 
 #ifndef NURIA_DEBUG_NO_ERROR
 #define nError() NURIA_DEBUG(Nuria::Debug::ErrorMsg)
 #else
-#define nError() DebugIgnore()
+#define nError() Nuria::DebugIgnore()
 #endif
 
 #ifndef NURIA_DEBUG_NO_CRITICAL
 #define nCritical() NURIA_DEBUG(Nuria::Debug::CriticalMsg)
 #else
-#define nCritical() DebugIgnore()
+#define nCritical() Nuria::DebugIgnore()
 #endif
 
 #endif // NURIA_DEBUG_HPP
