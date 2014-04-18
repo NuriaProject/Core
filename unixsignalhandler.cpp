@@ -19,12 +19,13 @@
 
 #include <QCoreApplication>
 #include <QSocketNotifier>
-#include <nuria/debug.hpp>
 #include <unistd.h>
 #include <signal.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <memory>
+
+#include "debug.hpp"
 
 // Global for easy access from signal handler
 static int g_pipe[2];

@@ -18,7 +18,7 @@
 #ifndef UNIXSIGNALHANDLER_HPP
 #define UNIXSIGNALHANDLER_HPP
 
-#include <nuria/callback.hpp>
+#include "callback.hpp"
 #include <QObject>
 
 namespace Nuria {
