@@ -30,7 +30,8 @@ SOURCES += \
     conditionevaluator.cpp \
     lazyevaluation.cpp \
     lazyconditionwalker.cpp \
-    metaobject.cpp
+    metaobject.cpp \
+    unixsignalhandler.cpp
 
 HEADERS +=\
     debug.hpp \
@@ -49,7 +50,8 @@ HEADERS +=\
     conditionevaluator.hpp \
     lazyevaluation.hpp \
     lazyconditionwalker.hpp \
-    metaobject.hpp
+    metaobject.hpp \
+    unixsignalhandler.hpp
 
 # Install stuff
 includes.path = $$INCDIR/nuria
