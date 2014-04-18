@@ -36,7 +36,7 @@ class RuntimeMetaObjectPrivate;
  * 2. Use the add*() methods to set-up your virtual type
  * 3. Use finalize() to make the meta-object usable.
  */
-class RuntimeMetaObject : public MetaObject {
+class NURIA_CORE_EXPORT RuntimeMetaObject : public MetaObject {
 public:
 	
 	/**

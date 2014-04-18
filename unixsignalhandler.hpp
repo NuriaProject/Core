@@ -56,7 +56,7 @@ class UnixSignalHandlerPrivate;
  * 
  * See also sigaction(3) for in-depth details.
  */
-class UnixSignalHandler : public QObject {
+class NURIA_CORE_EXPORT UnixSignalHandler : public QObject {
 	Q_OBJECT
 public:
 	
