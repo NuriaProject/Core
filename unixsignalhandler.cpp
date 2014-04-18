@@ -122,15 +122,6 @@ Nuria::UnixSignalHandler::~UnixSignalHandler () {
 
 static void signalHandler (int signo, siginfo_t * /* info */, void * /* context */) {
 	::write (g_pipe[1], &signo, sizeof signo);
-#if 0
-	char buf[3] = "00";
-	if (signo > 10) { buf[0] = '1'; signo -= 10; }
-	buf[1] = '0' + signo;
-	
-	::write (1, "sig ", 4);
-	::write (1, buf, 2);
-	::write (1, "\n", 1);
-#endif
 }
 
 bool Nuria::UnixSignalHandler::listenToUnixSignal (int signalId) {
