@@ -31,6 +31,8 @@ SOURCES += \
     lazyevaluation.cpp \
     lazyconditionwalker.cpp \
     metaobject.cpp \
+    jsonmetaobjectreader.cpp \
+    runtimemetaobject.cpp \
     unixsignalhandler.cpp
 
 HEADERS +=\
@@ -51,6 +53,8 @@ HEADERS +=\
     lazyevaluation.hpp \
     lazyconditionwalker.hpp \
     metaobject.hpp \
+    jsonmetaobjectreader.hpp \
+    runtimemetaobject.hpp \
     unixsignalhandler.hpp
 
 # Install stuff
