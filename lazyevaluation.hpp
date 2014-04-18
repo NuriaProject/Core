@@ -67,7 +67,7 @@ public:
 	 * Available types of conditions.
 	 */
 	enum Type {
-		Empty, /// Invalid instance, evaluates to \c false.
+		Empty = 0, /// Invalid instance, evaluates to \c false.
 		Single, /// Evaluates to (left).
 		Equal, /// Evaluates to (left == right).
 		NonEqual, /// Evaluates to (left != right).

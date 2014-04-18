@@ -578,7 +578,7 @@ public:
 		AnnotationValue = 11, // QVariant
 		
 		MethodName = 20, // QByteArray
-		MethodType = 21, // QByteArray
+		MethodType = 21, // Nuria::MetaMethod::Type
 		MethodReturnType = 22, // QByteArray
 		MethodArgumentNames = 23, // QVector< QByteArray >
 		MethodArgumentTypes = 24, // QVector< QByteArray >
@@ -638,6 +638,9 @@ public:
 	/** Constructor, does nothing. */
 	inline MetaObject () {}
 	
+	/** Destructor, does nothing. */
+	virtual ~MetaObject () {}
+	
 	/**
 	 * Returns the class name of the represented type.
 	 */
@@ -645,7 +648,7 @@ public:
 	
 	/**
 	 * Returns the Qt meta-type id of this type. Returns \c 0 if this type
-	 * doesn't have value-type semantics.
+	 * doesn't have value-semantics.
 	 */
 	int metaTypeId ();
 	

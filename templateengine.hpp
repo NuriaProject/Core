@@ -197,7 +197,7 @@ public:
 	
 	/**
 	 * \overload
-	 * Convenience overload for binding QObject*s.
+	 * Convenience overload for binding QObjects.
 	 */
 	void bind (const QString &name, QObject *object);
 	
