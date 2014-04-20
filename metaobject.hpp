@@ -601,6 +601,18 @@ public:
 	};
 	
 	/**
+	 * Returns the MetaObject of \c T. For this to work, \c T* has to be
+	 * registered to the Qt meta system using
+	 * \codeline Q_DECLARE_METATYPE(T*)
+	 */
+	template< typename T >
+	static MetaObject *of () {
+		int id = qMetaTypeId< T * > ();
+		const char *typeName = QMetaType::typeName (id);
+		return MetaObject::byName (QByteArray (typeName, ::strlen (typeName) - 1));
+	}
+	
+	/**
 	 * Returns the corresponding MetaObject instance for \a type.
 	 * If \a type is not known, \c nullptr is returned.
 	 */
