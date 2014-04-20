@@ -19,108 +19,178 @@
 #define NURIA_SERIALIZER_HPP
 
 #include "essentials.hpp"
+#include "metaobject.hpp"
 #include <QStringList>
 #include <QVariant>
 #include <QObject>
 
 namespace Nuria {
 
+class SerializerPrivate;
+
 /**
- * \brief (De-)Serializer for QObject sub-classes.
+ * \brief (De-)Serializer for arbitary types based on Nuria::MetaObject.
  * 
- * This class offers methods to easily (de-)serialize QObject based structures
- * from and to QVariantMaps, which can be e.g. (de-)serialized to JSON or other
- * data structures.
+ * This class offers methods to easily (de-)serialize structures from and to
+ * QVariantMaps, which can be e.g. (de-)serialized to JSON or other data
+ * structures.
  * 
  * \par Usage
- * This class makes heavy use of the Qt meta system. When using custom QObject
- * subclasses it's therefore necessary to register the \b pointer using the
- * Q_DECLARE_METATYPE macro and also qRegisterMetaType.
+ * This class makes heavy use of the Nuria meta system. Therefore it's necessary
+ * to have Nuria::MetaObjects for all involved types. Though the only thing you
+ * really need to do is using Tria (Or Nuria::QtMetaObjectWrapper as fallback).
  * 
- * Additionally, all exposed variables must be accessible through properties.
- * When possible, Serializer::objectFromMap will use a constructor with as many
- * matching arguments as possible. A matching constructor is one, where all
- * arguments are available in the given data and are of the same type.
+ * \par Deserialization flow
+ * When a fields type does not match the one in the variant map, the following
+ * steps in the specified order are tried to resolve it:
  * 
- * \note To expose a constructor you have to prefix it with Q_INVOKABLE.
+ * - If it's a QVariantMap, then it'll be tried to find a MetaObject for the
+ *   type of the field and tried to deserialize.
+ * - Nuria::Variant::convert is tried to convert it if the map element is a
+ * string (QString -> T)
+ * - QVariant::convert is tried if the map element is a string (QString -> T)
  * 
- * \warning A type which is not correctly registered will lead to undefined
- * behaviour!
+ * If all above steps fail, it'll be noted in the failed list.
+ * \sa failed
  * 
- * \par Example
- * \code
- * // Sample class
- * class MyClass : public QObject {
- *   Q_OBJECT
- *   Q_PROPERTY(int foo READ foo WRITE setFoo)
- * public:
- *   Q_INVOKABLE (int foo);
- *   // ...
- * };
+ * \note Tria will automatically try to register conversions through the
+ * generated code.
  * 
- * // Register the pointer type
- * Q_DECLARE_METATYPE(MyClass*)
+ * \par Serialization flow
+ * For serialization, the following steps are tried:
  * 
- * // Serializing and deserializing a instance
- * qRegisterMetaType< MyClass * > ();
- * QVariantMap serialized = Nuria::Serializer::objectToMap (myClassInstance);
- * QObject *myDeserializedInstance = Nuria::Serializer::objectFromMap (serialized);
- * \endcode
+ * - If the field type is a POD number type, QString, QVariantList or
+ *   QVariantMap, it'll be used.
+ * - If the field type is in the allowed types vector, it'll be used.
+ * - If the field type is known to the Nuria meta system, serialize() will
+ * recurse into it
+ * - Nuria::Variant::convert is tried (T -> QString)
+ * - QVariant::convert is tried (T -> QString)
+ * 
+ * If all above steps fail, it'll be noted in the failed list.
+ * \sa failed
  * 
  */
 class NURIA_CORE_EXPORT Serializer {
 public:
-	/*
-	enum ConversionPolicy {
-		NoConversion,
-		QVariantConversion,
-		NuriaConversion
+	
+	enum RecursionDepth {
+		NoRecursion = 0,
+		InfiniteRecursion = -3
 	};
-	*/
 	
 	/**
-	 * Creates a QObject of type \a meta from \a data.
-	 * Keys in \a data are interpreted to be properties in the QObject.
-	 * First, a suitable constructor is searched. A constructor is deemed
-	 * suitable if all argument name are present in \a data and the value
-	 * types match (i.e. the data type of the value in \a data is the same
-	 * as the type of the argument). The constructor with the most matches
-	 * is chosen. 
-	 * All key value pairs from \a data which were not already passed to the
-	 * constructor will be set using QObject::setProperty().
+	 * Prototype for a method which returns the Nuria::MetaObject for a
+	 * named type. If no type can be found for that name, \c nullptr should
+	 * be returned instead.
+	 */
+	typedef std::function< MetaObject *(const QByteArray & /* typeName */) > MetaObjectFinder;
+	
+	/**
+	 * Prototype for a method which uses the two arguments \a metaObject
+	 * and \a data to return a new instance of \a metaObject. \a data may
+	 * be manipulated by the method freely if so desired (E.g. to filter
+	 * fields or to add or remove fields for other reasons).
 	 * 
-	 * Keys in \a exclude are ignored. It's also possible to always ignore a
-	 * certain property by creating a Q_CLASSINFO named
-	 * "objectFromMap.exclude.<Property>". \a failedProperties contains a
-	 * list of keys which were not able to be set (For example if the
-	 * datatype didn't match). 
+	 * If creation fails, \c nullptr should be returned to indicate an
+	 * error.
+	 */
+	typedef std::function< void *(MetaObject * /* metaObject */, QVariantMap & /* data */) > InstanceCreator;
+	
+	/**
+	 * Constructor.
+	 */
+	Serializer (MetaObjectFinder metaObjectFinder = defaultMetaObjectFinder,
+		    InstanceCreator instanceCreator = defaultInstanceCreator);
+	
+	/** Destructor. */
+	~Serializer ();
+	
+	/**
+	 * Returns a list of excluded fields. The default list is empty.
+	 */
+	QVector< QByteArray > exclude () const;
+	
+	/**
+	 * Sets the list of excluded fields. When (de-)serializing, all fields
+	 * whose names match (case-sensitive) a entry in \a list will be
+	 * ignored.
+	 */
+	void setExclude (const QVector< QByteArray > &list);
+	
+	/**
+	 * Returns the list of allowed data types for serialization.
+	 * The default list is empty.
+	 */
+	QVector< QByteArray > allowedTypes () const;
+	
+	/**
+	 * Sets the list of additional allowed types for serialization.
+	 */
+	void setAllowedTypes (const QVector< QByteArray > &list) const;
+	
+	/**
+	 * Returns a list of fields which failed to (de-)serialize.
+	 */
+	QStringList failedFields () const;
+	
+	/**
+	 * Returns the maximum recursion depth for (de-)serialization. Default
+	 * value is \c NoRecursion (i.e. \c 0).
+	 */
+	int recursionDepth () const;
+	
+	/**
+	 * Sets the maximum recursion depth.
+	 */
+	void setRecursionDepth (int maxDepth);
+	
+	/**
+	 * Creates a instance of type \a meta from \a data.
+	 * Elements in \a data are interpreted to be fields in the object.
+	 * Elements of \a data which are not fields in \a object are silently
+	 * ignored.
 	 * 
-	 * If a property has a QObject-based type, the method can recurse into
-	 * the structure when finding it in the given map. For this to work, the
-	 * value for this property must be stored as QVariantMap inside \a data
-	 * and \a recursion must be unequal to zero. A negative value for
-	 * \a recursion is equal to infinite.
+	 * Fields that are of a custom type (E.g. not a POD-type or a Qt type)
+	 * will be deserialized too if the used MetaObjectFinder and
+	 * InstanceCreator can handle the type.
 	 * 
 	 * If all attempts to create a instance failed, \c nullptr is returned.
-	 * 
-	 * \note For this to work, there needs to be at least one constructor
-	 * which is marked as Q_INVOKABLE.
-	 * 
-	 * \note To get a value for \a meta use <YourType>::staticMetaObject.
 	 */
-	static QObject *objectFromMap (const QMetaObject *meta, const QVariantMap &data,
-				       int recursion = 0, /*ConversionPolicy conversion = NoConversion,*/
-				       const QStringList &exclude = QStringList(),
-				       QStringList *failedProperties = nullptr);
+	void *deserialize (const QVariantMap &data, MetaObject *meta);
+	
+	/** \overload */
+	void *deserialize (const QVariantMap &data, const QByteArray &typeName);
+	
+	/** \overload Works for types registered to the Qt meta sytem. */
+	template< typename T >
+	T *deserialize (const QVariantMap &data) {
+		MetaObject *meta = MetaObject::of< T > ();
+		return meta ? reinterpret_cast< T * > (deserialize (data, meta)) : nullptr;
+	}
 	
 	/**
-	 * Reads all properties from \a obj and puts them into a QVariantMap.
-	 * Properties can be excluded by either using the \a exclude string list
-	 * or by creating a Q_CLASSINFO named "objectToMap.exclude.<Property>".
-	 * If the name of a property is found in either of those, it will \b not
-	 * be exported.
+	 * Like deserialize, but instead takes a existing \a object and
+	 * populates it with \a data. Returns \c true if no elements
+	 * failed to deserialize.
+	 */
+	bool populate (void *object, MetaObject *meta, const QVariantMap &data);
+	
+	/** \overload */
+	bool populate (void *object, const QByteArray &typeName, const QVariantMap &data);
+	
+	/** \overload Works for types registered to the Qt meta sytem. */
+	template< typename T >
+	bool populate (T *object, const QVariantMap &data) {
+		MetaObject *meta = MetaObject::of< T > ();
+		return meta ? populate (object, meta, data) : false;
+	}
+	
+	/**
+	 * Reads all fields from \a object and puts them into a QVariantMap.
+	 * Fields can be excluded by using \a exclude.
 	 * 
-	 * If a property is a pointer which is a QObject, the method will
+	 * If a field is a pointer which is a object known to , the method will
 	 * recurse into it until \a recursion is \c 0, in which case the
 	 * property is silently skipped. The default value for \a recursion is
 	 * \c 0, thus by default the method will not recurse.
@@ -130,12 +200,34 @@ public:
 	 * 
 	* \note When recursing, \a exclude is passed on.
 	 */
-	static  QVariantMap objectToMap (const QObject *obj, int recursion = 0,
-					 const QStringList &exclude = QStringList());
+	QVariantMap serialize (void *object, MetaObject *meta);
+	
+	/** \overload */
+	QVariantMap serialize (void *object, const QByteArray &typeName);
+	
+	/**
+	 * Default meta object finder. \a typeName is expected to be known to
+	 * the Nuria meta system.
+	 */
+	static MetaObject *defaultMetaObjectFinder (const QByteArray &typeName);
+	
+	/**
+	 * Default instance creator. It simply tries to find the default
+	 * constructor for the type in \a metaObject and returns a new instance.
+	 * \a data is ignored.
+	 */
+	static void *defaultInstanceCreator (MetaObject *metaObject, QVariantMap &data);
 	
 private:
-	Serializer () = delete;
+	SerializerPrivate *d;
 	
+	QVariantMap serializeImpl (void *object, MetaObject *meta);
+	bool populateImpl (void *object, MetaObject *meta, const QVariantMap &data);
+	bool variantToField (QVariant &value, const QByteArray &targetType,
+			     int targetId, int sourceId, int pointerId, bool &ignored);
+	bool fieldToVariant (QVariant &value, bool &ignore);
+	bool readField (void *object, Nuria::MetaField &field, QVariantMap &data);
+	bool writeField (void *object, Nuria::MetaField &field, const QVariantMap &data);
 };
 
 }

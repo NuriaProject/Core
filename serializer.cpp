@@ -16,253 +16,379 @@
  */
 
 #include "serializer.hpp"
-
-#include <QMetaMethod>
 #include "debug.hpp"
 
-// 
-static QMap< QString, int > variantMapToTypeMap (const QVariantMap &data) {
-	QMap< QString, int > map;
+namespace Nuria {
+class SerializerPrivate {
+public:
 	
-	auto it = data.constBegin ();
-	auto end = data.constEnd ();
-	for (; it != end; ++it) {
-		map.insert (it.key (), it->userType ());
-	}
+	Serializer::InstanceCreator factory;
+	Serializer::MetaObjectFinder finder;
 	
-	return map;
+	QVector< QByteArray > excluded;
+	QVector< QByteArray > additionalTypes;
+	QStringList failed;
+	int maxDepth = Serializer::NoRecursion;
+	
+	int curDepth = 0;
+	
+};
+
 }
 
-static inline bool isQObject (const char *name) {
-	return QMetaType (QMetaType::type (name)).flags () & QMetaType::PointerToQObject;
-}
-
-static inline bool isQObject (int typeId) {
-	return QMetaType (typeId).flags () & QMetaType::PointerToQObject;
-}
-
-static bool constructorMatch (const QMetaMethod &method, const QMap< QString, int > &typeMap, bool recursive) {
+Nuria::Serializer::Serializer (MetaObjectFinder metaObjectFinder, InstanceCreator instanceCreator)
+	: d (new SerializerPrivate)
+{
 	
-	// Test data types
-	QList< QByteArray > names = method.parameterNames ();
-        int argCount = method.parameterCount ();
-	
-	for (int i = 0; i < argCount; i++) {
-		int type = typeMap.value (names.at (i), -1);
-		if (type != method.parameterType (i) && !recursive && !isQObject (type)) {
-			return false;
-		}
-		
-	}
-	
-	return true;
-}
-
-static QMetaMethod findConstructor (const QMetaObject *meta, const QMap< QString, int > &typeMap, bool recursive) {
-	QMetaMethod bestMatch;
-	
-	if (meta->constructorCount () == 0) {
-		nWarn() << "There's no constructor available for class" << meta->className ();
-	}
-	
-	for (int i = 0; i < meta->constructorCount (); i++) {
-		QMetaMethod cur = meta->constructor (i);
-		
-		int curArgs = cur.parameterCount ();
-		int bestArgs = bestMatch.parameterCount ();
-		
-		if ((!bestMatch.isValid () || curArgs > bestArgs) &&
-		    constructorMatch (cur, typeMap, recursive)) {
-			bestMatch = cur;
-		}
-		
-	}
-	
-	return bestMatch;
-}
-
-static QVariant variantFromSerializedData (int targetType, const QVariant &data, int recursion) {
-	if (targetType == -1 || data.userType () == targetType) {
-		return data;
-	}
-	
-	// QObject?
-	if (recursion != 0 && data.userType () == QMetaType::QVariantMap && isQObject (targetType)) {
-		const QMetaObject *meta = QMetaType::metaObjectForType (targetType);
-		QObject *deserialized = Nuria::Serializer::objectFromMap (meta, data.toMap (), recursion - 1);
-		return QVariant (targetType, &deserialized);
-	}
-	
-	// Failed
-	return QVariant ();
-}
-
-static void prepareGenericArguments (QGenericArgument *arr, QVariantList &argList,
-				     const QMetaMethod &method, QVariantMap &args,
-				     int recursion) {
-	
-	QList< QByteArray > names = method.parameterNames ();
-	for (int i = 0; i < method.parameterCount (); i++) {
-		int typeId = method.parameterType (i);
-		const char *typeName = QMetaType::typeName (typeId);
-		auto it = args.find (names.at (i));
-		
-		argList.append (variantFromSerializedData (typeId, *it, recursion));
-		arr[i] = QGenericArgument (typeName, argList.at (i).constData ());
-		
-		args.erase (it);
-	}
+	this->d->factory = instanceCreator;
+	this->d->finder = metaObjectFinder;
 	
 }
 
-static inline bool hasMetaInfo (const QMetaObject *meta, const char *classInfoName) {
-	for (int i = QObject::staticMetaObject.classInfoCount (); i < meta->classInfoCount (); i++) {
-		QMetaClassInfo info (meta->classInfo (i));
-		if (!::strcmp (info.name (), classInfoName)) {
-			return true;
-		}
-		
+Nuria::Serializer::~Serializer () {
+	delete this->d;
+}
+
+QVector< QByteArray > Nuria::Serializer::exclude () const {
+	return this->d->excluded;
+}
+
+void Nuria::Serializer::setExclude (const QVector< QByteArray > &list) {
+	this->d->excluded = list;
+	std::sort (this->d->excluded.begin (), this->d->excluded.end ());
+}
+
+QVector< QByteArray > Nuria::Serializer::allowedTypes () const {
+	return this->d->additionalTypes;
+}
+
+void Nuria::Serializer::setAllowedTypes (const QVector< QByteArray > &list) const {
+	this->d->additionalTypes = list;
+}
+
+QStringList Nuria::Serializer::failedFields () const {
+	return this->d->failed;
+}
+
+int Nuria::Serializer::recursionDepth () const {
+	return this->d->maxDepth;
+}
+
+void Nuria::Serializer::setRecursionDepth (int maxDepth) {
+	this->d->maxDepth = maxDepth;
+}
+
+void *Nuria::Serializer::deserialize (const QVariantMap &data, Nuria::MetaObject *meta) {
+	
+	QVariantMap fields = data;
+	void *instance = this->d->factory (meta, fields);
+	
+	if (!instance) {
+		return nullptr;
+	}
+	
+	// 
+	populate (instance, meta, fields);
+	return instance;
+	
+}
+
+void *Nuria::Serializer::deserialize (const QVariantMap &data, const QByteArray &typeName) {
+	MetaObject *meta = this->d->finder (typeName);
+	
+	if (!meta) {
+		return nullptr;
+	}
+	
+	return deserialize (data, meta);
+}
+
+static bool isAllowedType (int id) {
+	switch (id) {
+	case QMetaType::Bool:
+	case QMetaType::Int:
+	case QMetaType::Float:
+	case QMetaType::Double:
+	case QMetaType::LongLong:
+	case QMetaType::ULongLong:
+	case QMetaType::UInt:
+	case QMetaType::QString:
+	case QMetaType::QStringList:
+	case QMetaType::QVariantList:
+	case QMetaType::QVariantMap:
+		return true;
 	}
 	
 	return false;
 }
 
-static inline void findExcludedProperties (const QString &prefix, const QMetaObject *meta, QStringList &list) {
-	int i = QObject::staticMetaObject.propertyCount ();
-	for (; i < meta->propertyCount (); i++) {
-		QMetaProperty cur = meta->property (i);
-		QString name (QLatin1String (cur.name ()));
-		QString metaInfoName = prefix + name;
-		
-		if (hasMetaInfo (meta, qPrintable(metaInfoName))) {
-			list.append (name);
-		}
-		
+// Steals the pointer to an object from 'variant'
+static void *stealPointer (QVariant &variant) {
+	QVariant::Private &data = variant.data_ptr ();
+	void *result = data.data.ptr;
+	
+	if (data.is_shared) {
+		nCritical() << "The variant" << variant
+			    << "must NOT contain a non-pointer type!! - Aborting";
+		abort ();
 	}
 	
-}
-
-static int findTypeOfProperty (const QMetaObject *meta, const char *name) {
-	for (int i = QObject::staticMetaObject.propertyCount (); i < meta->propertyCount (); i++) {
-		QMetaProperty cur (meta->property (i));
-		if (!::strcmp (cur.name (), name)) {
-			return cur.userType ();
-		}
-		
-	}
+	data.is_shared = false;
+	data.is_null = true;
+	data.type = QVariant::Invalid;
+	data.data.ptr = nullptr;
 	
-	return -1;
-}
-
-static void applyPropertiesFromMap (QObject *obj, const QVariantMap &map, int recursion,
-				    QStringList *failedProperties) {
-	auto it = map.constBegin ();
-	auto end = map.constEnd ();
-	
-	for (; it != end; ++it) {
-		// Defer type of property
-		int targetType = -1;
-		if (it->userType () == QMetaType::QVariantMap) {
-			targetType = findTypeOfProperty (obj->metaObject (), qPrintable(it.key ()));
-		}
-		
-		// Deserialize
-		QVariant value = variantFromSerializedData (targetType, *it, recursion);
-		if (!obj->setProperty (qPrintable(it.key ()), value) && failedProperties) {
-			failedProperties->append (it.key ());
-		}
-		
-	}
-	
-}
-
-static QObject *createObject (const QMetaObject *meta, QVariantMap &args, int recursion) {
-
-	// Find constructor
-	QMetaMethod ctor = findConstructor (meta, variantMapToTypeMap (args), recursion != 0);
-	
-//	qDebug() << "Chosen constructor:" << ctor.name () << ctor.parameterNames () << ctor.parameterTypes ();
-	if (!ctor.isValid ()) {
-	        return nullptr;
-	}
-	
-	// 
-	QObject *result = nullptr;
-	QVariantList tempArgumentList;
-	QGenericArgument rawArgs[10];
-	
-	// Create arguments and create instance
-	prepareGenericArguments (rawArgs, tempArgumentList, ctor, args, recursion);
-	result = meta->newInstance (rawArgs[0], rawArgs[1], rawArgs[2],
-			rawArgs[3], rawArgs[4], rawArgs[5], rawArgs[6],
-			rawArgs[7], rawArgs[8], rawArgs[9]);
-	
-	// Done.
 	return result;
 }
 
-QObject *Nuria::Serializer::objectFromMap (const QMetaObject *meta, const QVariantMap &data,
-					   int recursion, const QStringList &exclude,
-					   QStringList *failedProperties) {
-	static const QString metaInfoPrefix = QStringLiteral("objectFromMap.exclude.");
-	QVariantMap args (data);
-	QStringList excluded (exclude);
-	
-	// Remove excluded properties
-	findExcludedProperties (metaInfoPrefix, meta, excluded);
-	for (const QString &removeMe : excluded) {
-		args.remove (removeMe);
+// Puts 'object' into 'variant', moving ownership without copying any data.
+// If 'pointerId' is not zero, then the pointer to the object will be stored
+// instead.
+void putObjectIntoVariant (QVariant &variant, void *object, int typeId, int pointerId) {
+	if (pointerId) {
+		variant = QVariant (pointerId, &object, true);
+		return;
 	}
 	
-	// Create instance.
-	QObject *obj = createObject (meta, args, recursion);
-	if (!obj) {
+	// 
+	variant.clear ();
+	
+	QVariant::DataPtr &data = variant.data_ptr ();
+	data.is_shared = true;
+	data.is_null = false;
+	data.type = typeId;
+	data.data.shared = new QVariant::PrivateShared (object);
+	
+}
+
+bool Nuria::Serializer::variantToField (QVariant &value, const QByteArray &targetType,
+					int targetId, int sourceId, int pointerId,
+					bool &ignored) {
+	
+	if (sourceId == QMetaType::QVariantMap) {
+		if (this->d->curDepth == 1) {
+			ignored = true;
+			return true;
+		}
+		
+		// 
+		MetaObject *meta = this->d->finder (targetType);
+		QVariantMap data = value.toMap ();
+		void *obj = this->d->factory (meta, data);
+		
+		if (meta && populateImpl (obj, meta, data)) {
+			putObjectIntoVariant (value, obj, targetId, pointerId);
+			return true;
+		}
+		
+	}
+	
+	// Try Variant::convert() which internally triggers QVariant conversion
+	QVariant result = Variant::convert (value, targetId);
+	if (result.isValid ()) {
+		value.swap (result);
+		return true;
+	}
+	
+	return false;
+}
+
+bool Nuria::Serializer::fieldToVariant (QVariant &value, bool &ignore) {
+	QByteArray typeName = QByteArray (value.typeName (), -1);
+	MetaObject *meta = this->d->finder (typeName);
+	
+	if (meta) {
+		void *dataPtr = value.data ();
+		
+		if (typeName.endsWith ('*')) {
+			dataPtr = *reinterpret_cast< void ** > (dataPtr);
+		}
+		
+		if (this->d->curDepth == 1) {
+			ignore = true;
+		} else {
+			value = serializeImpl (dataPtr, meta);
+		}
+		
+		return true;
+	}
+	
+	// Variant::convert() triggers QVariant conversion internally
+	QVariant conv = Nuria::Variant::convert (value, QMetaType::QString);
+	if (conv.isValid ()) {
+		value = conv;
+		return true;
+	}
+	
+	return false;
+}
+
+bool Nuria::Serializer::readField (void *object, Nuria::MetaField &field, QVariantMap &data) {
+	QVariant value = field.read (object);
+	QString name = QString::fromLatin1 (field.name ());
+	
+	if (isAllowedType (value.userType ()) ||
+	    this->d->additionalTypes.contains (field.typeName ())) {
+		data.insert (name, value);
+		return true;
+	}
+	
+	bool ignore = false;
+	if (fieldToVariant (value, ignore)) {
+		
+		if (!ignore) {
+			data.insert (name, value);
+		}
+		
+		return true;
+	}
+	
+	return false;
+}
+
+bool Nuria::Serializer::writeField (void *object, Nuria::MetaField &field, const QVariantMap &data) {
+	QVariant value = data.value (QString::fromLatin1 (field.name ()));
+	QByteArray typeName = field.typeName ();
+	bool isPointer = typeName.endsWith ('*');
+	bool ignored = false;
+	int pointerId = 0;
+	
+	if (isPointer) {
+		pointerId = QMetaType::type (typeName.constData ());
+		typeName.chop (1);
+	}
+	
+	int sourceId = value.userType ();
+	int targetId = QMetaType::type (typeName.constData ());
+	
+	if (sourceId != targetId) {
+		variantToField (value, typeName, targetId, sourceId, pointerId, ignored);
+		
+		if (ignored) {
+			return true;
+		}
+		
+	}
+	
+	if ((isPointer && value.isValid ()) || value.userType () == targetId) {
+		return field.write (object, value);
+	}
+	
+	// 
+	return false;
+	
+}
+
+bool Nuria::Serializer::populate (void *object, Nuria::MetaObject *meta, const QVariantMap &data) {
+	this->d->failed.clear ();
+	this->d->curDepth = this->d->maxDepth + 2;
+	
+	return populateImpl (object, meta, data);
+}
+
+bool Nuria::Serializer::populateImpl (void *object, Nuria::MetaObject *meta, const QVariantMap &data) {
+	this->d->curDepth--;
+	
+	if (!this->d->curDepth) {
+		this->d->curDepth++;
+		return false;
+	}
+	
+	// 
+	int fields = meta->fieldCount ();
+	for (int i = 0; i < fields; i++) {
+		MetaField field = meta->field (i);
+		
+		bool ignore = std::binary_search (this->d->excluded.constBegin (),
+						  this->d->excluded.constEnd (),
+						  field.name ());
+		
+		if (!ignore && !writeField (object, field, data)) {
+			this->d->failed.append (field.name ());
+		}
+		
+	}
+	
+	this->d->curDepth++;
+	return this->d->failed.isEmpty ();
+}
+
+bool Nuria::Serializer::populate (void *object, const QByteArray &typeName, const QVariantMap &data) {
+	MetaObject *meta = this->d->finder (typeName);
+	
+	if (!meta) {
+		return false;
+	}
+	
+	return populate (object, meta, data);
+}
+
+QVariantMap Nuria::Serializer::serialize (void *object, Nuria::MetaObject *meta) {
+	this->d->failed.clear ();
+	this->d->curDepth = this->d->maxDepth + 2;
+	
+	return serializeImpl (object, meta);
+}
+
+QVariantMap Nuria::Serializer::serializeImpl (void *object, Nuria::MetaObject *meta) {
+	QVariantMap map;
+	this->d->curDepth--;
+	
+	if (!this->d->curDepth) {
+		this->d->curDepth++;
+		return map;
+	}
+	
+	// 
+	int fields = meta->fieldCount ();
+	for (int i = 0; i < fields; i++) {
+		MetaField field = meta->field (i);
+		
+		bool ignore = std::binary_search (this->d->excluded.constBegin (),
+						  this->d->excluded.constEnd (),
+						  field.name ());
+		
+		if (!ignore && !readField (object, field, map)) {
+			this->d->failed.append (field.name ());
+		}
+		
+	}
+	
+	// 
+	this->d->curDepth++;
+	return map;
+}
+
+QVariantMap Nuria::Serializer::serialize (void *object, const QByteArray &typeName) {
+	MetaObject *meta = this->d->finder (typeName);
+	
+	if (!meta) {
+		return QVariantMap ();
+	}
+	
+	return serialize (object, meta);
+}
+
+Nuria::MetaObject *Nuria::Serializer::defaultMetaObjectFinder (const QByteArray &typeName) {
+	MetaObject *meta = MetaObject::byName (typeName);
+	
+	if (!meta && typeName.endsWith ('*')) {
+		QByteArray objType = typeName.left (typeName.length () - 1);
+		return MetaObject::byName (objType);
+	}
+	
+	return meta;
+}
+
+void *Nuria::Serializer::defaultInstanceCreator (Nuria::MetaObject *metaObject, QVariantMap &data) {
+	Q_UNUSED(data);
+	
+	MetaMethod ctor = metaObject->method (QVector< QByteArray > { QByteArray () });
+	
+	if (!ctor.isValid ()) {
 		return nullptr;
 	}
 	
-	// Set additional properties
-	applyPropertiesFromMap (obj, args, recursion, failedProperties);
-	
-	// Done
-	return obj;
-}
-
-QVariantMap Nuria::Serializer::objectToMap (const QObject *obj, int recursion, const QStringList &exclude) {
-	static const QString metaInfoPrefix = QStringLiteral("objectToMap.exclude.");
-	const QMetaObject *meta = obj->metaObject ();
-	QStringList excluded (exclude);
-	QVariantMap map;
-	
-	// 
-	findExcludedProperties (metaInfoPrefix, meta, excluded);
-	
-	// Iterate over properties, leaving out QObject's
-	int i = QObject::staticMetaObject.propertyCount ();
-	for (; i < meta->propertyCount (); i++) {
-		QMetaProperty cur = meta->property (i);
-		
-		// Take name and check if it's skipped
-		QString name (QLatin1String (cur.name ()));
-		if (excluded.contains (name)) {
-			continue;
-		}
-		
-		// Is it a pointer?
-		QVariant value = obj->property (cur.name ());
-		if (::strchr (value.typeName (), '*')) {
-			QObject *child = value.value< QObject * > ();
-			if (recursion != 0 && child && isQObject (cur.userType ())) {
-				value = objectToMap (child, recursion - 1, exclude);
-			} else {
-				continue;
-			}
-			
-		}
-		
-		// Store
-		map.insert (name, value);
-		
-	}
-	
-	return map;
+	QVariant instance = ctor.callback () ();
+	return stealPointer (instance);
 }
