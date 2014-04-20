@@ -490,17 +490,14 @@ bool Nuria::Variant::canCompare (int leftType, int rightType) {
 	
 }
 
-// Helper function for convert() which tries to convert variant to type
-// if both are Qt types. Returns an invalid QVariant if failed.
-inline static QVariant convertQt (const QVariant &variant, int type) {
-	
-	if (variant.userType () < QMetaType::User && type < QMetaType::User) {
-		QVariant result = variant;
-		result.convert ((QVariant::Type)type);
-		return result;
+// Helper function for convert() which tries to convert 'variant' to 'type'
+// using the Qt/QVariant conversion mechanism (Implemented since Qt5.2)
+inline static QVariant convertQt (QVariant variant, int type) {
+	if (!variant.convert (type)) {
+		return QVariant ();
 	}
 	
-	return QVariant ();
+	return variant;
 }
 
 // Helper function for canConvert().
