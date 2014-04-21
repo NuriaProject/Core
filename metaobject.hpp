@@ -120,9 +120,12 @@ private:
  * 
  * \note Returned Callback instances are bound to whatever instance you passed
  * to the getter method.
+ * 
  * \par Constructors
  * Unlike the Qt API, constructors are exposed as methods and to be used like
  * static methods. The returned QVariant will report a type of \c Type*.
+ * 
+ * \note To get the pointer to the instance easily, use Variant::stealPointer().
  * 
  * \par Behaviour of NURIA_REQUIRE
  * NURIA_REQUIRE gets evaluated before calling the method itself. If the call
