@@ -550,6 +550,16 @@ public:
 		return list;
 	}
 	
+	/**
+	 * Steals the pointer from \a variant and returns it. Works only for
+	 * pointer types, that is, \c T* but not T. If \a variant is invalid,
+	 * \c nullptr is returned. After return, \a variant will be invalid if
+	 * it contained a pointer.
+	 * 
+	 * \note Ownership of the returned pointer is transferred to the caller.
+	 */
+	static void *stealPointer (QVariant &variant);
+	
 private:
 	
 	/**

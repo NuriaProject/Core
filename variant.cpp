@@ -1100,3 +1100,19 @@ QVariantMap Nuria::Variant::toMap (QVariant variant) {
 	return map;
 	
 }
+
+void *Nuria::Variant::stealPointer (QVariant &variant) {
+	QVariant::Private &data = variant.data_ptr ();
+	void *result = data.data.ptr;
+	
+	if (data.is_shared) {
+		return nullptr;
+	}
+	
+	// Clear variant.
+	data.is_null = true;
+	data.type = QVariant::Invalid;
+	data.data.ptr = nullptr;
+	
+	return result;
+}

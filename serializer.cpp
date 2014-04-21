@@ -122,25 +122,6 @@ static bool isAllowedType (int id) {
 	return false;
 }
 
-// Steals the pointer to an object from 'variant'
-static void *stealPointer (QVariant &variant) {
-	QVariant::Private &data = variant.data_ptr ();
-	void *result = data.data.ptr;
-	
-	if (data.is_shared) {
-		nCritical() << "The variant" << variant
-			    << "must NOT contain a non-pointer type!! - Aborting";
-		abort ();
-	}
-	
-	data.is_shared = false;
-	data.is_null = true;
-	data.type = QVariant::Invalid;
-	data.data.ptr = nullptr;
-	
-	return result;
-}
-
 // Puts 'object' into 'variant', moving ownership without copying any data.
 // If 'pointerId' is not zero, then the pointer to the object will be stored
 // instead.
@@ -390,5 +371,5 @@ void *Nuria::Serializer::defaultInstanceCreator (Nuria::MetaObject *metaObject, 
 	}
 	
 	QVariant instance = ctor.callback () ();
-	return stealPointer (instance);
+	return Variant::stealPointer (instance);
 }
