@@ -242,7 +242,7 @@ bool Nuria::Serializer::writeField (void *object, Nuria::MetaField &field, const
 	int sourceId = value.userType ();
 	int targetId = QMetaType::type (typeName.constData ());
 	
-	if (sourceId != targetId) {
+	if (sourceId != targetId && targetId != QMetaType::QVariant) {
 		variantToField (value, typeName, targetId, sourceId, pointerId, ignored);
 		
 		if (ignored) {
@@ -251,7 +251,8 @@ bool Nuria::Serializer::writeField (void *object, Nuria::MetaField &field, const
 		
 	}
 	
-	if ((isPointer && value.isValid ()) || value.userType () == targetId) {
+	if ((isPointer && value.isValid ()) || value.userType () == targetId ||
+	    targetId == QMetaType::QVariant) {
 		return field.write (object, value);
 	}
 	
