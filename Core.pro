@@ -34,7 +34,8 @@ SOURCES += \
     jsonmetaobjectreader.cpp \
     runtimemetaobject.cpp \
     unixsignalhandler.cpp \
-    qtmetaobjectwrapper.cpp
+    qtmetaobjectwrapper.cpp \
+    test.cpp
 
 HEADERS +=\
     debug.hpp \
@@ -57,7 +58,8 @@ HEADERS +=\
     jsonmetaobjectreader.hpp \
     runtimemetaobject.hpp \
     unixsignalhandler.hpp \
-    qtmetaobjectwrapper.hpp
+    qtmetaobjectwrapper.hpp \
+    test.hpp
 
 # Install stuff
 includes.path = $$INCDIR/nuria
