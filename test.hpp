@@ -67,7 +67,6 @@ bool runTestCases (int argc, char **argv);
 #define NURIA_TEST_MAIN_PROLOGUE
 #endif
 
-
 /**
  * Defines a test-case called \a Name with test code \a Code. \a Code must be
  * enclosed in curly braces ("{}") and must return \c true on success and
