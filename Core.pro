@@ -34,7 +34,8 @@ SOURCES += \
     jsonmetaobjectreader.cpp \
     runtimemetaobject.cpp \
     qtmetaobjectwrapper.cpp \
-    test.cpp
+    test.cpp \
+    temporarybufferdevice.cpp
 
 unix: SOURCES += unixsignalhandler.cpp
 
@@ -59,7 +60,8 @@ HEADERS +=\
     jsonmetaobjectreader.hpp \
     runtimemetaobject.hpp \
     qtmetaobjectwrapper.hpp \
-    test.hpp
+    test.hpp \
+    temporarybufferdevice.hpp
 
 unix: HEADERS += unixsignalhandler.hpp
 
