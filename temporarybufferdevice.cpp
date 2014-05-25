@@ -213,7 +213,10 @@ qint64 Nuria::TemporaryBufferDevice::writeData (const char *data, qint64 len) {
 		decideStrategy (cur + len);
 	}
 	
-	return this->d_ptr->device->write (data, len);
+	if (this->d_ptr->device) {
+		return this->d_ptr->device->write (data, len);
+	}
+	
 }
 
 void Nuria::TemporaryBufferDevice::decideStrategy (int newSize) {
