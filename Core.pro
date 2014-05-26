@@ -36,7 +36,10 @@ SOURCES += \
     qtmetaobjectwrapper.cpp \
     test.cpp \
     temporarybufferdevice.cpp \
-    referencedevice.cpp
+    referencedevice.cpp \
+    abstractsessionmanager.cpp \
+    session.cpp \
+    sessionmanager.cpp
 
 unix: SOURCES += unixsignalhandler.cpp
 
@@ -63,7 +66,10 @@ HEADERS +=\
     qtmetaobjectwrapper.hpp \
     test.hpp \
     temporarybufferdevice.hpp \
-    referencedevice.hpp
+    referencedevice.hpp \
+    abstractsessionmanager.hpp \
+    session.hpp \
+    sessionmanager.hpp
 
 unix: HEADERS += unixsignalhandler.hpp
 
