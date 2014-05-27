@@ -17,8 +17,8 @@
 
 #include "temporarybufferdevice.hpp"
 
-#include <nuria/debug.hpp>
 #include <QTemporaryFile>
+#include "debug.hpp"
 #include <QBuffer>
 
 namespace Nuria {
