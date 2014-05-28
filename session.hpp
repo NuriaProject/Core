@@ -54,7 +54,7 @@ public:
 	/**
 	 * Returns the id used to identify the session in the manager.
 	 */
-	const QByteArray id () const;
+	QByteArray id () const;
 	
 	/**
 	 * Returns the manager which handles this session.
@@ -62,7 +62,7 @@ public:
 	AbstractSessionManager *manager () const;
 	
 	/**
-	 * Returns \a true if the stored data has changed.
+	 * Returns \c true if the stored data has changed.
 	 */
 	bool isDirty () const;
 	
@@ -90,7 +90,7 @@ public:
 	/**
 	 * Returns a writable reference to the stored value under key.
 	 */
-	QVariant& operator[] (const QString& key);
+	QVariant &operator[] (const QString& key);
 	
 	/**
 	 * Fetches the value stored under key

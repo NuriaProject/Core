@@ -17,15 +17,27 @@
 
 #include "sessionmanager.hpp"
 
+#include <QCache>
 
 class Nuria::SessionManagerPrivate {
 public:
-	QMap< QByteArray, Session > sessions;
+	QCache< QByteArray, Session > sessions;
 };
 
-Nuria::SessionManager::SessionManager (QObject *parent)
+Nuria::SessionManager::SessionManager (int maxSessions, QObject *parent)
 	: Nuria::AbstractSessionManager (parent), d_ptr (new SessionManagerPrivate)
 {
+	d_ptr->sessions.setMaxCost (maxSessions);
+}
+
+int Nuria::SessionManager::maxSessions ()
+{
+	return d_ptr->sessions.maxCost ();
+}
+
+void Nuria::SessionManager::setMaxSessions (int maxSessions)
+{
+	d_ptr->sessions.setMaxCost (maxSessions);
 }
 
 bool Nuria::SessionManager::exists(const QByteArray &id)
@@ -35,9 +47,11 @@ bool Nuria::SessionManager::exists(const QByteArray &id)
 
 Nuria::Session Nuria::SessionManager::get (const QByteArray &id) {
 	if (d_ptr->sessions.contains (id)) {
-		return d_ptr->sessions.value (id);
+		return *d_ptr->sessions.object (id);
 	} else {
-		return createSession (id);
+		Session *session = new Session (createSession (id));
+		d_ptr->sessions.insert (id, session);
+		return *session;
 	}
 }
 

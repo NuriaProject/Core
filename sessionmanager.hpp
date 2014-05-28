@@ -36,7 +36,23 @@ class SessionManagerPrivate;
 class NURIA_CORE_EXPORT SessionManager : public Nuria::AbstractSessionManager {
 	Q_OBJECT
 public:
-	explicit SessionManager (QObject *parent = 0);
+	/**
+	 * Creates a SessionManager for storing \a maxSessions sessions at 
+	 * once. After that limit is reached, least recently used sessions 
+	 * will be deleted.
+	 */
+	explicit SessionManager (int maxSessions = 1000, QObject *parent = 0);
+	
+	
+	/**
+	 * Returns the maximum number of sessions.
+	 */
+	int maxSessions ();
+	
+	/**
+	 * Sets the maximum number of sessions to \a maxSessions .
+	 */
+	void setMaxSessions (int maxSessions);
 	
 	bool exists (const QByteArray &id) override;
 	Session get (const QByteArray &id) override;

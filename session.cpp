@@ -60,10 +60,7 @@ bool Nuria::Session::isValid () const {
 	return true;
 }
 
-const QByteArray Nuria::Session::id () const {
-	if (!isValid()) {
-		return QByteArray();
-	}
+QByteArray Nuria::Session::id () const {
 	return d->id;
 }
 

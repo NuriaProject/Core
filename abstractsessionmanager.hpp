@@ -57,6 +57,12 @@ public:
 	/**
 	 * Fetches the session \a id. If such a Session does not
 	 * exist, a new one with that id will be created instead.
+	 * 
+	 * \note It is possible that an invalid session will be generated,
+	 * e.g. when the SessionManager is for some reason unable to fetch
+	 * or create a real session. In this case the session will not be
+	 * saved or fetched later on, but will still function for data 
+	 * storage.
 	 */
 	virtual Session get (const QByteArray &id) = 0;
 
