@@ -18,6 +18,7 @@
 #ifndef NURIA_TEMPORARYBUFFERDEVICE_HPP
 #define NURIA_TEMPORARYBUFFERDEVICE_HPP
 
+#include "essentials.hpp"
 #include <QIODevice>
 
 namespace Nuria {
@@ -45,7 +46,7 @@ class TemporaryBufferDevicePrivate;
  * change this using open(), though this has no effect on the internal
  * device.
  */
-class TemporaryBufferDevice : public QIODevice {
+class NURIA_CORE_EXPORT TemporaryBufferDevice : public QIODevice {
 	Q_OBJECT
 public:
 	enum {
