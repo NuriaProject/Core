@@ -28,7 +28,7 @@ public:
 };
 
 Nuria::Session::Session ()
-	: d (nullptr)
+	: d (new SessionPrivate)
 {
 }
 
@@ -49,10 +49,21 @@ Nuria::Session::~Session () {
 }
 
 bool Nuria::Session::isValid () const {
-	return (d != nullptr);
+	if (d == nullptr) {
+		return false;
+	}
+	
+	if (d->id.isEmpty() || d->manager == nullptr) {
+		return false;
+	}
+	
+	return true;
 }
 
 const QByteArray Nuria::Session::id () const {
+	if (!isValid()) {
+		return QByteArray();
+	}
 	return d->id;
 }
 

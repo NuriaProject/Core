@@ -42,11 +42,6 @@ public:
 	 */
 	Session ();
 	
-	/**
-	 * Creates a Session identified by id and owned by manager.
-	 */
-	Session (const QByteArray &id, AbstractSessionManager *manager);
-
 	Session (const Session& other);
 	~Session ();
 	
@@ -105,6 +100,13 @@ public:
 	Session &operator= (const Session &other);
 
 private:
+	friend class AbstractSessionManager;
+	
+	/**
+	 * Creates a Session identified by id and owned by manager. 
+	 */
+	Session (const QByteArray &id, AbstractSessionManager *manager);
+	
 	QExplicitlySharedDataPointer< SessionPrivate > d;
 };
 

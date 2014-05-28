@@ -41,22 +41,41 @@ class NURIA_CORE_EXPORT AbstractSessionManager : public QObject {
 public:
 	explicit AbstractSessionManager (QObject *parent = nullptr);
 	
-	/** 
-	 * Generate a new, pseudo-random session id. 
-	 */
-	virtual QByteArray generateNewId ();
-	
 	/**
-	 * Creates a new Session with an unique id.
+	 * Creates a new session with an unique id.
+	 * 
+	 * The default implementation does so by calling get() using a new id
+	 * from generateNewId().
 	 */
 	virtual Session create ();
 	
 	/**
-	 * Fetches the Session \a id. If such a Session does not
+	 * Returns true if the session \a id exists inside this manager.
+	 */
+	virtual bool exists (const QByteArray &id) = 0;
+	
+	/**
+	 * Fetches the session \a id. If such a Session does not
 	 * exist, a new one with that id will be created instead.
 	 */
 	virtual Session get (const QByteArray &id) = 0;
-    
+
+protected:	
+	/** 
+	 * Generate a new unique session id.
+	 * 
+	 * The default implementation uses UUIDs and thus should be 
+	 * globally unique.
+	 * 
+	 * \note This is only guaranteed to be unique to the specific manager.
+	 */
+	virtual QByteArray generateNewId ();
+	
+	/**
+	 * Creates the actual Session object with a given \id
+	 */
+	Session createSession (const QByteArray& id);
+
 public slots:
 	/**
 	 * Removes a Session from the manager.

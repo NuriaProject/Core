@@ -16,6 +16,7 @@
  */
 
 #include "abstractsessionmanager.hpp"
+#include "session.hpp"
 #include <QUuid>
 
 Nuria::AbstractSessionManager::AbstractSessionManager (QObject *parent) 
@@ -27,6 +28,11 @@ QByteArray Nuria::AbstractSessionManager::generateNewId () {
 	QByteArray id = QUuid::createUuid ().toByteArray ();
 	id = id.mid (1, id.length () - 2);
 	return id;
+}
+
+Nuria::Session Nuria::AbstractSessionManager::createSession(const QByteArray &id)
+{
+	return Session(id, this);
 }
 
 Nuria::Session Nuria::AbstractSessionManager::create () {

@@ -28,6 +28,11 @@ Nuria::SessionManager::SessionManager (QObject *parent)
 {
 }
 
+bool Nuria::SessionManager::exists(const QByteArray &id)
+{
+	return d_ptr->sessions.contains (id);
+}
+
 Nuria::Session Nuria::SessionManager::get (const QByteArray &id) {
 	if (d_ptr->sessions.contains (id)) {
 		return d_ptr->sessions.value (id);
@@ -38,10 +43,4 @@ Nuria::Session Nuria::SessionManager::get (const QByteArray &id) {
 
 void Nuria::SessionManager::removeSession (const QByteArray &id) {
 	d_ptr->sessions.remove (id);
-}
-
-Nuria::Session Nuria::SessionManager::createSession (const QByteArray &id) {
-	Session session (id, this);
-	d_ptr->sessions.insert (id, session);
-	return session;
 }

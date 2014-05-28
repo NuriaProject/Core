@@ -26,7 +26,7 @@ namespace Nuria {
 class SessionManagerPrivate;
 
 /**
- * @brief Provides an AbstractSessionManager with memory-based storage.
+ * \brief Provides an AbstractSessionManager with memory-based storage.
  * 
  * SessionManager is a memory-storage reference implementation of the
  * AbstractSessionManager interface.
@@ -38,14 +38,13 @@ class NURIA_CORE_EXPORT SessionManager : public Nuria::AbstractSessionManager {
 public:
 	explicit SessionManager (QObject *parent = 0);
 	
+	bool exists (const QByteArray &id) override;
 	Session get (const QByteArray &id) override;
 
 public slots:
 	virtual void removeSession (const QByteArray &id) override;	
 
-private:
-	Session createSession (const QByteArray &id);
-	
+private:	
 	SessionManagerPrivate *d_ptr;
 };
 
