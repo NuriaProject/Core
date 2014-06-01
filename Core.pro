@@ -35,7 +35,8 @@ SOURCES += \
     runtimemetaobject.cpp \
     qtmetaobjectwrapper.cpp \
     test.cpp \
-    temporarybufferdevice.cpp
+    temporarybufferdevice.cpp \
+    referencedevice.cpp
 
 unix: SOURCES += unixsignalhandler.cpp
 
@@ -61,7 +62,8 @@ HEADERS +=\
     runtimemetaobject.hpp \
     qtmetaobjectwrapper.hpp \
     test.hpp \
-    temporarybufferdevice.hpp
+    temporarybufferdevice.hpp \
+    referencedevice.hpp
 
 unix: HEADERS += unixsignalhandler.hpp
 
