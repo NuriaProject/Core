@@ -53,7 +53,7 @@ class JsonMetaObjectReaderPrivate;
  * by this class are not able to call methods. Annotations are currently limited
  * to POD-types and QString.
  */
-class JsonMetaObjectReader : public QObject {
+class NURIA_CORE_EXPORT JsonMetaObjectReader : public QObject {
 	Q_OBJECT
 	Q_ENUMS(Error)
 public:

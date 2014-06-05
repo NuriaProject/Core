@@ -19,6 +19,7 @@
 #define NURIA_REFERENCEDEVICE_HPP
 
 #include <QIODevice>
+#include "essentials.hpp"
 
 namespace Nuria {
 
@@ -45,7 +46,7 @@ class ReferenceDevicePrivate;
  * QIODevice::NotOpen and QIODevice::ReadOnly are allowed - and so on.
  * 
  */
-class ReferenceDevice : public QIODevice {
+class NURIA_CORE_EXPORT ReferenceDevice : public QIODevice {
 	Q_OBJECT
 public:
 	
