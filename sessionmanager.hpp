@@ -29,7 +29,10 @@ class SessionManagerPrivate;
  * \brief Provides an AbstractSessionManager with memory-based storage.
  * 
  * SessionManager is a memory-storage reference implementation of the
- * AbstractSessionManager interface.
+ * AbstractSessionManager interface. Note that SessionManager limits the
+ * number of sessions at a given time, any additional session will lead 
+ * to the deletion of the least recently used session. The default limit
+ * is set at \c 1000 sessions.
  * 
  * \sa AbstractSessionManager
  */
@@ -38,8 +41,7 @@ class NURIA_CORE_EXPORT SessionManager : public Nuria::AbstractSessionManager {
 public:
 	/**
 	 * Creates a SessionManager for storing \a maxSessions sessions at 
-	 * once. After that limit is reached, least recently used sessions 
-	 * will be deleted.
+	 * once.
 	 */
 	explicit SessionManager (int maxSessions = 1000, QObject *parent = 0);
 	
