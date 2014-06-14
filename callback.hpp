@@ -147,7 +147,7 @@ class NURIA_CORE_EXPORT Callback {
 	template< typename T > struct FutureHelper;
 	template< typename Ret, typename ... Args > struct MethodHelper;
 	template< typename Class, typename Ret, typename ... Args > struct MemberMethodHelper;
-	template< typename Ret, typename ... Args > struct LambdaHelper;
+	template< typename FullType, typename Ret, typename ... Args > struct LambdaHelper;
 	
 public:
 	
@@ -289,7 +289,7 @@ public:
 	bool setCallback (std::function< Ret(Args ...) > func) {
 		QList< int > args;
 		buildArgList< Args ... > (args);
-		return initBase (new LambdaHelper< Ret, Args ... > (func),
+		return initBase (new LambdaHelper< std::function< Ret(Args ...) >, Ret, Args ... > (func),
 				 CallbackHelper::typeId< Ret > (), args);
 	}
 	
@@ -517,11 +517,11 @@ private:
 	};
 	
 	// std::function< ... >
-	template< typename Ret, typename ... Args >
+	template< typename FullType, typename Ret, typename ... Args >
 	struct LambdaHelper : public TrampolineBase {
-		std::function< Ret(Args ...) > func;
+		FullType func;
 		
-		LambdaHelper (const std::function< Ret(Args ...) > &f) : TrampolineBase (Lambda), func (f) {}
+		LambdaHelper (const FullType &f) : TrampolineBase (Lambda), func (f) {}
 		
 		template< int ... Index >
 		inline void trampolineImpl (void **args, CallbackHelper::IndexTuple< Index... >) {
@@ -534,11 +534,11 @@ private:
 		
 	};
 	
-	template< typename ... Args >
-	struct LambdaHelper< void, Args ... > : public TrampolineBase {
-		std::function< void(Args ...) > func;
+	template< typename FullType, typename ... Args >
+	struct LambdaHelper< FullType, void, Args ... > : public TrampolineBase {
+		FullType func;
 		
-		LambdaHelper (const std::function< void(Args ...) > &f) : TrampolineBase (Lambda), func (f) {}
+		LambdaHelper (const FullType &f) : TrampolineBase (Lambda), func (f) {}
 		
 		template< int ... Index >
 		inline void trampolineImpl (void **args, CallbackHelper::IndexTuple< Index... >) {
