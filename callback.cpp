@@ -393,7 +393,7 @@ QVariant Nuria::Callback::invoke (int count, void **args, int *types) const {
 	if (this->d->variadic) {
 		QVariantList list;
 		
-		void *argument[1];
+		void *argument[] = { &list };
 		int type = QMetaType::QVariantList;
 		
 		// Convert args/types to QVariantList
@@ -433,7 +433,7 @@ public:
 QVariant Nuria::Callback::invokeInternal (int count, void **args, int *types) const {
 	
 	// Argument array, works like the one from qt_metacall().
-	void *rawArgs[this->d->args.length () + 1];
+	void *rawArgs[this->d->args.length () + this->d->boundCount + 1];
 	bool removeMe[this->d->args.length ()];
 	
 	// Will destroy all elements in rawArgs which are marked by 'removeMe'.
