@@ -98,6 +98,11 @@ public:
 	QVariant operator[] (const QString& key) const;
 	
 	Session &operator= (const Session &other);
+	
+	/**
+	 * Checks if the other session object refers to the same session.
+	 */
+	bool equals (const Session &other) const;
 
 private:
 	friend class AbstractSessionManager;
@@ -111,5 +116,15 @@ private:
 };
 
 } // namespace Nuria
+
+inline bool operator== (Nuria::Session sessionA, Nuria::Session sessionB) 
+{
+	return sessionA.equals( sessionB);
+}
+
+inline bool operator!= (Nuria::Session sessionA, Nuria::Session sessionB)
+{
+	return !(sessionA.equals (sessionB));
+}
 
 #endif // NURIA_SESSION_HPP
