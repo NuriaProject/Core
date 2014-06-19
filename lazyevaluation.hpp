@@ -306,7 +306,7 @@ private:
  * 
  * \sa Nuria::test
  */
-class TestCall {
+class NURIA_CORE_EXPORT TestCall {
 public:
 	
 	/** Creates a invalid instance. */
@@ -367,7 +367,7 @@ NURIA_CORE_EXPORT Field arg (int index);
  * definition of the used evaluator.
  */
 template< typename ... Args >
-NURIA_CORE_EXPORT Field test (const QString &method, const Args &... args) {
+Field test (const QString &method, const Args &... args) {
 	TestCall call (method, Variant::buildList (args ...));
 	return Field (Field::TestCall, QVariant::fromValue (call));
 }
@@ -378,7 +378,7 @@ NURIA_CORE_EXPORT Field test (const QString &method, const Args &... args) {
  * \warning This is only supported by native condition evaluators!
  */
 template< typename ... Args >
-NURIA_CORE_EXPORT Field test (const Nuria::Callback &method, const Args &... args) {
+Field test (const Nuria::Callback &method, const Args &... args) {
 	TestCall call (method, Variant::buildList (args ...));
 	return Field (Field::TestCall, QVariant::fromValue (call));
 }
