@@ -102,10 +102,10 @@ Nuria::Session &Nuria::Session::operator= (const Session &other) {
 	return *this;
 }
 
-bool Nuria::Session::operator== (const Session &other) const {
-	return (this->d == other.d);
+bool Nuria::operator== (const Session &a, const Session &b) {
+	return (a.d == b.d);
 }
 
-bool Nuria::Session::operator!= (const Session &other) const {
-	return (this->d != other.d);
+bool Nuria::operator!= (const Session &a, const Session &b) {
+	return (a.d != b.d);
 }

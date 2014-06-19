@@ -26,14 +26,19 @@
 namespace Nuria {
 
 class AbstractSessionManager;
-
+class Session;
 class SessionPrivate;
+
+NURIA_CORE_EXPORT bool operator== (const Session &a, const Session &b);
+NURIA_CORE_EXPORT bool operator!= (const Session &a, const Session &b);
 
 /**
  * \brief A managed key-value-store named by \a id.
  * 
  * A Session is a key-value-store for persistent storage of session data.
  * Sessions are managed by an AbstractSessionManager.
+ * 
+ * \note Sessions can be compared for (in)equality. 
  */
 class NURIA_CORE_EXPORT Session {
 public:
@@ -98,19 +103,11 @@ public:
 	QVariant operator[] (const QString& key) const;
 	
 	Session &operator= (const Session &other);
-	
-	/**
-	 * Checks if the other session object refers to the same session.
-	 */
-	bool operator== (const Session &other) const;
-	
-	/**
-	 * Checks if the other session object refers to another session
-	 */
-	bool operator!= (const Session &other) const;
 
 private:
 	friend class AbstractSessionManager;
+	friend bool operator== (const Session &a, const Session &b);
+	friend bool operator!= (const Session &a, const Session &b);
 	
 	/**
 	 * Creates a Session identified by id and owned by manager. 
