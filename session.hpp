@@ -102,12 +102,12 @@ public:
 	/**
 	 * Checks if the other session object refers to the same session.
 	 */
-	bool operator== (const Session &other) const { return (this->d == other.d); }
+	bool operator== (const Session &other) const;
 	
 	/**
 	 * Checks if the other session object refers to another session
 	 */
-	bool operator!= (const Session &other) const { return (this->d != other.d); }
+	bool operator!= (const Session &other) const;
 
 private:
 	friend class AbstractSessionManager;
