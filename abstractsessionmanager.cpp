@@ -30,8 +30,7 @@ QByteArray Nuria::AbstractSessionManager::generateNewId () {
 	return id;
 }
 
-Nuria::Session Nuria::AbstractSessionManager::createSession(const QByteArray &id)
-{
+Nuria::Session Nuria::AbstractSessionManager::createSession (const QByteArray &id) {
 	return Session(id, this);
 }
 

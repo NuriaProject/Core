@@ -30,23 +30,19 @@ Nuria::SessionManager::SessionManager (int maxSessions, QObject *parent)
 	d_ptr->sessions.setMaxCost (maxSessions);
 }
 
-Nuria::SessionManager::~SessionManager ()
-{
+Nuria::SessionManager::~SessionManager () {
 	delete d_ptr;
 }
 
-int Nuria::SessionManager::maxSessions ()
-{
+int Nuria::SessionManager::maxSessions () {
 	return d_ptr->sessions.maxCost ();
 }
 
-void Nuria::SessionManager::setMaxSessions (int maxSessions)
-{
+void Nuria::SessionManager::setMaxSessions (int maxSessions) {
 	d_ptr->sessions.setMaxCost (maxSessions);
 }
 
-bool Nuria::SessionManager::exists(const QByteArray &id)
-{
+bool Nuria::SessionManager::exists (const QByteArray &id) {
 	return d_ptr->sessions.contains (id);
 }
 

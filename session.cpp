@@ -53,7 +53,7 @@ bool Nuria::Session::isValid () const {
 		return false;
 	}
 	
-	if (d->id.isEmpty() || d->manager == nullptr) {
+	if (d->id.isEmpty () || d->manager == nullptr) {
 		return false;
 	}
 	
