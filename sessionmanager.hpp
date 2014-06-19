@@ -44,6 +44,7 @@ public:
 	 * once.
 	 */
 	explicit SessionManager (int maxSessions = 1000, QObject *parent = 0);
+	~SessionManager ();
 	
 	
 	/**
