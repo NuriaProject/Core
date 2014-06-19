@@ -102,7 +102,12 @@ public:
 	/**
 	 * Checks if the other session object refers to the same session.
 	 */
-	bool equals (const Session &other) const;
+	bool operator== (const Session &other) const { return (this->d == other.d); }
+	
+	/**
+	 * Checks if the other session object refers to another session
+	 */
+	bool operator!= (const Session &other) const { return (this->d != other.d); }
 
 private:
 	friend class AbstractSessionManager;
@@ -116,15 +121,5 @@ private:
 };
 
 } // namespace Nuria
-
-inline bool operator== (Nuria::Session sessionA, Nuria::Session sessionB) 
-{
-	return sessionA.equals( sessionB);
-}
-
-inline bool operator!= (Nuria::Session sessionA, Nuria::Session sessionB)
-{
-	return !(sessionA.equals (sessionB));
-}
 
 #endif // NURIA_SESSION_HPP

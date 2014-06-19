@@ -101,8 +101,3 @@ Nuria::Session &Nuria::Session::operator= (const Session &other) {
 	this->d = other.d; 
 	return *this;
 }
-
-bool Nuria::Session::equals(const Nuria::Session &other) const
-{
-	return (this->d == other.d);
-}
