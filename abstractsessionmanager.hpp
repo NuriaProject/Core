@@ -25,16 +25,32 @@
 namespace Nuria {
 
 /** 
- * \brief Provides simple session managment capabilities.
+ * \brief Interface for a session manager
  * 
- * The abstract session manager provides a common interface to session 
- * managment capabilities. A session is a key-value-store identified by an
- * arbitrary identifier, known as the session id.
- * The session id SHOULD contain only printable characters for 
- * compatibility with text-based transport mechanisms.
+ * The abstract session manager provides a common interface for session 
+ * managment. Sessions are uniquely named by their id, which is assigned by a
+ * session manager. The id itself \b should only contain printable ASCII symbols
+ * like characters or digits. Please note that session manager implementation
+ * may choose to obey or not obey this rule.
  * 
- * \sa Nuria::Session
- * \sa Nuria::SessionManager
+ * See SessionManager for a general purpose in-memory session manager.
+ * 
+ * \sa Session
+ * \sa SessionManager
+ * 
+ * \par Management of sessions
+ * It's important to know that sessions are not stored into the session managers
+ * back-end (Which is defined by implementing AbstractSessionManager)
+ * immediately. Instead, sessions use a dirty flag. Implementations should keep
+ * a list of all currently used sessions and iterate over it at some point,
+ * checking the dirty flags of all sessions and eventually writing changed ones
+ * into some kind of storage engine.
+ * 
+ * As this list itself holds a reference to the session, it'd be never cleard
+ * from memory. To counter this, you can use Session::refCount() to see if the
+ * session held inside the manager itself is the last reference that's left,
+ * enabling the manager to clear sessions which are no longer needed.
+ * 
  */
 class NURIA_CORE_EXPORT AbstractSessionManager : public QObject {
 	Q_OBJECT
@@ -50,13 +66,13 @@ public:
 	virtual Session create ();
 	
 	/**
-	 * Returns true if the session \a id exists inside this manager.
+	 * Returns \c true if the session \a id is known by the manager.
 	 */
 	virtual bool exists (const QByteArray &id) = 0;
 	
 	/**
-	 * Fetches the session \a id. If such a Session does not
-	 * exist, a new one with that id will be created instead.
+	 * Fetches the session \a id. If no session \a id is known, a new one
+	 * with that id will be created instead.
 	 * 
 	 * \warning It is possible that an invalid session will be generated,
 	 * e.g. when the SessionManager is for some reason unable to fetch
@@ -77,15 +93,11 @@ protected:
 	 */
 	virtual QByteArray generateNewId ();
 	
-	/**
-	 * Creates the actual Session object with a given \id
-	 */
+	/** Creates the actual session object with a given \a id. */
 	Session createSession (const QByteArray& id);
 
 public slots:
-	/**
-	 * Removes a Session from the manager.
-	 */
+	/** Removes the session \a id from the manager. */
 	virtual void removeSession (const QByteArray &id) = 0;
 	
 };

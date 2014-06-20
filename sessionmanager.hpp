@@ -52,9 +52,7 @@ public:
 	 */
 	int maxSessions ();
 	
-	/**
-	 * Sets the maximum number of sessions to \a maxSessions .
-	 */
+	/** Sets the maximum number of sessions to \a maxSessions. */
 	void setMaxSessions (int maxSessions);
 	
 	bool exists (const QByteArray &id) override;

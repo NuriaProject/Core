@@ -33,67 +33,78 @@ NURIA_CORE_EXPORT bool operator== (const Session &a, const Session &b);
 NURIA_CORE_EXPORT bool operator!= (const Session &a, const Session &b);
 
 /**
- * \brief A managed key-value-store named by \a id.
+ * \brief A data storage managed by an AbstractSessionManager
  * 
  * A Session is a key-value-store for persistent storage of session data.
- * Sessions are managed by an AbstractSessionManager.
+ * Sessions are managed by an AbstractSessionManager and are object to its
+ * storage policy.
  * 
- * \note Sessions can be compared for (in)equality. 
+ * \note This structure is \b explicitly-shared.
+ * \note Sessions can be compared for (in)equality.
  */
 class NURIA_CORE_EXPORT Session {
 public:
-	/**
-	 * Creates an invalid session.
-	 */
+	/** Creates an invalid session. */
 	Session ();
 	
+	/** Copy constructor. */
 	Session (const Session& other);
+	
+	/** Assignment operator. */
+	Session &operator= (const Session &other);
+	
+	/** Destructor. */
 	~Session ();
 	
-	/**
-	 * Returns \a true if a session is valid. Sessions obtained through
-	 * a session manager are always valid.
-	 */
+	/** Returns \c true if a session is valid. */
 	bool isValid () const;
 	
-	/**
-	 * Returns the id used to identify the session in the manager.
-	 */
+	/** Returns the id used to identify the session in the manager. */
 	QByteArray id () const;
 	
 	/**
 	 * Returns the manager which handles this session.
+	 * \warning If the instance is invalid, \c nullptr may be returned.
 	 */
 	AbstractSessionManager *manager () const;
 	
-	/**
-	 * Returns \c true if the stored data has changed.
-	 */
+	/** Returns \c true if the stored data has changed. */
 	bool isDirty () const;
 	
 	/**
-	 * Marks the session as dirty. Used to indicate changed data.
+	 * Marks the session as dirty, which indicates to the associated session
+	 * manager that this instance should be written back to the manager
+	 * implementation specific back-end, such as a database.
 	 */
 	void markDirty ();
 	
 	/**
 	 * Marks the session as clean, used to indicate that changed data has
-	 * been saved. Should only be used by a session manager.
+	 * been saved.
+	 * 
+	 * \warning This should only be used by a session manager.
 	 */
 	void markClean ();
 	
-	/**
-	 * Removes the session from the manager.
-	 */
+	/** Removes the session from the manager. */
 	void remove ();
-		
+	
 	/**
-	 * Fetches the value stored under key.
+	 * Returns the reference count of this session instance.
+	 * The reference count indicates how many other session instances are
+	 * in the application pointing to the same data, including this instance
+	 * itself. If this method returns \c 1, then this is the only instance
+	 * left.
+	 * 
+	 * \sa AbstractSessionManager
 	 */
 	int refCount () const;
 	
 	/**
-	 * Returns a writable reference to the stored value under key.
+	 * Returns the value known as \a key.
+	 * If there's no value for \a key, then a invalid QVariant is returned
+	 * which is not inserted into the internal storage.
+	 * The dirty flag is not changed by this method.
 	 */
 	QVariant value (const QString &key) const;
 	
@@ -101,11 +112,18 @@ public:
 	bool contains (const QString &key) const;
 	
 	/**
-	 * Fetches the value stored under key
+	 * Returns the value known as \a key. If there's no value for \a key
+	 * yet, a invalid QVariant will be inserted and the reference to it
+	 * returned.
+	 * 
+	 * The session will be marked dirty.
+	 * \sa markDirty value
 	 */
-	QVariant operator[] (const QString& key) const;
+	QVariant &operator[] (const QString &key);
 	
-	Session &operator= (const Session &other);
+	/** Same as value(). */
+	QVariant operator[] (const QString &key) const;
+	
 
 private:
 	friend class AbstractSessionManager;
@@ -113,7 +131,7 @@ private:
 	friend bool operator!= (const Session &a, const Session &b);
 	
 	/**
-	 * Creates a Session identified by id and owned by manager. 
+	 * Constructs a session identified by \a id and owned by \a manager. 
 	 */
 	Session (const QByteArray &id, AbstractSessionManager *manager);
 	
