@@ -9,6 +9,7 @@ var searchData=
   ['_7elazyconditionwalker',['~LazyConditionWalker',['../class_nuria_1_1_lazy_condition_walker.html#af52910b10baa1951a92aa618d2ea27e9',1,'Nuria::LazyConditionWalker']]],
   ['_7emetaobject',['~MetaObject',['../class_nuria_1_1_meta_object.html#a59393886d99dac7fabed690fd22bc06f',1,'Nuria::MetaObject']]],
   ['_7eqtmetaobjectwrapper',['~QtMetaObjectWrapper',['../class_nuria_1_1_qt_meta_object_wrapper.html#ac9d187438d57fa18f5ce654c31aca10f',1,'Nuria::QtMetaObjectWrapper']]],
+  ['_7ereferencedevice',['~ReferenceDevice',['../class_nuria_1_1_reference_device.html#ab704667e34f746888bba76ccd1702e5e',1,'Nuria::ReferenceDevice']]],
   ['_7eruntimemetaobject',['~RuntimeMetaObject',['../class_nuria_1_1_runtime_meta_object.html#acb51a5acf34f9a68b0e6b853ef61ab3d',1,'Nuria::RuntimeMetaObject']]],
   ['_7eserializer',['~Serializer',['../class_nuria_1_1_serializer.html#a4ffaf9fe1b88306f2569f7a0fab319fb',1,'Nuria::Serializer']]],
   ['_7etemporarybufferdevice',['~TemporaryBufferDevice',['../class_nuria_1_1_temporary_buffer_device.html#a0fff9be964d864804e372bacaf7c2edf',1,'Nuria::TemporaryBufferDevice']]],

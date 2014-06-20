@@ -7,5 +7,7 @@ var searchData=
   ['enumcount',['enumCount',['../class_nuria_1_1_meta_object.html#a5e6cf5e44d765b47d973369d94ae9735',1,'Nuria::MetaObject']]],
   ['errorposition',['errorPosition',['../class_nuria_1_1_mini_lexer.html#a439827c353784af5cc852cb92c8035f1',1,'Nuria::MiniLexer']]],
   ['evaluate',['evaluate',['../class_nuria_1_1_lazy_condition.html#acf67e51c69d808091ee9350b2bd89800',1,'Nuria::LazyCondition']]],
-  ['exclude',['exclude',['../class_nuria_1_1_serializer.html#a46f68747fe150b133af5a360090ed04b',1,'Nuria::Serializer']]]
+  ['exclude',['exclude',['../class_nuria_1_1_serializer.html#a46f68747fe150b133af5a360090ed04b',1,'Nuria::Serializer']]],
+  ['exists',['exists',['../class_nuria_1_1_abstract_session_manager.html#a90c171c03fbcdffc25c7842bc354f690',1,'Nuria::AbstractSessionManager::exists()'],['../class_nuria_1_1_session_manager.html#ab2fccd5f13dc3981b5f630464bf00039',1,'Nuria::SessionManager::exists()']]],
+  ['extendrange',['extendRange',['../class_nuria_1_1_reference_device.html#aa1aa223c6f3730a86ff7cfa2103b773c',1,'Nuria::ReferenceDevice']]]
 ];

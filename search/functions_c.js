@@ -1,7 +1,11 @@
 var searchData=
 [
+  ['manager',['manager',['../class_nuria_1_1_session.html#a188f0808cfaa00c12f6ac44f12e95ca9',1,'Nuria::Session']]],
+  ['markclean',['markClean',['../class_nuria_1_1_session.html#a7b8891058002eb6458a6e000fb6123b7',1,'Nuria::Session']]],
+  ['markdirty',['markDirty',['../class_nuria_1_1_session.html#a33816533070de81314199220ec60b532',1,'Nuria::Session']]],
   ['matchsensitivity',['matchSensitivity',['../class_nuria_1_1_mini_lexer.html#a09a32a3b3c0df83a04a007abc96576c9',1,'Nuria::MiniLexer']]],
   ['maximummemorysize',['maximumMemorySize',['../class_nuria_1_1_temporary_buffer_device.html#af0450defc7696ccb2d85fe1e96a18081',1,'Nuria::TemporaryBufferDevice']]],
+  ['maxsessions',['maxSessions',['../class_nuria_1_1_session_manager.html#a640b5d9784a35abadd6e9a5f57939411',1,'Nuria::SessionManager']]],
   ['metaannotation',['MetaAnnotation',['../class_nuria_1_1_meta_annotation.html#ae151adf14a9096193a16c6b2668844c3',1,'Nuria::MetaAnnotation']]],
   ['metaenum',['MetaEnum',['../class_nuria_1_1_meta_enum.html#ab636a9dc34e981bc1fc818dc59ab0a83',1,'Nuria::MetaEnum']]],
   ['metafield',['MetaField',['../class_nuria_1_1_meta_field.html#a19ebbc7627a4c234fe5985e0fff3a857',1,'Nuria::MetaField']]],

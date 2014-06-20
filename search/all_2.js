@@ -14,9 +14,11 @@ var searchData=
   ['contains',['contains',['../class_nuria_1_1_argument_manager.html#a92a00d0a55aa254720f7f84e6782dcb1',1,'Nuria::ArgumentManager']]],
   ['conversion',['Conversion',['../class_nuria_1_1_variant.html#af7bda1f2c26e0e232f091dc9e125ddcf',1,'Nuria::Variant']]],
   ['convert',['convert',['../group___convert.html#ga6d8cea36f305dec2f37e24a2969c3a5f',1,'Nuria::Variant::convert(const QVariant &amp;variant, int type)'],['../group___convert.html#ga5635849d8b9be954f5f8a94dee12d090',1,'Nuria::Variant::convert(const QVariant &amp;variant)']]],
+  ['create',['create',['../class_nuria_1_1_abstract_session_manager.html#a4456d921d34f33d58cc07d5b16656f2a',1,'Nuria::AbstractSessionManager']]],
   ['createindextuple',['CreateIndexTuple',['../struct_nuria_1_1_callback_helper_1_1_create_index_tuple.html',1,'Nuria::CallbackHelper']]],
   ['createindextuple_3c_201_20_3e',['CreateIndexTuple&lt; 1 &gt;',['../struct_nuria_1_1_callback_helper_1_1_create_index_tuple_3_011_01_4.html',1,'Nuria::CallbackHelper']]],
   ['createinstancefromdefinition',['createInstanceFromDefinition',['../class_nuria_1_1_mini_lexer.html#a11fc279c50979ddd249f229530b80dec',1,'Nuria::MiniLexer']]],
+  ['createsession',['createSession',['../class_nuria_1_1_abstract_session_manager.html#ac3bace64f5a260a23aef17cd1238e936',1,'Nuria::AbstractSessionManager']]],
   ['custom',['Custom',['../class_nuria_1_1_field.html#afe6c0594f89ed17062718dbeccd940b0a1f9bf4e9babdac3896a41694f0bfaa44',1,'Nuria::Field']]],
   ['customtype',['customType',['../class_nuria_1_1_field.html#a6f0befa100e6030839c848cb810b0fd9',1,'Nuria::Field']]]
 ];

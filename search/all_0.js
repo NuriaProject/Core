@@ -1,6 +1,7 @@
 var searchData=
 [
   ['abstractconditionevaluator',['AbstractConditionEvaluator',['../class_nuria_1_1_abstract_condition_evaluator.html',1,'Nuria']]],
+  ['abstractsessionmanager',['AbstractSessionManager',['../class_nuria_1_1_abstract_session_manager.html',1,'Nuria']]],
   ['access',['access',['../class_nuria_1_1_meta_field.html#a070552b5af3ba8afdec1e9ab46e0fbb1',1,'Nuria::MetaField::access() const '],['../class_nuria_1_1_meta_field.html#a845bf8b36192b2b3d85d469638b8b8bb',1,'Nuria::MetaField::Access()']]],
   ['adddefinition',['addDefinition',['../class_nuria_1_1_mini_lexer.html#ad760a9826197cf3028a3b99141a65f7c',1,'Nuria::MiniLexer']]],
   ['addenum',['addEnum',['../class_nuria_1_1_runtime_meta_object.html#a339f250cf13d19c1727afb3440959e0f',1,'Nuria::RuntimeMetaObject']]],

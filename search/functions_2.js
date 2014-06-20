@@ -9,6 +9,8 @@ var searchData=
   ['compile',['compile',['../class_nuria_1_1_lazy_condition.html#a677246ea5a729b1b950ce33214e8a424',1,'Nuria::LazyCondition']]],
   ['contains',['contains',['../class_nuria_1_1_argument_manager.html#a92a00d0a55aa254720f7f84e6782dcb1',1,'Nuria::ArgumentManager']]],
   ['convert',['convert',['../group___convert.html#ga6d8cea36f305dec2f37e24a2969c3a5f',1,'Nuria::Variant::convert(const QVariant &amp;variant, int type)'],['../group___convert.html#ga5635849d8b9be954f5f8a94dee12d090',1,'Nuria::Variant::convert(const QVariant &amp;variant)']]],
+  ['create',['create',['../class_nuria_1_1_abstract_session_manager.html#a4456d921d34f33d58cc07d5b16656f2a',1,'Nuria::AbstractSessionManager']]],
   ['createinstancefromdefinition',['createInstanceFromDefinition',['../class_nuria_1_1_mini_lexer.html#a11fc279c50979ddd249f229530b80dec',1,'Nuria::MiniLexer']]],
+  ['createsession',['createSession',['../class_nuria_1_1_abstract_session_manager.html#ac3bace64f5a260a23aef17cd1238e936',1,'Nuria::AbstractSessionManager']]],
   ['customtype',['customType',['../class_nuria_1_1_field.html#a6f0befa100e6030839c848cb810b0fd9',1,'Nuria::Field']]]
 ];
