@@ -16,7 +16,9 @@
  */
 
 #include "session.hpp"
+
 #include <QVariantMap>
+
 #include "abstractsessionmanager.hpp"
 
 class Nuria::SessionPrivate : public QSharedData {
@@ -46,14 +48,11 @@ Nuria::Session::Session (const Session &other)
 }
 
 Nuria::Session::~Session () {
+	// 
 }
 
 bool Nuria::Session::isValid () const {
-	if (d == nullptr) {
-		return false;
-	}
-	
-	if (d->id.isEmpty () || d->manager == nullptr) {
+	if (this->d->id.isEmpty () || this->d->manager == nullptr) {
 		return false;
 	}
 	
@@ -61,40 +60,44 @@ bool Nuria::Session::isValid () const {
 }
 
 QByteArray Nuria::Session::id () const {
-	return d->id;
+	return this->d->id;
 }
 
 Nuria::AbstractSessionManager *Nuria::Session::manager () const {
-	return d->manager;
+	return this->d->manager;
 }
 
 bool Nuria::Session::isDirty () const {
-	return d->dirty;
+	return this->d->dirty;
 }
 
 void Nuria::Session::markDirty () {
-	d->dirty = true;
+	this->d->dirty = true;
 }
 
 void Nuria::Session::markClean () {
-	d->dirty = false;
+	this->d->dirty = false;
 }
 
 void Nuria::Session::remove () {
-	d->manager->removeSession (d->id);
+	this->d->manager->removeSession (d->id);
 }
 
 QVariant Nuria::Session::value (const QString &key) const {
-	return d->data.value (key);
+	return this->d->data.value (key);
+}
+
+bool Nuria::Session::contains (const QString &key) const {
+	return this->d->data.contains (key);
 }
 
 QVariant &Nuria::Session::operator[] (const QString &key) {
-	markDirty ();
-	return d->data[key];
+	this->d->dirty = true;
+	return this->d->data[key];
 }
 
 QVariant Nuria::Session::operator[] (const QString &key) const {
-	return value (key);
+	return this->value (key);
 }
 
 Nuria::Session &Nuria::Session::operator= (const Session &other) {

@@ -26,8 +26,8 @@
 namespace Nuria {
 
 class AbstractSessionManager;
-class Session;
 class SessionPrivate;
+class Session;
 
 NURIA_CORE_EXPORT bool operator== (const Session &a, const Session &b);
 NURIA_CORE_EXPORT bool operator!= (const Session &a, const Session &b);
@@ -118,5 +118,7 @@ private:
 };
 
 } // namespace Nuria
+
+Q_DECLARE_METATYPE(Nuria::Session)
 
 #endif // NURIA_SESSION_HPP

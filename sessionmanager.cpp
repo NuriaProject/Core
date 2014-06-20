@@ -27,35 +27,36 @@ public:
 Nuria::SessionManager::SessionManager (int maxSessions, QObject *parent)
 	: Nuria::AbstractSessionManager (parent), d_ptr (new SessionManagerPrivate)
 {
-	d_ptr->sessions.setMaxCost (maxSessions);
+	this->d_ptr->sessions.setMaxCost (maxSessions);
 }
 
 Nuria::SessionManager::~SessionManager () {
-	delete d_ptr;
+	delete this->d_ptr;
 }
 
 int Nuria::SessionManager::maxSessions () {
-	return d_ptr->sessions.maxCost ();
+	return this->d_ptr->sessions.maxCost ();
 }
 
 void Nuria::SessionManager::setMaxSessions (int maxSessions) {
-	d_ptr->sessions.setMaxCost (maxSessions);
+	this->d_ptr->sessions.setMaxCost (maxSessions);
 }
 
 bool Nuria::SessionManager::exists (const QByteArray &id) {
-	return d_ptr->sessions.contains (id);
+	return this->d_ptr->sessions.contains (id);
 }
 
 Nuria::Session Nuria::SessionManager::get (const QByteArray &id) {
-	if (d_ptr->sessions.contains (id)) {
-		return *d_ptr->sessions.object (id);
-	} else {
-		Session *session = new Session (createSession (id));
-		d_ptr->sessions.insert (id, session);
-		return *session;
+	if (this->d_ptr->sessions.contains (id)) {
+		return *(this->d_ptr->sessions.object (id));
 	}
+	
+	Session *session = new Session (createSession (id));
+	this->d_ptr->sessions.insert (id, session);
+	return *session;
+	
 }
 
 void Nuria::SessionManager::removeSession (const QByteArray &id) {
-	d_ptr->sessions.remove (id);
+	this->d_ptr->sessions.remove (id);
 }

@@ -16,8 +16,10 @@
  */
 
 #include "abstractsessionmanager.hpp"
-#include "session.hpp"
+
 #include <QUuid>
+
+#include "session.hpp"
 
 Nuria::AbstractSessionManager::AbstractSessionManager (QObject *parent) 
 	: QObject (parent)

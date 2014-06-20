@@ -18,8 +18,8 @@
 #ifndef NURIA_SESSIONMANAGER_HPP
 #define NURIA_SESSIONMANAGER_HPP
 
-#include "essentials.hpp"
 #include "abstractsessionmanager.hpp"
+#include "essentials.hpp"
 
 namespace Nuria {
 
@@ -36,7 +36,7 @@ class SessionManagerPrivate;
  * 
  * \sa AbstractSessionManager
  */
-class NURIA_CORE_EXPORT SessionManager : public Nuria::AbstractSessionManager {
+class NURIA_CORE_EXPORT SessionManager : public AbstractSessionManager {
 	Q_OBJECT
 public:
 	/**
@@ -67,6 +67,6 @@ private:
 	SessionManagerPrivate *d_ptr;
 };
 
-} // namespace Nuria
+}
 
 #endif // NURIA_SESSIONMANAGER_HPP
