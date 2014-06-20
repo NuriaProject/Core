@@ -83,6 +83,10 @@ void Nuria::Session::remove () {
 	this->d->manager->removeSession (d->id);
 }
 
+int Nuria::Session::refCount () const {
+	return this->d->ref;
+}
+
 QVariant Nuria::Session::value (const QString &key) const {
 	return this->d->data.value (key);
 }

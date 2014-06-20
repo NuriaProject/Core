@@ -90,12 +90,15 @@ public:
 	/**
 	 * Fetches the value stored under key.
 	 */
-	QVariant value (const QString& key) const;
+	int refCount () const;
 	
 	/**
 	 * Returns a writable reference to the stored value under key.
 	 */
-	QVariant &operator[] (const QString& key);
+	QVariant value (const QString &key) const;
+	
+	/** Returns \c true if there's a value for \a key. */
+	bool contains (const QString &key) const;
 	
 	/**
 	 * Fetches the value stored under key
