@@ -35,6 +35,24 @@ class RuntimeMetaObjectPrivate;
  * 1. Intantiate RuntimeMetaObject
  * 2. Use the add*() methods to set-up your virtual type
  * 3. Use finalize() to make the meta-object usable.
+ * 
+ * You may want to use MetaObject::registerMetaObject() if you want to make your
+ * type known application-wide.
+ * 
+ * \par Behaviour on uniqueness
+ * The add*() methods will always ensure uniqueness. If two elements are added
+ * deemed equal by C++ rules, then the latter one replaces the one already
+ * stored. This means when e.g. adding two enums sequentially with the same
+ * name, only the latter will be used.
+ * 
+ * Methods are deemed equal if both have the same name and take the same amount
+ * of arguments, all of which are the same type. This means that the following
+ * two prototypes are equal to RuntimeMetaObject:
+ * \code
+ * int foo (QString a, int b);
+ * static QByteArray foo (QString house, int mouse);
+ * \endcode
+ * 
  */
 class NURIA_CORE_EXPORT RuntimeMetaObject : public MetaObject {
 public:

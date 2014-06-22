@@ -36,6 +36,11 @@ struct MethodData {
 	QVector< QByteArray > argNames;
 	QVector< QByteArray > argTypes;
 	Nuria::RuntimeMetaObject::InvokeCreator creator;
+	
+	bool operator== (const MethodData &other) {
+		return (this->name == other.name && this->argTypes == other.argTypes);
+	}
+	
 };
 
 struct EnumData {
@@ -119,7 +124,14 @@ void Nuria::RuntimeMetaObject::addMethod (Nuria::MetaMethod::Type type, const QB
 	data.argTypes = argumentTypes;
 	data.creator = invokeCreator;
 	
-	this->d->methods.append (data);
+	// Replace or append
+	int idx = this->d->methods.indexOf (data);
+	if (idx != -1) {
+		this->d->methods.replace (idx, data);
+	} else {
+		this->d->methods.append (data);
+	}
+	
 }
 
 void Nuria::RuntimeMetaObject::addEnum (const QByteArray &name, const AnnotationMap &annotations,
