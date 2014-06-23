@@ -84,7 +84,7 @@ void Nuria::Session::remove () {
 }
 
 int Nuria::Session::refCount () const {
-	return this->d->ref;
+	return this->d->ref.load();
 }
 
 QVariant Nuria::Session::value (const QString &key) const {
