@@ -275,10 +275,14 @@ Additional Inherited Members</h2></td></tr>
 <dl class="section user"><dt>Usage</dt><dd><ol type="1">
 <li>Intantiate <a class="el" href="class_nuria_1_1_runtime_meta_object.html" title="RuntimeMetaObject lets you easily define types at run-time. ">RuntimeMetaObject</a></li>
 <li>Use the add*() methods to set-up your virtual type</li>
-<li>Use <a class="el" href="class_nuria_1_1_runtime_meta_object.html#ab4b258e6cc63a11aeac2a2f5a87f86d9">finalize()</a> to make the meta-object usable. </li>
+<li>Use <a class="el" href="class_nuria_1_1_runtime_meta_object.html#ab4b258e6cc63a11aeac2a2f5a87f86d9">finalize()</a> to make the meta-object usable.</li>
 </ol>
 </dd></dl>
-</div><h2 class="groupheader">Member Typedef Documentation</h2>
+<p>You may want to use <a class="el" href="class_nuria_1_1_meta_object.html#a0a040b67e33606502888aef355c3e180" title="Registers object to the global meta system. ">MetaObject::registerMetaObject()</a> if you want to make your type known application-wide.</p>
+<dl class="section user"><dt>Behaviour on uniqueness</dt><dd>The add*() methods will always ensure uniqueness. If two elements are added deemed equal by C++ rules, then the latter one replaces the one already stored. This means when e.g. adding two enums sequentially with the same name, only the latter will be used.</dd></dl>
+<p>Methods are deemed equal if both have the same name and take the same amount of arguments, all of which are the same type. This means that the following two prototypes are equal to <a class="el" href="class_nuria_1_1_runtime_meta_object.html" title="RuntimeMetaObject lets you easily define types at run-time. ">RuntimeMetaObject</a>: </p><div class="fragment"><div class="line"><span class="keywordtype">int</span> foo (QString a, <span class="keywordtype">int</span> b);</div>
+<div class="line"><span class="keyword">static</span> QByteArray foo (QString house, <span class="keywordtype">int</span> mouse);</div>
+</div><!-- fragment --> </div><h2 class="groupheader">Member Typedef Documentation</h2>
 <a class="anchor" id="a686577fb5464d1fd9427abcc9e76e75e"></a>
 <div class="memitem">
 <div class="memproto">
@@ -756,7 +760,7 @@ Additional Inherited Members</h2></td></tr>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Fri Jun 20 2014 19:36:07 for Nuria Framework - Core by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Fri Jun 27 2014 18:18:31 for Nuria Framework - Core by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.7
 </small></address>

@@ -12,6 +12,7 @@ var searchData=
   ['_7ereferencedevice',['~ReferenceDevice',['../class_nuria_1_1_reference_device.html#ab704667e34f746888bba76ccd1702e5e',1,'Nuria::ReferenceDevice']]],
   ['_7eruntimemetaobject',['~RuntimeMetaObject',['../class_nuria_1_1_runtime_meta_object.html#acb51a5acf34f9a68b0e6b853ef61ab3d',1,'Nuria::RuntimeMetaObject']]],
   ['_7eserializer',['~Serializer',['../class_nuria_1_1_serializer.html#a4ffaf9fe1b88306f2569f7a0fab319fb',1,'Nuria::Serializer']]],
+  ['_7esession',['~Session',['../class_nuria_1_1_session.html#ad8fd870606a7f8e7d1fbbdd9d6b0e1da',1,'Nuria::Session']]],
   ['_7etemporarybufferdevice',['~TemporaryBufferDevice',['../class_nuria_1_1_temporary_buffer_device.html#a0fff9be964d864804e372bacaf7c2edf',1,'Nuria::TemporaryBufferDevice']]],
   ['_7eunixsignalhandler',['~UnixSignalHandler',['../class_nuria_1_1_unix_signal_handler.html#a6b844d6bd7f52e614214253fc59f61d8',1,'Nuria::UnixSignalHandler']]]
 ];

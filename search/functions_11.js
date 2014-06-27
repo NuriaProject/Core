@@ -4,6 +4,7 @@ var searchData=
   ['rangeend',['rangeEnd',['../class_nuria_1_1_reference_device.html#a663d9cab53e44cf83468489b635bacc3',1,'Nuria::ReferenceDevice']]],
   ['read',['read',['../class_nuria_1_1_meta_field.html#a726a452cd034f52f6bf1bd11dc1b6bd4',1,'Nuria::MetaField']]],
   ['recursiondepth',['recursionDepth',['../class_nuria_1_1_serializer.html#af2edf15c80ac7b57268988acf960ff77',1,'Nuria::Serializer']]],
+  ['refcount',['refCount',['../class_nuria_1_1_session.html#ad8fcc43e18ebd32befc213b7fc0e26f6',1,'Nuria::Session']]],
   ['referenceddevice',['referencedDevice',['../class_nuria_1_1_reference_device.html#add932f16067725c51d9b9502f12b25bf',1,'Nuria::ReferenceDevice']]],
   ['referencedevice',['ReferenceDevice',['../class_nuria_1_1_reference_device.html#ad731f8659ee0997b498c332a21233cea',1,'Nuria::ReferenceDevice']]],
   ['registerconversion',['registerConversion',['../class_nuria_1_1_variant.html#aee9f82a28e835c53a2e03765f20f7db4',1,'Nuria::Variant::registerConversion(To *(*func)(const From &amp;))'],['../class_nuria_1_1_variant.html#a72fd2396afa00dff50a1d0602a3accf4',1,'Nuria::Variant::registerConversion()'],['../class_nuria_1_1_variant.html#aed455f8e0caab52693030e9a7914a6d4',1,'Nuria::Variant::registerConversion(int from, int to, Conversion func)']]],

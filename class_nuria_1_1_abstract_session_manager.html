@@ -97,7 +97,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div><!--header-->
 <div class="contents">
 
-<p>Provides simple session managment capabilities.  
+<p>Interface for a session manager.  
  <a href="class_nuria_1_1_abstract_session_manager.html#details">More...</a></p>
 
 <p><code>#include &lt;<a class="el" href="abstractsessionmanager_8hpp_source.html">abstractsessionmanager.hpp</a>&gt;</code></p>
@@ -136,11 +136,14 @@ Protected Member Functions</h2></td></tr>
 <tr class="separator:ac3bace64f5a260a23aef17cd1238e936"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>Provides simple session managment capabilities. </p>
-<p>The abstract session manager provides a common interface to session managment capabilities. A session is a key-value-store identified by an arbitrary identifier, known as the session id. The session id SHOULD contain only printable characters for compatibility with text-based transport mechanisms.</p>
-<dl class="section see"><dt>See also</dt><dd><a class="el" href="class_nuria_1_1_session.html" title="A managed key-value-store named by id. ">Nuria::Session</a> </dd>
+<div class="textblock"><p>Interface for a session manager. </p>
+<p>The abstract session manager provides a common interface for session managment. Sessions are uniquely named by their id, which is assigned by a session manager. The id itself <b>should</b> only contain printable ASCII symbols like characters or digits. Please note that session manager implementation may choose to obey or not obey this rule.</p>
+<p>See <a class="el" href="class_nuria_1_1_session_manager.html" title="Provides an AbstractSessionManager with memory-based storage. ">SessionManager</a> for a general purpose in-memory session manager.</p>
+<dl class="section see"><dt>See also</dt><dd><a class="el" href="class_nuria_1_1_session.html" title="A data storage managed by an AbstractSessionManager. ">Session</a> </dd>
 <dd>
-<a class="el" href="class_nuria_1_1_session_manager.html" title="Provides an AbstractSessionManager with memory-based storage. ">Nuria::SessionManager</a> </dd></dl>
+<a class="el" href="class_nuria_1_1_session_manager.html" title="Provides an AbstractSessionManager with memory-based storage. ">SessionManager</a></dd></dl>
+<dl class="section user"><dt>Management of sessions</dt><dd>It's important to know that sessions are not stored into the session managers back-end (Which is defined by implementing <a class="el" href="class_nuria_1_1_abstract_session_manager.html" title="Interface for a session manager. ">AbstractSessionManager</a>) immediately. Instead, sessions use a dirty flag. Implementations should keep a list of all currently used sessions and iterate over it at some point, checking the dirty flags of all sessions and eventually writing changed ones into some kind of storage engine.</dd></dl>
+<p>As this list itself holds a reference to the session, it'd be never cleard from memory. To counter this, you can use <a class="el" href="class_nuria_1_1_session.html#ad8fcc43e18ebd32befc213b7fc0e26f6">Session::refCount()</a> to see if the session held inside the manager itself is the last reference that's left, enabling the manager to clear sessions which are no longer needed. </p>
 </div><h2 class="groupheader">Member Function Documentation</h2>
 <a class="anchor" id="a4456d921d34f33d58cc07d5b16656f2a"></a>
 <div class="memitem">
@@ -188,7 +191,7 @@ Protected Member Functions</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
-<p>Creates the actual <a class="el" href="class_nuria_1_1_session.html" title="A managed key-value-store named by id. ">Session</a> object with a given  </p>
+<p>Creates the actual session object with a given <em>id</em>. </p>
 
 </div>
 </div>
@@ -213,7 +216,7 @@ Protected Member Functions</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
-<p>Returns true if the session <em>id</em> exists inside this manager. </p>
+<p>Returns <code>true</code> if the session <em>id</em> is known by the manager. </p>
 
 <p>Implemented in <a class="el" href="class_nuria_1_1_session_manager.html#ab2fccd5f13dc3981b5f630464bf00039">Nuria::SessionManager</a>.</p>
 
@@ -266,7 +269,7 @@ Protected Member Functions</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
-<p>Fetches the session <em>id</em>. If such a <a class="el" href="class_nuria_1_1_session.html" title="A managed key-value-store named by id. ">Session</a> does not exist, a new one with that id will be created instead.</p>
+<p>Fetches the session <em>id</em>. If no session <em>id</em> is known, a new one with that id will be created instead.</p>
 <dl class="section warning"><dt>Warning</dt><dd>It is possible that an invalid session will be generated, e.g. when the <a class="el" href="class_nuria_1_1_session_manager.html" title="Provides an AbstractSessionManager with memory-based storage. ">SessionManager</a> is for some reason unable to fetch or create a real session. In this case the session will not be saved or fetched later on, but will still function for data storage. </dd></dl>
 
 <p>Implemented in <a class="el" href="class_nuria_1_1_session_manager.html#a1d671410b5fa12137fb37aed07104ca5">Nuria::SessionManager</a>.</p>
@@ -294,7 +297,7 @@ Protected Member Functions</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
-<p>Removes a <a class="el" href="class_nuria_1_1_session.html" title="A managed key-value-store named by id. ">Session</a> from the manager. </p>
+<p>Removes the session <em>id</em> from the manager. </p>
 
 </div>
 </div>
@@ -304,7 +307,7 @@ Protected Member Functions</h2></td></tr>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Fri Jun 20 2014 19:36:07 for Nuria Framework - Core by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Fri Jun 27 2014 18:18:30 for Nuria Framework - Core by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.7
 </small></address>

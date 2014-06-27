@@ -7,7 +7,7 @@ var searchData=
   ['clearbindings',['clearBindings',['../class_nuria_1_1_template_engine.html#a6bc9b2e853f31a51d208bc68ff131e36',1,'Nuria::TemplateEngine']]],
   ['close',['close',['../class_nuria_1_1_temporary_buffer_device.html#a8ef4cc3be97bfd3116e429aa5181681e',1,'Nuria::TemporaryBufferDevice']]],
   ['compile',['compile',['../class_nuria_1_1_lazy_condition.html#a677246ea5a729b1b950ce33214e8a424',1,'Nuria::LazyCondition']]],
-  ['contains',['contains',['../class_nuria_1_1_argument_manager.html#a92a00d0a55aa254720f7f84e6782dcb1',1,'Nuria::ArgumentManager']]],
+  ['contains',['contains',['../class_nuria_1_1_argument_manager.html#a92a00d0a55aa254720f7f84e6782dcb1',1,'Nuria::ArgumentManager::contains()'],['../class_nuria_1_1_session.html#a0ae3e1d15f9e1de1c4864092bda7ca4c',1,'Nuria::Session::contains()']]],
   ['convert',['convert',['../group___convert.html#ga6d8cea36f305dec2f37e24a2969c3a5f',1,'Nuria::Variant::convert(const QVariant &amp;variant, int type)'],['../group___convert.html#ga5635849d8b9be954f5f8a94dee12d090',1,'Nuria::Variant::convert(const QVariant &amp;variant)']]],
   ['create',['create',['../class_nuria_1_1_abstract_session_manager.html#a4456d921d34f33d58cc07d5b16656f2a',1,'Nuria::AbstractSessionManager']]],
   ['createinstancefromdefinition',['createInstanceFromDefinition',['../class_nuria_1_1_mini_lexer.html#a11fc279c50979ddd249f229530b80dec',1,'Nuria::MiniLexer']]],

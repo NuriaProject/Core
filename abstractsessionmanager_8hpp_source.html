@@ -114,36 +114,36 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;</div>
 <div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;<span class="keyword">namespace </span>Nuria {</div>
 <div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;</div>
-<div class="line"><a name="l00039"></a><span class="lineno"><a class="line" href="class_nuria_1_1_abstract_session_manager.html">   39</a></span>&#160;<span class="keyword">class </span>NURIA_CORE_EXPORT <a class="code" href="class_nuria_1_1_abstract_session_manager.html">AbstractSessionManager</a> : <span class="keyword">public</span> QObject {</div>
-<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;    Q_OBJECT</div>
-<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;<span class="keyword">public</span>:</div>
-<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;    <span class="keyword">explicit</span> <a class="code" href="class_nuria_1_1_abstract_session_manager.html">AbstractSessionManager</a> (QObject *parent = <span class="keyword">nullptr</span>);</div>
-<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;    </div>
-<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;    <span class="keyword">virtual</span> <a class="code" href="class_nuria_1_1_session.html">Session</a> create ();</div>
-<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;    </div>
-<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;    <span class="keyword">virtual</span> <span class="keywordtype">bool</span> exists (<span class="keyword">const</span> QByteArray &amp;<span class="keywordtype">id</span>) = 0;</div>
-<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;    </div>
-<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;    <span class="keyword">virtual</span> <a class="code" href="class_nuria_1_1_session.html">Session</a> <span class="keyword">get</span> (<span class="keyword">const</span> QByteArray &amp;id) = 0;</div>
-<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;</div>
-<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;<span class="keyword">protected</span>:  </div>
-<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;    <span class="keyword">virtual</span> QByteArray generateNewId ();</div>
-<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;    </div>
-<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;    <a class="code" href="class_nuria_1_1_session.html">Session</a> createSession (<span class="keyword">const</span> QByteArray&amp; <span class="keywordtype">id</span>);</div>
+<div class="line"><a name="l00055"></a><span class="lineno"><a class="line" href="class_nuria_1_1_abstract_session_manager.html">   55</a></span>&#160;<span class="keyword">class </span>NURIA_CORE_EXPORT <a class="code" href="class_nuria_1_1_abstract_session_manager.html">AbstractSessionManager</a> : <span class="keyword">public</span> QObject {</div>
+<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;    Q_OBJECT</div>
+<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;<span class="keyword">public</span>:</div>
+<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;    <span class="keyword">explicit</span> <a class="code" href="class_nuria_1_1_abstract_session_manager.html">AbstractSessionManager</a> (QObject *parent = <span class="keyword">nullptr</span>);</div>
+<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;    </div>
+<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;    <span class="keyword">virtual</span> <a class="code" href="class_nuria_1_1_session.html">Session</a> create ();</div>
+<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;    </div>
+<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;    <span class="keyword">virtual</span> <span class="keywordtype">bool</span> exists (<span class="keyword">const</span> QByteArray &amp;<span class="keywordtype">id</span>) = 0;</div>
+<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;    </div>
+<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;    <span class="keyword">virtual</span> <a class="code" href="class_nuria_1_1_session.html">Session</a> <span class="keyword">get</span> (<span class="keyword">const</span> QByteArray &amp;id) = 0;</div>
 <div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;</div>
-<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;<span class="keyword">public</span> slots:</div>
-<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;    <span class="keyword">virtual</span> <span class="keywordtype">void</span> removeSession (<span class="keyword">const</span> QByteArray &amp;<span class="keywordtype">id</span>) = 0;</div>
-<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;    </div>
-<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;};</div>
-<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;</div>
-<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;} <span class="comment">// namespace Nuria</span></div>
-<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;</div>
-<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;<span class="preprocessor">#endif // NURIA_ABSTRACTSESSIONMANAGER_HPP</span></div>
-<div class="ttc" id="class_nuria_1_1_abstract_session_manager_html"><div class="ttname"><a href="class_nuria_1_1_abstract_session_manager.html">Nuria::AbstractSessionManager</a></div><div class="ttdoc">Provides simple session managment capabilities. </div><div class="ttdef"><b>Definition:</b> abstractsessionmanager.hpp:39</div></div>
-<div class="ttc" id="class_nuria_1_1_session_html"><div class="ttname"><a href="class_nuria_1_1_session.html">Nuria::Session</a></div><div class="ttdoc">A managed key-value-store named by id. </div><div class="ttdef"><b>Definition:</b> session.hpp:43</div></div>
+<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;<span class="keyword">protected</span>:  </div>
+<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;    <span class="keyword">virtual</span> QByteArray generateNewId ();</div>
+<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;    </div>
+<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;    <a class="code" href="class_nuria_1_1_session.html">Session</a> createSession (<span class="keyword">const</span> QByteArray&amp; <span class="keywordtype">id</span>);</div>
+<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;</div>
+<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;<span class="keyword">public</span> slots:</div>
+<div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;    <span class="keyword">virtual</span> <span class="keywordtype">void</span> removeSession (<span class="keyword">const</span> QByteArray &amp;<span class="keywordtype">id</span>) = 0;</div>
+<div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;    </div>
+<div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160;};</div>
+<div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;</div>
+<div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160;} <span class="comment">// namespace Nuria</span></div>
+<div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;</div>
+<div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160;<span class="preprocessor">#endif // NURIA_ABSTRACTSESSIONMANAGER_HPP</span></div>
+<div class="ttc" id="class_nuria_1_1_abstract_session_manager_html"><div class="ttname"><a href="class_nuria_1_1_abstract_session_manager.html">Nuria::AbstractSessionManager</a></div><div class="ttdoc">Interface for a session manager. </div><div class="ttdef"><b>Definition:</b> abstractsessionmanager.hpp:55</div></div>
+<div class="ttc" id="class_nuria_1_1_session_html"><div class="ttname"><a href="class_nuria_1_1_session.html">Nuria::Session</a></div><div class="ttdoc">A data storage managed by an AbstractSessionManager. </div><div class="ttdef"><b>Definition:</b> session.hpp:45</div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Fri Jun 20 2014 19:36:06 for Nuria Framework - Core by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Fri Jun 27 2014 18:18:30 for Nuria Framework - Core by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.7
 </small></address>

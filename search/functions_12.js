@@ -2,7 +2,7 @@ var searchData=
 [
   ['serialize',['serialize',['../class_nuria_1_1_serializer.html#ad020a80a5930543163172d6c28c362d9',1,'Nuria::Serializer::serialize(void *object, MetaObject *meta)'],['../class_nuria_1_1_serializer.html#a3706e7faed6f40d290763b9ebbf98cbf',1,'Nuria::Serializer::serialize(void *object, const QByteArray &amp;typeName)']]],
   ['serializer',['Serializer',['../class_nuria_1_1_serializer.html#ad6aed52d1abb5d0ea05b29c35dadd5fb',1,'Nuria::Serializer']]],
-  ['session',['Session',['../class_nuria_1_1_session.html#a65c58afc1439a1019c15e795a5d97965',1,'Nuria::Session']]],
+  ['session',['Session',['../class_nuria_1_1_session.html#a65c58afc1439a1019c15e795a5d97965',1,'Nuria::Session::Session()'],['../class_nuria_1_1_session.html#a28f7277729bfe225f432c407e781ad79',1,'Nuria::Session::Session(const Session &amp;other)']]],
   ['sessionmanager',['SessionManager',['../class_nuria_1_1_session_manager.html#a0d233edaff0f32d1c71d71949c4bf724',1,'Nuria::SessionManager']]],
   ['setallowedtypes',['setAllowedTypes',['../class_nuria_1_1_serializer.html#a813256beaa8bc8f2f1266679a6fa2798',1,'Nuria::Serializer']]],
   ['setannotations',['setAnnotations',['../class_nuria_1_1_runtime_meta_object.html#a465e0c37e1786ad02cf7caf15c266c2f',1,'Nuria::RuntimeMetaObject']]],

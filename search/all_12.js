@@ -5,7 +5,7 @@ var searchData=
   ['serializer',['Serializer',['../class_nuria_1_1_serializer.html',1,'Nuria']]],
   ['serializer',['Serializer',['../class_nuria_1_1_serializer.html#ad6aed52d1abb5d0ea05b29c35dadd5fb',1,'Nuria::Serializer']]],
   ['session',['Session',['../class_nuria_1_1_session.html',1,'Nuria']]],
-  ['session',['Session',['../class_nuria_1_1_session.html#a65c58afc1439a1019c15e795a5d97965',1,'Nuria::Session']]],
+  ['session',['Session',['../class_nuria_1_1_session.html#a65c58afc1439a1019c15e795a5d97965',1,'Nuria::Session::Session()'],['../class_nuria_1_1_session.html#a28f7277729bfe225f432c407e781ad79',1,'Nuria::Session::Session(const Session &amp;other)']]],
   ['sessionmanager',['SessionManager',['../class_nuria_1_1_session_manager.html',1,'Nuria']]],
   ['sessionmanager',['SessionManager',['../class_nuria_1_1_session_manager.html#a0d233edaff0f32d1c71d71949c4bf724',1,'Nuria::SessionManager']]],
   ['setallowedtypes',['setAllowedTypes',['../class_nuria_1_1_serializer.html#a813256beaa8bc8f2f1266679a6fa2798',1,'Nuria::Serializer']]],
@@ -42,7 +42,7 @@ var searchData=
   ['staticmethod',['StaticMethod',['../class_nuria_1_1_callback.html#a915a45aceb767d7cd91a895bd18a0df7a10833a9ac33a57cad28ab93b530b7710',1,'Nuria::Callback']]],
   ['stealinternaldevice',['stealInternalDevice',['../class_nuria_1_1_temporary_buffer_device.html#a19cf21701bda8a0157a48eaeb7e6c053',1,'Nuria::TemporaryBufferDevice']]],
   ['stealpointer',['stealPointer',['../class_nuria_1_1_variant.html#accd28ea0460136806f47b3e0f069f0c4',1,'Nuria::Variant']]],
-  ['storagemode',['storageMode',['../class_nuria_1_1_temporary_buffer_device.html#ad3db4be1119b19213d1e52f722f94e62',1,'Nuria::TemporaryBufferDevice::storageMode() const '],['../class_nuria_1_1_temporary_buffer_device.html#af02d7d74dfa8869e8be019279eda6b92',1,'Nuria::TemporaryBufferDevice::StorageMode()']]],
+  ['storagemode',['StorageMode',['../class_nuria_1_1_temporary_buffer_device.html#af02d7d74dfa8869e8be019279eda6b92',1,'Nuria::TemporaryBufferDevice::StorageMode()'],['../class_nuria_1_1_temporary_buffer_device.html#ad3db4be1119b19213d1e52f722f94e62',1,'Nuria::TemporaryBufferDevice::storageMode() const ']]],
   ['storagemodechanged',['storageModeChanged',['../class_nuria_1_1_temporary_buffer_device.html#ad6ceee5166abcca2ec1039532a38f6a2',1,'Nuria::TemporaryBufferDevice']]],
   ['storeobject',['storeObject',['../class_nuria_1_1_dependency_manager.html#ab7f60e64f8695f111faf28fa094ffe5f',1,'Nuria::DependencyManager::storeObject(const QString &amp;name, void *object, int type, ThreadingPolicy policy=DefaultPolicy)'],['../class_nuria_1_1_dependency_manager.html#a4e67a075f7db22d845df6a85f5df5d15',1,'Nuria::DependencyManager::storeObject(const QString &amp;name, T *object)']]]
 ];

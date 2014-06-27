@@ -96,7 +96,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div><!--header-->
 <div class="contents">
 
-<p>A managed key-value-store named by <em>id</em>.  
+<p>A data storage managed by an <a class="el" href="class_nuria_1_1_abstract_session_manager.html" title="Interface for a session manager. ">AbstractSessionManager</a>.  
  <a href="class_nuria_1_1_session.html#details">More...</a></p>
 
 <p><code>#include &lt;<a class="el" href="session_8hpp_source.html">session.hpp</a>&gt;</code></p>
@@ -105,9 +105,12 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 Public Member Functions</h2></td></tr>
 <tr class="memitem:a65c58afc1439a1019c15e795a5d97965"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_nuria_1_1_session.html#a65c58afc1439a1019c15e795a5d97965">Session</a> ()</td></tr>
 <tr class="separator:a65c58afc1439a1019c15e795a5d97965"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a28f7277729bfe225f432c407e781ad79"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a28f7277729bfe225f432c407e781ad79"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>Session</b> (const <a class="el" href="class_nuria_1_1_session.html">Session</a> &amp;other)</td></tr>
+<tr class="memitem:a28f7277729bfe225f432c407e781ad79"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_nuria_1_1_session.html#a28f7277729bfe225f432c407e781ad79">Session</a> (const <a class="el" href="class_nuria_1_1_session.html">Session</a> &amp;other)</td></tr>
 <tr class="separator:a28f7277729bfe225f432c407e781ad79"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afcb94571b21098b1dd34f90f1edfd123"><td class="memItemLeft" align="right" valign="top"><a class="el" href="class_nuria_1_1_session.html">Session</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_nuria_1_1_session.html#afcb94571b21098b1dd34f90f1edfd123">operator=</a> (const <a class="el" href="class_nuria_1_1_session.html">Session</a> &amp;other)</td></tr>
+<tr class="separator:afcb94571b21098b1dd34f90f1edfd123"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad8fd870606a7f8e7d1fbbdd9d6b0e1da"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_nuria_1_1_session.html#ad8fd870606a7f8e7d1fbbdd9d6b0e1da">~Session</a> ()</td></tr>
+<tr class="separator:ad8fd870606a7f8e7d1fbbdd9d6b0e1da"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aad7c7803000432f77111db8b5bc5ff0a"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_nuria_1_1_session.html#aad7c7803000432f77111db8b5bc5ff0a">isValid</a> () const </td></tr>
 <tr class="separator:aad7c7803000432f77111db8b5bc5ff0a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:abac17ef4ef360f32f79d9196cf52715f"><td class="memItemLeft" align="right" valign="top">QByteArray&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_nuria_1_1_session.html#abac17ef4ef360f32f79d9196cf52715f">id</a> () const </td></tr>
@@ -122,15 +125,16 @@ Public Member Functions</h2></td></tr>
 <tr class="separator:a7b8891058002eb6458a6e000fb6123b7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3e3239edda7707c564c416e36ad0b6a0"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_nuria_1_1_session.html#a3e3239edda7707c564c416e36ad0b6a0">remove</a> ()</td></tr>
 <tr class="separator:a3e3239edda7707c564c416e36ad0b6a0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad8fcc43e18ebd32befc213b7fc0e26f6"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_nuria_1_1_session.html#ad8fcc43e18ebd32befc213b7fc0e26f6">refCount</a> () const </td></tr>
+<tr class="separator:ad8fcc43e18ebd32befc213b7fc0e26f6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac91435ce3e93df572959a9bca5e5cd86"><td class="memItemLeft" align="right" valign="top">QVariant&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_nuria_1_1_session.html#ac91435ce3e93df572959a9bca5e5cd86">value</a> (const QString &amp;key) const </td></tr>
 <tr class="separator:ac91435ce3e93df572959a9bca5e5cd86"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0ae3e1d15f9e1de1c4864092bda7ca4c"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_nuria_1_1_session.html#a0ae3e1d15f9e1de1c4864092bda7ca4c">contains</a> (const QString &amp;key) const </td></tr>
+<tr class="separator:a0ae3e1d15f9e1de1c4864092bda7ca4c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a58d70f07a84bad2cdd21ca19d4657173"><td class="memItemLeft" align="right" valign="top">QVariant &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_nuria_1_1_session.html#a58d70f07a84bad2cdd21ca19d4657173">operator[]</a> (const QString &amp;key)</td></tr>
 <tr class="separator:a58d70f07a84bad2cdd21ca19d4657173"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a43f34e820501dc16148a71cdc82c44bc"><td class="memItemLeft" align="right" valign="top">QVariant&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_nuria_1_1_session.html#a43f34e820501dc16148a71cdc82c44bc">operator[]</a> (const QString &amp;key) const </td></tr>
 <tr class="separator:a43f34e820501dc16148a71cdc82c44bc"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:afcb94571b21098b1dd34f90f1edfd123"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="afcb94571b21098b1dd34f90f1edfd123"></a>
-<a class="el" href="class_nuria_1_1_session.html">Session</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>operator=</b> (const <a class="el" href="class_nuria_1_1_session.html">Session</a> &amp;other)</td></tr>
-<tr class="separator:afcb94571b21098b1dd34f90f1edfd123"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="friends"></a>
 Friends</h2></td></tr>
@@ -145,9 +149,11 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>operator!=</b> (const
 <tr class="separator:a89476585a70d0df25295abcec4e932e9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>A managed key-value-store named by <em>id</em>. </p>
-<p>A <a class="el" href="class_nuria_1_1_session.html" title="A managed key-value-store named by id. ">Session</a> is a key-value-store for persistent storage of session data. Sessions are managed by an <a class="el" href="class_nuria_1_1_abstract_session_manager.html" title="Provides simple session managment capabilities. ">AbstractSessionManager</a>.</p>
-<dl class="section note"><dt>Note</dt><dd>Sessions can be compared for (in)equality. </dd></dl>
+<div class="textblock"><p>A data storage managed by an <a class="el" href="class_nuria_1_1_abstract_session_manager.html" title="Interface for a session manager. ">AbstractSessionManager</a>. </p>
+<p>A <a class="el" href="class_nuria_1_1_session.html" title="A data storage managed by an AbstractSessionManager. ">Session</a> is a key-value-store for persistent storage of session data. Sessions are managed by an <a class="el" href="class_nuria_1_1_abstract_session_manager.html" title="Interface for a session manager. ">AbstractSessionManager</a> and are object to its storage policy.</p>
+<dl class="section note"><dt>Note</dt><dd>This structure is <b>explicitly-shared</b>. </dd>
+<dd>
+Sessions can be compared for (in)equality. </dd></dl>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a class="anchor" id="a65c58afc1439a1019c15e795a5d97965"></a>
 <div class="memitem">
@@ -165,7 +171,57 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>operator!=</b> (const
 
 </div>
 </div>
+<a class="anchor" id="a28f7277729bfe225f432c407e781ad79"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">Nuria::Session::Session </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="class_nuria_1_1_session.html">Session</a> &amp;&#160;</td>
+          <td class="paramname"><em>other</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Copy constructor. </p>
+
+</div>
+</div>
+<a class="anchor" id="ad8fd870606a7f8e7d1fbbdd9d6b0e1da"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">Nuria::Session::~Session </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Destructor. </p>
+
+</div>
+</div>
 <h2 class="groupheader">Member Function Documentation</h2>
+<a class="anchor" id="a0ae3e1d15f9e1de1c4864092bda7ca4c"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool Nuria::Session::contains </td>
+          <td>(</td>
+          <td class="paramtype">const QString &amp;&#160;</td>
+          <td class="paramname"><em>key</em></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Returns <code>true</code> if there's a value for <em>key</em>. </p>
+
+</div>
+</div>
 <a class="anchor" id="abac17ef4ef360f32f79d9196cf52715f"></a>
 <div class="memitem">
 <div class="memproto">
@@ -210,7 +266,7 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>operator!=</b> (const
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Returns <em>true</em> if a session is valid. Sessions obtained through a session manager are always valid. </p>
+<p>Returns <code>true</code> if a session is valid. </p>
 
 </div>
 </div>
@@ -226,7 +282,7 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>operator!=</b> (const
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Returns the manager which handles this session. </p>
+<p>Returns the manager which handles this session. </p><dl class="section warning"><dt>Warning</dt><dd>If the instance is invalid, <code>nullptr</code> may be returned. </dd></dl>
 
 </div>
 </div>
@@ -242,7 +298,8 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>operator!=</b> (const
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Marks the session as clean, used to indicate that changed data has been saved. Should only be used by a session manager. </p>
+<p>Marks the session as clean, used to indicate that changed data has been saved.</p>
+<dl class="section warning"><dt>Warning</dt><dd>This should only be used by a session manager. </dd></dl>
 
 </div>
 </div>
@@ -258,7 +315,24 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>operator!=</b> (const
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Marks the session as dirty. Used to indicate changed data. </p>
+<p>Marks the session as dirty, which indicates to the associated session manager that this instance should be written back to the manager implementation specific back-end, such as a database. </p>
+
+</div>
+</div>
+<a class="anchor" id="afcb94571b21098b1dd34f90f1edfd123"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="class_nuria_1_1_session.html">Session</a>&amp; Nuria::Session::operator= </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="class_nuria_1_1_session.html">Session</a> &amp;&#160;</td>
+          <td class="paramname"><em>other</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Assignment operator. </p>
 
 </div>
 </div>
@@ -275,7 +349,8 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>operator!=</b> (const
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Returns a writable reference to the stored value under key. </p>
+<p>Returns the value known as <em>key</em>. If there's no value for <em>key</em> yet, a invalid QVariant will be inserted and the reference to it returned.</p>
+<p>The session will be marked dirty. </p><dl class="section see"><dt>See also</dt><dd><a class="el" href="class_nuria_1_1_session.html#a33816533070de81314199220ec60b532">markDirty</a> <a class="el" href="class_nuria_1_1_session.html#ac91435ce3e93df572959a9bca5e5cd86">value</a> </dd></dl>
 
 </div>
 </div>
@@ -292,7 +367,24 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>operator!=</b> (const
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Fetches the value stored under key </p>
+<p>Same as <a class="el" href="class_nuria_1_1_session.html#ac91435ce3e93df572959a9bca5e5cd86">value()</a>. </p>
+
+</div>
+</div>
+<a class="anchor" id="ad8fcc43e18ebd32befc213b7fc0e26f6"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int Nuria::Session::refCount </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Returns the reference count of this session instance. The reference count indicates how many other session instances are in the application pointing to the same data, including this instance itself. If this method returns <code>1</code>, then this is the only instance left.</p>
+<dl class="section see"><dt>See also</dt><dd><a class="el" href="class_nuria_1_1_abstract_session_manager.html" title="Interface for a session manager. ">AbstractSessionManager</a> </dd></dl>
 
 </div>
 </div>
@@ -325,7 +417,7 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>operator!=</b> (const
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Fetches the value stored under key. </p>
+<p>Returns the value known as <em>key</em>. If there's no value for <em>key</em>, then a invalid QVariant is returned which is not inserted into the internal storage. The dirty flag is not changed by this method. </p>
 
 </div>
 </div>
@@ -335,7 +427,7 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>operator!=</b> (const
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Fri Jun 20 2014 19:36:07 for Nuria Framework - Core by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Fri Jun 27 2014 18:18:31 for Nuria Framework - Core by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.7
 </small></address>
