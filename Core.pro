@@ -22,8 +22,6 @@ SOURCES += \
     argumentmanager.cpp \
     templateengine.cpp \
     variant.cpp \
-    future.cpp \
-    futurewatcher.cpp \
     callback.cpp \
     dependencymanager.cpp \
     serializer.cpp \
@@ -52,8 +50,6 @@ HEADERS +=\
     templateengine.hpp \
     variant.hpp \
     essentials.hpp \
-    future.hpp \
-    futurewatcher.hpp \
     callback.hpp \
     dependencymanager.hpp \
     serializer.hpp \
