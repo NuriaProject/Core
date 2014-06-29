@@ -9,7 +9,6 @@ var searchData=
   ['invoke',['invoke',['../class_nuria_1_1_callback.html#aa5095232893b028c7025cb725eabdd85',1,'Nuria::Callback']]],
   ['invokeonsignal',['invokeOnSignal',['../class_nuria_1_1_unix_signal_handler.html#afc0a3d9529076ffcdb0a18a649910aac',1,'Nuria::UnixSignalHandler']]],
   ['isdirty',['isDirty',['../class_nuria_1_1_session.html#ac69a8384640149dc0329eb9fe756931e',1,'Nuria::Session']]],
-  ['isfinished',['isFinished',['../class_nuria_1_1_future_base.html#af4c1e7d98c40f0109c2e0b7a2dc418e1',1,'Nuria::FutureBase']]],
   ['isgeneric',['isGeneric',['../class_nuria_1_1_variant.html#a7a8a10fd0476517e83de0be4273f4df8',1,'Nuria::Variant::isGeneric(const QVariant &amp;variant)'],['../class_nuria_1_1_variant.html#ad5a65553bb15d61f658a7b5a1e09b265',1,'Nuria::Variant::isGeneric(int typeId)']]],
   ['islist',['isList',['../class_nuria_1_1_variant.html#a454f9fee6deb40e0388f3030d5853c49',1,'Nuria::Variant::isList(const QVariant &amp;variant)'],['../class_nuria_1_1_variant.html#af9e454aa37ba17d66ae4d4071600590a',1,'Nuria::Variant::isList(int typeId)']]],
   ['islisteningto',['isListeningTo',['../class_nuria_1_1_unix_signal_handler.html#a8cdab8caae7b239fd7d1ec69ebaf3a61',1,'Nuria::UnixSignalHandler']]],

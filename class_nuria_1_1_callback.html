@@ -112,8 +112,7 @@ Public Types</h2></td></tr>
 <a class="el" href="class_nuria_1_1_callback.html#a915a45aceb767d7cd91a895bd18a0df7acf1a26019d3a8ff57c298ac18bb1e39b">MemberMethod</a> = 2, 
 <a class="el" href="class_nuria_1_1_callback.html#a915a45aceb767d7cd91a895bd18a0df7a9206e7469c9578fd8331f297cdb0ab85">Slot</a> = 3, 
 <br />
-&#160;&#160;<a class="el" href="class_nuria_1_1_callback.html#a915a45aceb767d7cd91a895bd18a0df7aae3df39dc33c42fb524968a9a2bf37aa">Lambda</a> = 4, 
-<a class="el" href="class_nuria_1_1_callback.html#a915a45aceb767d7cd91a895bd18a0df7a7f81a0074266500acbf467a2c3a67353">Future</a> = 5
+&#160;&#160;<a class="el" href="class_nuria_1_1_callback.html#a915a45aceb767d7cd91a895bd18a0df7aae3df39dc33c42fb524968a9a2bf37aa">Lambda</a> = 4
 <br />
  }</td></tr>
 <tr class="separator:a915a45aceb767d7cd91a895bd18a0df7"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -152,9 +151,6 @@ Public Member Functions</h2></td></tr>
 template&lt;typename Ret , typename... Args&gt; </td></tr>
 <tr class="memitem:a2c7c7d6021b4a1130dbfa1bf14581bd0"><td class="memTemplItemLeft" align="right" valign="top">&#160;</td><td class="memTemplItemRight" valign="bottom"><b>Callback</b> (const std::function&lt; Ret(Args...) &gt; &amp;func, bool variadic=false)</td></tr>
 <tr class="separator:a2c7c7d6021b4a1130dbfa1bf14581bd0"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a95bc711b7854fa1123b29a1093ab7b9c"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_nuria_1_1_callback.html#a95bc711b7854fa1123b29a1093ab7b9c">Callback</a> (const <a class="el" href="class_nuria_1_1_future.html">Nuria::Future</a>&lt; QVariant &gt; &amp;future, bool variadic=false)</td></tr>
-<tr class="memdesc:a95bc711b7854fa1123b29a1093ab7b9c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructs a callback from a <a class="el" href="class_nuria_1_1_future.html" title="The Future class provides a QFuture-esque interface for tasks which may take some time to complete...">Future</a> instance.  <a href="#a95bc711b7854fa1123b29a1093ab7b9c">More...</a><br /></td></tr>
-<tr class="separator:a95bc711b7854fa1123b29a1093ab7b9c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4442cd596a983564756fab1629da40a7"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_nuria_1_1_callback.html#a4442cd596a983564756fab1629da40a7">~Callback</a> ()</td></tr>
 <tr class="separator:a4442cd596a983564756fab1629da40a7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9d7f14052d26698ac1ff10000ebed9f6"><td class="memItemLeft" align="right" valign="top"><a class="el" href="class_nuria_1_1_callback.html">Callback</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_nuria_1_1_callback.html#a9d7f14052d26698ac1ff10000ebed9f6">operator=</a> (const <a class="el" href="class_nuria_1_1_callback.html">Callback</a> &amp;other)</td></tr>
@@ -188,9 +184,6 @@ template&lt;typename Ret , typename... Args&gt; </td></tr>
 <tr class="memitem:ga708e73f4475d85b82938069b384a85d8"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ga708e73f4475d85b82938069b384a85d8"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>setCallback</b> (QObject *receiver, const char *slot)</td></tr>
 <tr class="separator:ga708e73f4475d85b82938069b384a85d8"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga371c8f91cb36411e38910b7bc709fb63"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ga371c8f91cb36411e38910b7bc709fb63"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>setCallback</b> (const <a class="el" href="class_nuria_1_1_future.html">Nuria::Future</a>&lt; QVariant &gt; &amp;future)</td></tr>
-<tr class="separator:ga371c8f91cb36411e38910b7bc709fb63"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gadf3b5e41c4f1b85acbeaa1b9e6510b97"><td class="memTemplParams" colspan="2"><a class="anchor" id="gadf3b5e41c4f1b85acbeaa1b9e6510b97"></a>
 template&lt;typename Ret , typename... Args&gt; </td></tr>
 <tr class="memitem:gadf3b5e41c4f1b85acbeaa1b9e6510b97"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="class_nuria_1_1_callback.html">Callback</a> &amp;&#160;</td><td class="memTemplItemRight" valign="bottom"><b>operator=</b> (Ret(*func)(Args...))</td></tr>
@@ -234,7 +227,6 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>CallbackPrivate</b><
 <li>QObject slots</li>
 <li>std::function</li>
 <li>Lambdas</li>
-<li><a class="el" href="class_nuria_1_1_future.html" title="The Future class provides a QFuture-esque interface for tasks which may take some time to complete...">Nuria::Future</a></li>
 </ul>
 <p>For all of the above types <a class="el" href="class_nuria_1_1_callback.html" title="A modern style callback mechanism which can be bound to various method types including slots...">Callback</a> provides a convenient constructors with the exception of lambdas (See fromLambda).</p>
 <dl class="section user"><dt>Argument and return types</dt><dd>Please note that <b>all</b> types which are passed to or from the callback must be registered to the Qt Meta System using the Q_DECLARE_METATYPE macro.</dd></dl>
@@ -280,10 +272,6 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>CallbackPrivate</b><
 </td></tr>
 <tr><td class="fieldname"><a class="anchor" id="a915a45aceb767d7cd91a895bd18a0df7aae3df39dc33c42fb524968a9a2bf37aa"></a>Lambda&#160;</td><td class="fielddoc">
 <p>Invokes a slot. </p>
-</td></tr>
-<tr><td class="fieldname"><a class="anchor" id="a915a45aceb767d7cd91a895bd18a0df7a7f81a0074266500acbf467a2c3a67353"></a>Future&#160;</td><td class="fielddoc">
-<p>Invokes a lambda. </p>
-<p>Pseudo callback which sets the value of a <a class="el" href="class_nuria_1_1_future_3_01_q_variant_01_4.html">Future&lt; QVariant &gt;</a>. </p>
 </td></tr>
 </table>
 
@@ -441,43 +429,6 @@ template&lt;typename Class , typename Ret , typename... Args&gt; </div>
 </table>
 </div><div class="memdoc">
 <p>Constructs a callback from a member method. </p>
-
-</div>
-</div>
-<a class="anchor" id="a95bc711b7854fa1123b29a1093ab7b9c"></a>
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">Nuria::Callback::Callback </td>
-          <td>(</td>
-          <td class="paramtype">const <a class="el" href="class_nuria_1_1_future.html">Nuria::Future</a>&lt; QVariant &gt; &amp;&#160;</td>
-          <td class="paramname"><em>future</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">bool&#160;</td>
-          <td class="paramname"><em>variadic</em> = <code>false</code>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">explicit</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Constructs a callback from a <a class="el" href="class_nuria_1_1_future.html" title="The Future class provides a QFuture-esque interface for tasks which may take some time to complete...">Future</a> instance. </p>
-<p>When the callback is invoked which hosts a <a class="el" href="class_nuria_1_1_future.html" title="The Future class provides a QFuture-esque interface for tasks which may take some time to complete...">Future</a> instance, the first argument passed to the callback will be set to <em>future</em>. The future is finished afterwards. If <em>future</em> expects a different type than the first argument, it will be converted. If conversion is not possible, a default instance will be assigned to <em>future</em> of the type it expects. Invoking a future callback always returns a invalid QVariant. </p>
 
 </div>
 </div>
@@ -823,7 +774,7 @@ template&lt;typename... Args&gt; </div>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Fri Jun 27 2014 18:18:30 for Nuria Framework - Core by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Sun Jun 29 2014 23:49:06 for Nuria Framework - Core by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.7
 </small></address>

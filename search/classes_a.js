@@ -1,5 +1,6 @@
 var searchData=
 [
-  ['referencedevice',['ReferenceDevice',['../class_nuria_1_1_reference_device.html',1,'Nuria']]],
-  ['runtimemetaobject',['RuntimeMetaObject',['../class_nuria_1_1_runtime_meta_object.html',1,'Nuria']]]
+  ['serializer',['Serializer',['../class_nuria_1_1_serializer.html',1,'Nuria']]],
+  ['session',['Session',['../class_nuria_1_1_session.html',1,'Nuria']]],
+  ['sessionmanager',['SessionManager',['../class_nuria_1_1_session_manager.html',1,'Nuria']]]
 ];

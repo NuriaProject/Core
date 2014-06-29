@@ -3,7 +3,6 @@ var searchData=
   ['_7ecallback',['~Callback',['../class_nuria_1_1_callback.html#a4442cd596a983564756fab1629da40a7',1,'Nuria::Callback']]],
   ['_7edebug',['~Debug',['../class_nuria_1_1_debug.html#afb6f576cdacc85e81b76a227f26f5872',1,'Nuria::Debug']]],
   ['_7edependencymanager',['~DependencyManager',['../class_nuria_1_1_dependency_manager.html#ac9c74a4e71746c54bc410eb2be6dfe9c',1,'Nuria::DependencyManager']]],
-  ['_7efuturebase',['~FutureBase',['../class_nuria_1_1_future_base.html#a94b353ffecc1989d61efbe70617a5093',1,'Nuria::FutureBase']]],
   ['_7ejsonmetaobjectreader',['~JsonMetaObjectReader',['../class_nuria_1_1_json_meta_object_reader.html#a276053f3cfb1cbcb61ed610f9c200f78',1,'Nuria::JsonMetaObjectReader']]],
   ['_7elazycondition',['~LazyCondition',['../class_nuria_1_1_lazy_condition.html#a8516fa8a5cf12969902e441f7cfc92a3',1,'Nuria::LazyCondition']]],
   ['_7elazyconditionwalker',['~LazyConditionWalker',['../class_nuria_1_1_lazy_condition_walker.html#af52910b10baa1951a92aa618d2ea27e9',1,'Nuria::LazyConditionWalker']]],
