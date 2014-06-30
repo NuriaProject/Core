@@ -28,7 +28,6 @@
 
 #include "essentials.hpp"
 #include "variant.hpp"
-#include "future.hpp"
 
 namespace Nuria {
 class CallbackPrivate;
@@ -98,7 +97,6 @@ namespace CallbackHelper {
  * - QObject slots
  * - std::function
  * - Lambdas
- * - Nuria::Future
  * 
  * For all of the above types Callback provides a convenient constructors with
  * the exception of lambdas (See fromLambda).
@@ -144,7 +142,6 @@ class NURIA_CORE_EXPORT Callback {
 	
 	// Forward declare helper structures
 	struct TrampolineBase;
-	template< typename T > struct FutureHelper;
 	template< typename Ret, typename ... Args > struct MethodHelper;
 	template< typename Class, typename Ret, typename ... Args > struct MemberMethodHelper;
 	template< typename FullType, typename Ret, typename ... Args > struct LambdaHelper;
@@ -159,12 +156,7 @@ public:
 		StaticMethod = 1, /// Invokes a static method
 		MemberMethod = 2, /// Invokes a member method
 		Slot = 3, /// Invokes a slot
-		Lambda = 4, /// Invokes a lambda
-		
-		/**
-		 * Pseudo callback which sets the value of a Future< QVariant >.
-		 */
-		Future = 5
+		Lambda = 4 /// Invokes a lambda
 	};
 	
 	/**
@@ -213,19 +205,6 @@ public:
 		cb.setVariadic (variadic);
 		return cb;
 	}
-	
-	/**
-	 * \brief Constructs a callback from a Future instance.
-	 * 
-	 * When the callback is invoked which hosts a Future instance, the first
-	 * argument passed to the callback will be set to \a future. The future
-	 * is finished afterwards. If \a future expects a different type than
-	 * the first argument, it will be converted. If conversion is not
-	 * possible, a default instance will be assigned to \a future of the
-	 * type it expects. Invoking a future callback always returns a invalid
-	 * QVariant.
-	 */
-	explicit Callback (const Nuria::Future< QVariant > &future, bool variadic = false);
 	
 	/** Destructor. */
 	~Callback ();
@@ -293,9 +272,8 @@ public:
 				 CallbackHelper::typeId< Ret > (), args);
 	}
 	
-	// QObject slot and future
+	// QObject slot
 	bool setCallback (QObject *receiver, const char *slot);
-	bool setCallback (const Nuria::Future< QVariant > &future);
 	
 	// Convenience assignment operators
 	template< typename Ret, typename ... Args >
@@ -426,18 +404,6 @@ private:
 	struct MemberTrampolineBase : TrampolineBase {
 		MemberTrampolineBase (void *inst) : TrampolineBase (MemberMethod), instance (inst) {}
 		void *instance;
-	};
-	
-	// Nuria::Future< T >
-	template< typename T >
-	struct FutureHelper : public TrampolineBase {
-		Nuria::Future< T > fut;
-		
-		FutureHelper (const Nuria::Future< T > &f) : TrampolineBase (Future), fut (f) {}
-		
-		void trampoline (void **args)
-		{ fut.setValue (QVariant (fut.type (), args[1])); }
-		
 	};
 	
 	// Static methods

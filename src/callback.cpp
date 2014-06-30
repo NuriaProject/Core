@@ -28,7 +28,6 @@
 #define NURIA_COMPLEX_CONVERSION
 
 #include "variant.hpp"
-#include "future.hpp"
 #include "debug.hpp"
 
 // Callback types. We store them outside to easily add more options in the
@@ -125,15 +124,6 @@ Nuria::Callback::Callback (const Callback &other)
 	
 }
 
-Nuria::Callback::Callback (const Nuria::Future< QVariant > &future, bool variadic)
-	: d (new CallbackPrivate)
-{
-	this->d->ref.ref ();
-	this->d->variadic = variadic;
-	setCallback (future);
-	
-}
-
 Nuria::Callback::~Callback () {
 	if (!this->d->ref.deref ()) {
 		delete this->d;
@@ -215,15 +205,6 @@ bool Nuria::Callback::setCallback (QObject *receiver, const char *slot) {
 	this->d->ptr.slot->method = method;
 	
 	//
-	return true;
-}
-
-bool Nuria::Callback::setCallback (const Nuria::Future< QVariant > &future) {
-	
-	this->d->freeBoundValues ();
-	this->d->clear ();
-	this->d->type = Future;
-	this->d->ptr.base = new FutureHelper< QVariant > (future);
 	return true;
 }
 
@@ -433,7 +414,7 @@ public:
 QVariant Nuria::Callback::invokeInternal (int count, void **args, int *types) const {
 	
 	// Argument array, works like the one from qt_metacall().
-	void *rawArgs[this->d->args.length () + this->d->boundCount + 1];
+	void *rawArgs[this->d->args.length () + 1];
 	bool removeMe[this->d->args.length ()];
 	
 	// Will destroy all elements in rawArgs which are marked by 'removeMe'.
