@@ -57,14 +57,19 @@ SET(NuriaCore_SRC
     src/test.cpp
     src/test.hpp
     src/threadlocal.hpp
-    src/unixsignalhandler.cpp
-    src/unixsignalhandler.hpp
     src/variant.cpp
     src/variant.hpp
 )
 
+if (UNIX)
+  SET(NuriaCore_SRC ${NuriaCore_SRC}
+    src/unixsignalhandler.cpp
+    src/unixsignalhandler.hpp
+  )
+endif (UNIX)
+
 # C++11
-LIST(APPEND CMAKE_CXX_FLAGS "-std=c++11")
+LIST(APPEND CMAKE_CXX_FLAGS "-std=c++11 -DNURIA_CORE_LIBRARY")
 
 # Create build target
 ADD_LIBRARY(NuriaCore SHARED ${NuriaCore_SRC})
@@ -78,7 +83,11 @@ set_target_properties(
 )
 
 # Install target
-INSTALL(TARGETS NuriaCore LIBRARY DESTINATION lib)
+INSTALL(TARGETS NuriaCore 
+		LIBRARY DESTINATION lib
+		ARCHIVE DESTINATION lib
+		RUNTIME DESTINATION lib
+)
 INSTALL(DIRECTORY src/ DESTINATION include/nuria/core
         FILES_MATCHING PATTERN "*.hpp"
         PATTERN "private" EXCLUDE
