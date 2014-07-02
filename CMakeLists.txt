@@ -69,7 +69,8 @@ if (UNIX)
 endif (UNIX)
 
 # C++11
-LIST(APPEND CMAKE_CXX_FLAGS "-std=c++11 -DNURIA_CORE_LIBRARY")
+LIST(APPEND CMAKE_CXX_FLAGS "-std=c++11")
+add_definitions(-DNURIA_CORE_LIBRARY)
 
 # Create build target
 ADD_LIBRARY(NuriaCore SHARED ${NuriaCore_SRC})
@@ -88,7 +89,7 @@ INSTALL(TARGETS NuriaCore
 		ARCHIVE DESTINATION lib
 		RUNTIME DESTINATION lib
 )
-INSTALL(DIRECTORY src/ DESTINATION include/nuria/core
+INSTALL(DIRECTORY src/ DESTINATION include/nuria
         FILES_MATCHING PATTERN "*.hpp"
         PATTERN "private" EXCLUDE
 )
