@@ -15,8 +15,8 @@
  *       distribution.
  */
 
-#include "dependencymanager.hpp"
-#include "debug.hpp"
+#include "nuria/dependencymanager.hpp"
+#include "nuria/debug.hpp"
 
 #include <QCoreApplication>
 #include <QThreadStorage>

@@ -15,7 +15,7 @@
  *       distribution.
  */
 
-#include "templateengine.hpp"
+#include "nuria/templateengine.hpp"
 
 #include <QMetaMethod>
 #include <QStringList>
@@ -23,7 +23,7 @@
 #include <QRegExp>
 #include <QDebug>
 
-#include "variant.hpp"
+#include "nuria/variant.hpp"
 
 // 
 namespace Nuria {

@@ -15,9 +15,9 @@
  *       distribution.
  */
 
-#include "lazyevaluation.hpp"
-#include "conditionevaluator.hpp"
-#include "debug.hpp"
+#include "nuria/lazyevaluation.hpp"
+#include "nuria/conditionevaluator.hpp"
+#include "nuria/debug.hpp"
 
 namespace Nuria {
 

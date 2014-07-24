@@ -15,7 +15,7 @@
  *       distribution.
  */
 
-#include "argumentmanager.hpp"
+#include "nuria/argumentmanager.hpp"
 
 #include <QCoreApplication>
 #include <QStringList>

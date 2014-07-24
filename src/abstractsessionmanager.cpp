@@ -15,11 +15,11 @@
  *       distribution.
  */
 
-#include "abstractsessionmanager.hpp"
+#include "nuria/abstractsessionmanager.hpp"
 
 #include <QUuid>
 
-#include "session.hpp"
+#include "nuria/session.hpp"
 
 Nuria::AbstractSessionManager::AbstractSessionManager (QObject *parent) 
 	: QObject (parent)

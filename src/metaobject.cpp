@@ -15,12 +15,12 @@
  *       distribution.
  */
 
-#include "metaobject.hpp"
+#include "nuria/metaobject.hpp"
 
 #include <QReadWriteLock>
 #include <functional>
 
-#include "debug.hpp"
+#include "nuria/debug.hpp"
 
 enum Categories {
 	ObjectCategory = 0,

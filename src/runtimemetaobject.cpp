@@ -15,7 +15,7 @@
  *       distribution.
  */
 
-#include "runtimemetaobject.hpp"
+#include "nuria/runtimemetaobject.hpp"
 
 #include <algorithm>
 #include <QMultiMap>
