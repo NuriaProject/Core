@@ -50,8 +50,6 @@ SET(NuriaCore_SRC
     src/session.hpp
     src/sessionmanager.cpp
     src/sessionmanager.hpp
-    src/templateengine.cpp
-    src/templateengine.hpp
     src/temporarybufferdevice.cpp
     src/temporarybufferdevice.hpp
     src/test.cpp
