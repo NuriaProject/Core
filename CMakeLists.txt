@@ -83,9 +83,9 @@ set_target_properties(
 
 # Install target
 INSTALL(TARGETS NuriaCore 
-		LIBRARY DESTINATION lib
-		ARCHIVE DESTINATION lib
-		RUNTIME DESTINATION lib
+        LIBRARY DESTINATION lib
+        ARCHIVE DESTINATION lib
+        RUNTIME DESTINATION lib
 )
 INSTALL(DIRECTORY src/nuria/ DESTINATION include/nuria
         FILES_MATCHING PATTERN "*.hpp"
