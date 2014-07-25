@@ -1,0 +1,34 @@
+<RCC>
+    <qresource prefix="/">
+        <file>resources/AnnotationIsNotAnObject.json</file>
+        <file>resources/AnnotationNameIsNotAString.json</file>
+        <file>resources/AnnotationsIsNotAnArray.json</file>
+        <file>resources/AnnotationValueHasUnknownType.json</file>
+        <file>resources/BasesContainsNonString.json</file>
+        <file>resources/BasesIsNotAnArray.json</file>
+        <file>resources/ConstructorsIsNotAnArray.json</file>
+        <file>resources/EnumIsNotAnObject.json</file>
+        <file>resources/EnumsIsNotAnObject.json</file>
+        <file>resources/EnumValueObjectValueIsNotAnInteger.json</file>
+        <file>resources/EnumValuesIsNotAnObject.json</file>
+        <file>resources/FieldIsNotAnObject.json</file>
+        <file>resources/FieldReadOnlyIsNotABoolean.json</file>
+        <file>resources/FieldsIsNotAnObject.json</file>
+        <file>resources/FieldTypeIsNotAString.json</file>
+        <file>resources/FileIsNotAnObject.json</file>
+        <file>resources/JsonParseError.json</file>
+        <file>resources/MemberMethodsIsNotAnArray.json</file>
+        <file>resources/MethodArgumentNamesContainsNonString.json</file>
+        <file>resources/MethodArgumentNamesIsNotAnArray.json</file>
+        <file>resources/MethodArgumentsHaveDifferentLengths.json</file>
+        <file>resources/MethodArgumentTypesContainsNonString.json</file>
+        <file>resources/MethodArgumentTypesIsNotAnArray.json</file>
+        <file>resources/MethodIsNotAnObject.json</file>
+        <file>resources/MethodNameIsNotAString.json</file>
+        <file>resources/MethodResultTypeIsNotAString.json</file>
+        <file>resources/NoError.json</file>
+        <file>resources/RootIsNotAnObject.json</file>
+        <file>resources/StaticMethodsIsNotAnArray.json</file>
+        <file>resources/TypeIsNotAnObject.json</file>
+    </qresource>
+</RCC>

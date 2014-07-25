@@ -1,0 +1,9 @@
+{ "foo.h": { "Foo": {
+	"annotations": [],
+	"bases": [],
+	"memberMethods": [],
+	"staticMethods": [],
+	"constructors": [],
+	"enums": {},
+	"fields": { "foo": { "annotations": [], "type": "int", "readOnly": "broken" } }
+} } }

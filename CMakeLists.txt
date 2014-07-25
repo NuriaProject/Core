@@ -91,3 +91,24 @@ INSTALL(DIRECTORY src/nuria/ DESTINATION include/nuria
         FILES_MATCHING PATTERN "*.hpp"
         PATTERN "private" EXCLUDE
 )
+
+# Add Tests
+enable_testing()
+add_unittest(NAME tst_callback)
+add_unittest(NAME tst_runtimemetaobject)
+add_unittest(NAME tst_debug)
+add_unittest(NAME tst_serializer)
+add_unittest(NAME tst_dependencymanager)
+add_unittest(NAME tst_session)
+add_unittest(NAME tst_jsonmetaobjectreader RESOURCES tests/tst_jsonmetaobjectreader_resources.qrc)
+add_unittest(NAME tst_sessionmanager)
+add_unittest(NAME tst_lazyconditionwalker)
+add_unittest(NAME tst_temporarybufferdevice)
+add_unittest(NAME tst_lazyevaluation)
+add_unittest(NAME tst_qtmetaobjectwrapper)
+add_unittest(NAME tst_variant)
+add_unittest(NAME tst_referencedevice)
+
+if (UNIX)
+    add_unittest(NAME tst_unixsignalhandler)
+endif (UNIX)

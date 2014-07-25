@@ -1,0 +1,34 @@
+{ "foo.h": { "Foo": {
+	"annotations": [ { "name": "a", "value": true }, { "name": "b" } ],
+	"bases": [ "second", "first" ],
+	"memberMethods": [ {
+		"name": "memberMethod",
+		"annotations": [ { "name": "name", "value": "memberMethod" } ],
+		"resultType": "int",
+		"argumentNames": [ "a" ],
+		"argumentTypes": [ "QString" ]
+	} ],
+	"staticMethods": [ {
+		"name": "staticMethod",
+		"annotations": [ { "name": "name", "value": "staticMethod" } ],
+		"resultType": "int",
+		"argumentNames": [ "a" ],
+		"argumentTypes": [ "int" ]
+	} ],
+	"constructors": [ {
+		"name": "",
+		"annotations": [ { "name": "name", "value": "" } ],
+		"resultType": "Foo",
+		"argumentNames": [ "a" ],
+		"argumentTypes": [ "QString" ]
+	} ],
+	"enums": { "MyEnum": {
+		"annotations": [ { "name": "isAEnum", "value": true  } ],
+		"values": { "First": 1, "Second": 2 }
+	} },
+	"fields": { "myField": {
+		"annotations": [ { "name": "isAField", "value": true  } ],
+		"readOnly": true,
+		"type": "bool"
+	} }
+} } }

@@ -1,0 +1,15 @@
+{ "foo.h": { "Foo": {
+	"annotations": [],
+	"bases": [],
+	"memberMethods": [ {
+		"name": [ "not a string" ],
+		"annotations": [],
+		"resultType": "int",
+		"argumentNames": [ "a" ],
+		"argumentTypes": [ "QString" ]
+	} ],
+	"staticMethods": [],
+	"constructors": [],
+	"enums": {},
+	"fields": {}
+} } }

@@ -1,0 +1,1 @@
+{ "foo.h": [ "This won't work", "needs to be an object" ] }
