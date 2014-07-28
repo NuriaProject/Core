@@ -45,7 +45,7 @@
 #endif
 
 // 
-#if defined(NURIA_CORE_LIBRARY)
+#if defined(NuriaCore_EXPORTS)
 #  define NURIA_CORE_EXPORT Q_DECL_EXPORT
 #else
 #  define NURIA_CORE_EXPORT Q_DECL_IMPORT
