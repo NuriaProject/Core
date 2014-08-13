@@ -100,7 +100,7 @@ void DebugTest::testCustomOutputHandler () {
 	QCOMPARE(type, Nuria::Debug::LogMsg);
 	QCOMPARE(typeName.data (), "Log");
 	QCOMPARE(moduleName.data (), NURIA_MODULE);
-	QCOMPARE(file.data (), __FILE__);
+	QCOMPARE(file.data (), "tst_debug.cpp");
 	QCOMPARE(line, expectedLine);
 	QCOMPARE(className.data (), "DebugTest");
 	QCOMPARE(methodName.data (), "testCustomOutputHandler");
@@ -260,7 +260,7 @@ void DebugTest::testQtMessageHandler () {
 	QCOMPARE(type, Nuria::Debug::CriticalMsg);
 	QCOMPARE(typeName.data (), "Critical");
 	QCOMPARE(moduleName.data (), "default");
-	QCOMPARE(file.data (), __FILE__);
+	QCOMPARE(file.data (), "tst_debug.cpp");
 	QCOMPARE(line, expectedLine);
 	QCOMPARE(className.data (), "DebugTest");
 	QCOMPARE(methodName.data (), "testQtMessageHandler");
