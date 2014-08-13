@@ -109,6 +109,7 @@ add_unittest(NAME tst_lazyevaluation)
 add_unittest(NAME tst_qtmetaobjectwrapper)
 add_unittest(NAME tst_variant)
 add_unittest(NAME tst_referencedevice)
+add_unittest(NAME tst_tokenizer)
 
 if (UNIX)
     add_unittest(NAME tst_unixsignalhandler)
