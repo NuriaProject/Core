@@ -57,6 +57,8 @@ SET(NuriaCore_SRC
     src/threadlocal.hpp
     src/variant.cpp
     src/variant.hpp
+    src/tokenizer.cpp
+    src/tokenizer.hpp
 )
 
 if (UNIX)
