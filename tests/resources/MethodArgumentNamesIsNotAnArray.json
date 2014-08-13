@@ -1,0 +1,15 @@
+{ "foo.h": { "Foo": {
+	"annotations": [],
+	"bases": [],
+	"memberMethods": [ {
+		"name": "foo",
+		"annotations": [],
+		"resultType": "int",
+		"argumentNames": { "this": "won't work" },
+		"argumentTypes": [ "QString" ]
+	} ],
+	"staticMethods": [],
+	"constructors": [],
+	"enums": {},
+	"fields": {}
+} } }
