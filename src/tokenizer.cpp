@@ -15,7 +15,7 @@
  *       distribution.
  */
 
-#include "tokenizer.hpp"
+#include "nuria/tokenizer.hpp"
 #include <QVector>
 #include <QDebug>
 #include <regex>
