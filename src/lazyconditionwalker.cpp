@@ -15,7 +15,7 @@
  *       distribution.
  */
 
-#include "lazyconditionwalker.hpp"
+#include "nuria/lazyconditionwalker.hpp"
 
 typedef QMap< int, Nuria::Callback > HandlerMap;
 

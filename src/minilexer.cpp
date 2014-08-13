@@ -15,7 +15,7 @@
  *       distribution.
  */
 
-#include "minilexer.hpp"
+#include "nuria/minilexer.hpp"
 
 #include <QMetaType>
 

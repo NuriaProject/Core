@@ -15,7 +15,7 @@
  *       distribution.
  */
 
-#include "sessionmanager.hpp"
+#include "nuria/sessionmanager.hpp"
 
 #include <QCache>
 

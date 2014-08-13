@@ -15,12 +15,12 @@
  *       distribution.
  */
 
-#include "debug.hpp"
+#include "nuria/debug.hpp"
 
 #include <QCoreApplication>
 #include <QThreadStorage>
 #include <QMetaMethod>
-#include "variant.hpp"
+#include "nuria/variant.hpp"
 #include <unistd.h>
 #include <time.h>
 #include <QFile>

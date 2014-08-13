@@ -16,7 +16,7 @@
  */
 
 #define NURIA_VARIANT_COMPARISON
-#include "variant.hpp"
+#include "nuria/variant.hpp"
 
 #include <QReadWriteLock>
 #include <QDateTime>

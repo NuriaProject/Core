@@ -15,56 +15,56 @@ FIND_PACKAGE(Qt5Core REQUIRED)
 # 
 SET(NuriaCore_SRC
     src/abstractsessionmanager.cpp
-    src/abstractsessionmanager.hpp
+    src/nuria/abstractsessionmanager.hpp
     src/argumentmanager.cpp
-    src/argumentmanager.hpp
+    src/nuria/argumentmanager.hpp
     src/callback.cpp
-    src/callback.hpp
+    src/nuria/callback.hpp
     src/conditionevaluator.cpp
-    src/conditionevaluator.hpp
-    src/core_global.hpp
+    src/nuria/conditionevaluator.hpp
+    src/nuria/core_global.hpp
     src/debug.cpp
-    src/debug.hpp
+    src/nuria/debug.hpp
     src/dependencymanager.cpp
-    src/dependencymanager.hpp
-    src/essentials.hpp
+    src/nuria/dependencymanager.hpp
+    src/nuria/essentials.hpp
     src/jsonmetaobjectreader.cpp
-    src/jsonmetaobjectreader.hpp
+    src/nuria/jsonmetaobjectreader.hpp
     src/lazyconditionwalker.cpp
-    src/lazyconditionwalker.hpp
+    src/nuria/lazyconditionwalker.hpp
     src/lazyevaluation.cpp
-    src/lazyevaluation.hpp
+    src/nuria/lazyevaluation.hpp
     src/metaobject.cpp
-    src/metaobject.hpp
+    src/nuria/metaobject.hpp
     src/minilexer.cpp
-    src/minilexer.hpp
+    src/nuria/minilexer.hpp
     src/qtmetaobjectwrapper.cpp
-    src/qtmetaobjectwrapper.hpp
+    src/nuria/qtmetaobjectwrapper.hpp
     src/referencedevice.cpp
-    src/referencedevice.hpp
+    src/nuria/referencedevice.hpp
     src/runtimemetaobject.cpp
-    src/runtimemetaobject.hpp
+    src/nuria/runtimemetaobject.hpp
     src/serializer.cpp
-    src/serializer.hpp
+    src/nuria/serializer.hpp
     src/session.cpp
-    src/session.hpp
+    src/nuria/session.hpp
     src/sessionmanager.cpp
-    src/sessionmanager.hpp
+    src/nuria/sessionmanager.hpp
     src/temporarybufferdevice.cpp
-    src/temporarybufferdevice.hpp
+    src/nuria/temporarybufferdevice.hpp
     src/test.cpp
-    src/test.hpp
-    src/threadlocal.hpp
+    src/nuria/test.hpp
+    src/nuria/threadlocal.hpp
     src/variant.cpp
-    src/variant.hpp
+    src/nuria/variant.hpp
     src/tokenizer.cpp
-    src/tokenizer.hpp
+    src/nuria/tokenizer.hpp
 )
 
 if (UNIX)
   SET(NuriaCore_SRC ${NuriaCore_SRC}
     src/unixsignalhandler.cpp
-    src/unixsignalhandler.hpp
+    src/nuria/unixsignalhandler.hpp
   )
 endif (UNIX)
 
@@ -85,11 +85,11 @@ set_target_properties(
 
 # Install target
 INSTALL(TARGETS NuriaCore 
-		LIBRARY DESTINATION lib
-		ARCHIVE DESTINATION lib
-		RUNTIME DESTINATION lib
+        LIBRARY DESTINATION lib
+        ARCHIVE DESTINATION lib
+        RUNTIME DESTINATION lib
 )
-INSTALL(DIRECTORY src/ DESTINATION include/nuria
+INSTALL(DIRECTORY src/nuria/ DESTINATION include/nuria
         FILES_MATCHING PATTERN "*.hpp"
         PATTERN "private" EXCLUDE
 )

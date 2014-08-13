@@ -15,7 +15,7 @@
  *       distribution.
  */
 
-#include "qtmetaobjectwrapper.hpp"
+#include "nuria/qtmetaobjectwrapper.hpp"
 
 #include <QMetaMethod>
 #include <cstring>

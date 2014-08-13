@@ -15,8 +15,8 @@
  *       distribution.
  */
 
-#include "referencedevice.hpp"
-#include "debug.hpp"
+#include "nuria/referencedevice.hpp"
+#include "nuria/debug.hpp"
 
 namespace Nuria {
 class ReferenceDevicePrivate {

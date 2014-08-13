@@ -15,7 +15,7 @@
  *       distribution.
  */
 
-#include "jsonmetaobjectreader.hpp"
+#include "nuria/jsonmetaobjectreader.hpp"
 
 #include <QJsonParseError>
 #include <QJsonDocument>
@@ -23,7 +23,7 @@
 #include <QJsonArray>
 #include <QVector>
 
-#include "runtimemetaobject.hpp"
+#include "nuria/runtimemetaobject.hpp"
 
 typedef QMap< QString, Nuria::MetaObjectMap > FileMetaObjectMap;
 

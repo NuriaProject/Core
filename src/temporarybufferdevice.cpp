@@ -15,10 +15,10 @@
  *       distribution.
  */
 
-#include "temporarybufferdevice.hpp"
+#include "nuria/temporarybufferdevice.hpp"
 
 #include <QTemporaryFile>
-#include "debug.hpp"
+#include "nuria/debug.hpp"
 #include <QBuffer>
 
 namespace Nuria {

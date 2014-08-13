@@ -15,7 +15,7 @@
  *       distribution.
  */
 
-#include "conditionevaluator.hpp"
+#include "nuria/conditionevaluator.hpp"
 
 #include <QVector>
 

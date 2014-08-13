@@ -15,7 +15,7 @@
  *       distribution.
  */
 
-#include "unixsignalhandler.hpp"
+#include "nuria/unixsignalhandler.hpp"
 
 #include <QCoreApplication>
 #include <QSocketNotifier>

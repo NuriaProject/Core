@@ -15,8 +15,8 @@
  *       distribution.
  */
 
-#include "serializer.hpp"
-#include "debug.hpp"
+#include "nuria/serializer.hpp"
+#include "nuria/debug.hpp"
 
 namespace Nuria {
 class SerializerPrivate {

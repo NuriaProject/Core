@@ -15,11 +15,11 @@
  *       distribution.
  */
 
-#include "session.hpp"
+#include "nuria/session.hpp"
 
 #include <QVariantMap>
 
-#include "abstractsessionmanager.hpp"
+#include "nuria/abstractsessionmanager.hpp"
 
 class Nuria::SessionPrivate : public QSharedData {
 public:

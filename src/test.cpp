@@ -15,7 +15,7 @@
  *       distribution.
  */
 
-#include "test.hpp"
+#include "nuria/test.hpp"
 
 #include <iostream>
 #include <map>

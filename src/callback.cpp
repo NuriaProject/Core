@@ -15,7 +15,7 @@
  *       distribution.
  */
 
-#include "callback.hpp"
+#include "nuria/callback.hpp"
 
 #include <QMetaMethod>
 #include <QMetaObject>
@@ -27,8 +27,8 @@
 // a matching type. If not defined, QVariant::convert() will be used.
 #define NURIA_COMPLEX_CONVERSION
 
-#include "variant.hpp"
-#include "debug.hpp"
+#include "nuria/variant.hpp"
+#include "nuria/debug.hpp"
 
 // Callback types. We store them outside to easily add more options in the
 // future without rendering the Callback to be too heavy.
