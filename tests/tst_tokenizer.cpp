@@ -58,6 +58,7 @@ private slots:
 	void tokenHandlerIgnoresToken ();
 	void tokenHandlerErrors ();
 	void multipleRuleSets ();
+	void verifySetPosition ();
 	
 };
 
@@ -280,6 +281,23 @@ void TokenizerTest::multipleRuleSets () {
 	QCOMPARE(aCount, 2);
 	QCOMPARE(bCount, 1);
 	
+}
+
+void TokenizerTest::verifySetPosition () {
+	Tokenizer tokenizer;
+	
+	TokenizerRules &rules = tokenizer.defaultTokenizerRules ();
+	rules.addStringToken (1, "a");
+	
+	tokenizer.tokenize ("b a");
+	tokenizer.setPosition (1, 1, 0); // Skip the 'b'
+	
+	QCOMPARE(tokenizer.currentPosition (), 1);
+	QCOMPARE(tokenizer.currentColumn (), 1);
+	QCOMPARE(tokenizer.currentRow (), 0);
+	
+	CHECK_TOKEN_VALUE(tokenizer, 1, 0, 2, "a");
+	QVERIFY(tokenizer.atEnd ());
 }
 
 QTEST_MAIN(TokenizerTest)

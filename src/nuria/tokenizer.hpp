@@ -205,7 +205,7 @@ private:
  * After this, it's just a matter of adding all rule-sets using
  * addTokenizerRules().
  * 
- * \note The default rule-set has "" (empty string) as name.
+ * \note The default rule-set has the name "" (empty string).
  * 
  * \par Ignoring tokens
  * 
@@ -226,6 +226,8 @@ private:
  * 
  * The same goes for the error position, which can be accessed using errorRow(),
  * errorColumn() and errorPosition().
+ * 
+ * Token action handlers can move the internal cursor using setPosition().
  */
 class NURIA_CORE_EXPORT Tokenizer : public QObject {
 	Q_OBJECT
@@ -279,7 +281,17 @@ public:
 	
 	/**
 	 * Moves the tokenizer onwards by one token, returning the most-recently
-	 * read token. \sa atEnd hasError
+	 * read token.
+	 * 
+	 * If the token id of the returned token is less than 0, the returend
+	 * token is to be ignored by the caller. This happens in the following
+	 * scenarios:
+	 * 
+	 * - If the tokenizer is already at the end (See atEnd() )
+	 * - If an error occured (See hasError() )
+	 * - If all data from the position till the end are ignored tokens
+	 * 
+	 * \sa atEnd hasError
 	 */
 	Token nextToken ();
 	
@@ -308,6 +320,13 @@ public:
 	
 	/** Returns the current position in the data-stream. */
 	int currentPosition () const;
+	
+	/**
+	 * Moves the cursor to \a position in the tokenize data.
+	 * Also sets the current \a column and \a row, which are only used for
+	 * diagnostics.
+	 */
+	void setPosition (int position, int column, int row);
 	
 private:
 	

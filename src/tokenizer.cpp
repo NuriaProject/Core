@@ -186,6 +186,12 @@ int Nuria::Tokenizer::currentPosition () const {
 	return this->d_ptr->current.position;
 }
 
+void Nuria::Tokenizer::setPosition (int position, int column, int row) {
+	this->d_ptr->current.position = position;
+	this->d_ptr->current.column = column;
+	this->d_ptr->current.row = row;
+}
+
 void Nuria::Tokenizer::advanceLocation (char c) {
 	this->d_ptr->current.column++;
 	if (c == '\n') {
