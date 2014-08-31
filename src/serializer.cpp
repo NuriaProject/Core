@@ -164,9 +164,9 @@ bool Nuria::Serializer::variantToField (QVariant &value, const QByteArray &targe
 		
 	}
 	
-	// Try Variant::convert() which internally triggers QVariant conversion
-	QVariant result = Variant::convert (value, targetId);
-	if (result.isValid ()) {
+	// Convert to the target type.
+	QVariant result (value);
+	if (result.convert (targetId)) {
 		value.swap (result);
 		return true;
 	}
@@ -194,10 +194,10 @@ bool Nuria::Serializer::fieldToVariant (QVariant &value, bool &ignore) {
 		return true;
 	}
 	
-	// Variant::convert() triggers QVariant conversion internally
-	QVariant conv = Nuria::Variant::convert (value, QMetaType::QString);
-	if (conv.isValid ()) {
-		value = conv;
+	// Convert to a string.
+	QVariant result (value);
+	if (result.convert (QMetaType::QString)) {
+		value.swap (result);
 		return true;
 	}
 	

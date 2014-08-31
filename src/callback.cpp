@@ -23,10 +23,6 @@
 #include <QPointer>
 #include <QThread>
 
-// If defined, Nuria::Variant::convert will be used to convert arguments to
-// a matching type. If not defined, QVariant::convert() will be used.
-#define NURIA_COMPLEX_CONVERSION
-
 #include "nuria/variant.hpp"
 #include "nuria/debug.hpp"
 
@@ -236,13 +232,7 @@ void Nuria::Callback::bindList (const QVariantList &arguments) {
 		} else if (cur.userType () != this->d->args.at (i)) {
 			types[i] = cur.userType ();
 			
-#ifdef NURIA_COMPLEX_CONVERSION
-			cur = Variant::convert (cur, this->d->args.at (i));
-			if (cur.isValid ()) {
-#else
 			if (cur.convert (this->d->args.at (i))) {
-#endif
-				
 				instance = cur.constData ();
 				types[i] = this->d->args.at (i);
 			}
@@ -312,14 +302,8 @@ static bool argumentHelper (void **args, bool *delMe, void *value, int valType,
 	}
 	
 	// Try to convert
-	
-#ifdef NURIA_COMPLEX_CONVERSION
-	QVariant v = Nuria::Variant::convert (QVariant (valType, value), type);
-	if (!v.isValid ()) {
-#else
 	QVariant v (valType, value);
 	if (!v.convert (type)) {
-#endif
 		// Conversion failed.
 		return argumentHelper (args, delMe, 0, 0, pos, off, type);
 		

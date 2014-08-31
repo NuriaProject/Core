@@ -307,7 +307,7 @@ public:
 	 */
 	template< typename ... Args >
 	inline Callback &bind (const Args &... args) {
-		bindList (Variant::buildList (args ...));
+		bindList (Variant::buildList (args ... ));
 		return *this;
 	}
 	

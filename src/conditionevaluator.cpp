@@ -143,12 +143,12 @@ static bool runCondition (Nuria::ConditionEvaluatorPrivate *d, const Nuria::Lazy
 		}
 		
 		lhs = variantValue (d, lhs, arguments, error);
-		if (lhs.type () == QVariant::Bool) {
+		if (lhs.userType () == QMetaType::Bool) {
 			return lhs.toBool ();
 		}
 		
-		if (Variant::canCompare (lhs, QMetaType::Bool)) {
-			return Variant::equal (lhs, true);
+		if (lhs.canConvert< bool > ()) {
+			return lhs.value< bool > ();
 		}
 		
 		return lhs.isValid ();
@@ -193,22 +193,14 @@ static bool runCondition (Nuria::ConditionEvaluatorPrivate *d, const Nuria::Lazy
 	case LazyCondition::Empty:
 	case LazyCondition::Single:
 		break;
-	case LazyCondition::Equal:
-		return Variant::equal (left, right);
-	case LazyCondition::NonEqual:
-		return Variant::notEqual (left, right);
-	case LazyCondition::Greater:
-		return Variant::greaterThan (left, right);
-	case LazyCondition::GreaterEqual:
-		return Variant::greaterEqualThan (left, right);
-	case LazyCondition::Less:
-		return Variant::lessThan (left, right);
-	case LazyCondition::LessEqual:
-		return Variant::lessEqualThan (left, right);
-	case LazyCondition::LogicAnd:
-		return left.toBool () && right.toBool ();
-	case LazyCondition::LogicOr:
-		return left.toBool () || right.toBool ();
+	case LazyCondition::Equal: return (left == right);
+	case LazyCondition::NonEqual: return (left != right);
+	case LazyCondition::Greater: return (left > right);
+	case LazyCondition::GreaterEqual: return (left >= right);
+	case LazyCondition::Less: return (left < right);
+	case LazyCondition::LessEqual: return (left <= right);
+	case LazyCondition::LogicAnd: return (left.toBool () && right.toBool ());
+	case LazyCondition::LogicOr: return (left.toBool () || right.toBool ());
 	}
 	
 	// 

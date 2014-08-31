@@ -164,7 +164,7 @@ void SerializerTest::serializeWithNuriaConversion () {
 	QVariantMap expected { { "custom", "foo" } };
 	
 	WithCustomType withCustomType;
-	Variant::registerConversion (&SomeCustomType::toString);
+	QMetaType::registerConverter< SomeCustomType, QString > (&SomeCustomType::toString);
 	
 	// 
 	Serializer serializer;
@@ -294,7 +294,7 @@ void SerializerTest::deserializeWithFailedField () {
 void SerializerTest::deserializeWithNuriaConversion () {
 	QVariantMap data { { "custom", "foo" } };
 	
-	Variant::registerConversion (&SomeCustomType::fromString);
+	QMetaType::registerConverter< QString, SomeCustomType > (&SomeCustomType::fromString);
 	QTest::ignoreMessage (QtDebugMsg, "fromString: foo");
 	
 	// 

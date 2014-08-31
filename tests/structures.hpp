@@ -67,13 +67,13 @@ struct SomeCustomType {
 	bool works = false;
 	
 	// For Nuria::Variant::convert conversion
-	static QString *toString (const SomeCustomType &)
-	{ return new QString ("foo"); }
+	static QString toString (const SomeCustomType &)
+	{ return "foo"; }
 	
-	static SomeCustomType *fromString (const QString &str) {
+	static SomeCustomType fromString (const QString &str) {
 		qDebug("fromString: %s", qPrintable (str));
-		SomeCustomType *t = new SomeCustomType;
-		t->works = (str == "foo");
+		SomeCustomType t;
+		t.works = (str == "foo");
 		return t;
 	}
 	

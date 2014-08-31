@@ -251,10 +251,6 @@ void CallbackTest::implicitArgumentConversion () {
 
 static void printString (const QString &string) { qDebug("%s", qPrintable(string)); }
 void CallbackTest::implicitArgumentConversionCustomType () {
-	Variant::registerConversion< QDate, QString > ([](const QDate &date) {
-		return new QString (date.toString (Qt::ISODate));
-	});
-	
 	QDate date (2010, 1, 2);
 	QTest::ignoreMessage (QtDebugMsg, "2010-01-02");
 	Callback cb (&printString);
