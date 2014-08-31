@@ -82,6 +82,11 @@ set_target_properties(
     SOVERSION ${NURIA_SOVERSION}
 )
 
+# Depend on Tria if enabled.
+if(HasTria)
+  add_dependencies(NuriaCore tria)
+endif()
+
 # Install target
 INSTALL(TARGETS NuriaCore 
         LIBRARY DESTINATION lib
@@ -98,7 +103,7 @@ enable_testing()
 add_unittest(NAME tst_callback)
 add_unittest(NAME tst_runtimemetaobject)
 add_unittest(NAME tst_debug)
-add_unittest(NAME tst_serializer)
+add_unittest(NAME tst_serializer SOURCES structures.hpp)
 add_unittest(NAME tst_dependencymanager)
 add_unittest(NAME tst_session)
 add_unittest(NAME tst_jsonmetaobjectreader RESOURCES tests/tst_jsonmetaobjectreader_resources.qrc)
