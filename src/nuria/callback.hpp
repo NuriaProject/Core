@@ -107,10 +107,10 @@ namespace CallbackHelper {
  * 
  * Another point is that Callback will always try its best to invoke a method.
  * Passed arguments are checked if they match the type of the target method.
- * If a argument doesn't, Callback will try to use Nuria::Variant::convert to
+ * If a argument doesn't, Callback will try to use QVariant::convert to
  * convert the passed argument to the expected argument type. If this still
  * fails, it will \b construct a temporary instance of the expected type and
- * pass it instead, \b silently discarding the original argument.
+ * passes it instead, \b silently discarding the original argument.
  * 
  * It is also possible to use variadic callbacks. This means that on invocation,
  * all passed arguments are packed into a single QVariantList. This list is now

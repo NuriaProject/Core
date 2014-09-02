@@ -66,7 +66,7 @@ struct SomeCustomType {
 	
 	bool works = false;
 	
-	// For Nuria::Variant::convert conversion
+	// For QVariant::convert conversion
 	static QString toString (const SomeCustomType &)
 	{ return "foo"; }
 	

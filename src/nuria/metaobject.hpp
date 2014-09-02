@@ -530,12 +530,10 @@ typedef QMap< QByteArray, MetaObject * > MetaObjectMap;
  * Except for the conversion operators, all methods are still exposed as normal
  * methods. Methods may take additional optional arguments.
  * 
- * \note The conversion is registered in Nuria::Variant, \b not in the QVariant
- * conversion feature introduced in Qt5.2!
+ * \note The conversion is registered in the QVariant conversion feature
+ * introduced in Qt5.2
  * \note This is a feature of Tria, not of MetaObject. Thus, custom sub-classes
  * of MetaObject won't have this feature.
- * 
- * \sa Nuria::Variant::convert
  * 
  * \par Order of elements
  * All elements, that is, parent-class names, annotations, methods, fields and

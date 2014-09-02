@@ -46,8 +46,6 @@ class SerializerPrivate;
  * 
  * - If it's a QVariantMap, then it'll be tried to find a MetaObject for the
  *   type of the field and tried to deserialize.
- * - Nuria::Variant::convert is tried to convert it if the map element is a
- * string (QString -> T)
  * - QVariant::convert is tried if the map element is a string (QString -> T)
  * 
  * If all above steps fail, it'll be noted in the failed list.
@@ -64,7 +62,6 @@ class SerializerPrivate;
  * - If the field type is in the allowed types vector, it'll be used.
  * - If the field type is known to the Nuria meta system, serialize() will
  * recurse into it
- * - Nuria::Variant::convert is tried (T -> QString)
  * - QVariant::convert is tried (T -> QString)
  * 
  * If all above steps fail, it'll be noted in the failed list.
