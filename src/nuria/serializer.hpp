@@ -49,7 +49,7 @@ class SerializerPrivate;
  * - QVariant::convert is tried if the map element is a string (QString -> T)
  * 
  * If all above steps fail, it'll be noted in the failed list.
- * \sa failed
+ * \sa failedFields
  * 
  * \note Tria will automatically try to register conversions through the
  * generated code.
@@ -65,7 +65,7 @@ class SerializerPrivate;
  * - QVariant::convert is tried (T -> QString)
  * 
  * If all above steps fail, it'll be noted in the failed list.
- * \sa failed
+ * \sa failedFields
  * 
  */
 class NURIA_CORE_EXPORT Serializer {
