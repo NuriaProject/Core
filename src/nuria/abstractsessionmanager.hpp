@@ -68,7 +68,7 @@ public:
 	/**
 	 * Returns \c true if the session \a id is known by the manager.
 	 */
-	virtual bool exists (const QByteArray &id) = 0;
+	virtual bool exists (const QByteArray &id) const = 0;
 	
 	/**
 	 * Fetches the session \a id. If no session \a id is known, a new one

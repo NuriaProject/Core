@@ -42,7 +42,7 @@ void Nuria::SessionManager::setMaxSessions (int maxSessions) {
 	this->d_ptr->sessions.setMaxCost (maxSessions);
 }
 
-bool Nuria::SessionManager::exists (const QByteArray &id) {
+bool Nuria::SessionManager::exists (const QByteArray &id) const {
 	return this->d_ptr->sessions.contains (id);
 }
 

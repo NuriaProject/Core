@@ -55,7 +55,7 @@ public:
 	/** Sets the maximum number of sessions to \a maxSessions. */
 	void setMaxSessions (int maxSessions);
 	
-	bool exists (const QByteArray &id) override;
+	bool exists (const QByteArray &id) const override;
 	Session get (const QByteArray &id) override;
 
 public slots:
