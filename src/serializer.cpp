@@ -112,6 +112,7 @@ static bool isAllowedType (int id) {
 	case QMetaType::LongLong:
 	case QMetaType::ULongLong:
 	case QMetaType::UInt:
+	case QMetaType::QByteArray:
 	case QMetaType::QString:
 	case QMetaType::QStringList:
 	case QMetaType::QVariantList:
