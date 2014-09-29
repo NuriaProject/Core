@@ -51,9 +51,9 @@ Nuria::Session Nuria::SessionManager::get (const QByteArray &id) {
 		return *(this->d_ptr->sessions.object (id));
 	}
 	
-	Session *session = new Session (createSession (id));
-	this->d_ptr->sessions.insert (id, session);
-	return *session;
+	Session session = createSession (id);
+	this->d_ptr->sessions.insert (id, new Session (session));
+	return session;
 	
 }
 
