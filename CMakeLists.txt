@@ -5,6 +5,8 @@ cmake_minimum_required(VERSION 2.8.8)
 # Base configuration
 PROJECT(NuriaCore)
 
+cmake_policy(SET CMP0020 NEW)
+
 # Enable moc
 SET(CMAKE_AUTOMOC ON)
 SET(CMAKE_INCLUDE_CURRENT_DIR ON)
@@ -79,21 +81,29 @@ set_target_properties(
     SOVERSION ${NURIA_SOVERSION}
 )
 
+# Add public include directories to target
+set_property(TARGET NuriaCore APPEND PROPERTY INTERFACE_INCLUDE_DIRECTORIES
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
+  $<INSTALL_INTERFACE:include>
+)
+
 # Depend on Tria if enabled.
 if(HasTria)
   add_dependencies(NuriaCore tria)
 endif()
 
 # Install target
-INSTALL(TARGETS NuriaCore 
+INSTALL(TARGETS NuriaCore EXPORT NuriaCoreConfig
         LIBRARY DESTINATION lib
         ARCHIVE DESTINATION lib
-        RUNTIME DESTINATION lib
+        RUNTIME DESTINATION bin
 )
 INSTALL(DIRECTORY src/nuria/ DESTINATION include/nuria
         FILES_MATCHING PATTERN "*.hpp"
         PATTERN "private" EXCLUDE
 )
+
+INSTALL(EXPORT NuriaCoreConfig DESTINATION lib/cmake/NuriaCore)
 
 # Add Tests
 enable_testing()
