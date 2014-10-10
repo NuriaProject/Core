@@ -82,7 +82,7 @@ set_target_properties(
 )
 
 # Add public include directories to target
-set_property(TARGET NuriaCore APPEND PROPERTY INTERFACE_INCLUDE_DIRECTORIES
+target_include_directories(NuriaCore PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
   $<INSTALL_INTERFACE:include>
 )
@@ -104,6 +104,8 @@ INSTALL(DIRECTORY src/nuria/ DESTINATION include/nuria
 )
 
 INSTALL(EXPORT NuriaCoreConfig DESTINATION lib/cmake/NuriaCore)
+
+export(TARGETS NuriaCore FILE "${NURIA_CMAKE_PREFIX}/NuriaCoreConfig.cmake")
 
 # Add Tests
 enable_testing()
