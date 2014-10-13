@@ -178,8 +178,15 @@ public:
 	/** Constructs an invalid instance. */
 	Callback ();
 	
-	/** Constructs a callback out of a slot. */
-	explicit Callback (QObject *receiver, const char *slot, bool variadic = false);
+	/**
+	 * Constructs a callback out of a slot.
+	 * 
+	 * \warning If you want to set the \a connectionType manually make sure
+	 * you pass a value for \a variadic. Else, the compiler may choose to
+	 * implicitly cast the Qt::ConnectionType to bool!
+	 */
+	Callback (QObject *receiver, const char *slot, bool variadic = false,
+	          Qt::ConnectionType connectionType = Qt::AutoConnection);
 	
 	/** Copy constructor. */
 	Callback (const Callback &other);
@@ -272,8 +279,19 @@ public:
 				 CallbackHelper::typeId< Ret > (), args);
 	}
 	
-	// QObject slot
-	bool setCallback (QObject *receiver, const char *slot);
+	/**
+	 * Lets the callback point to \a slot in \a receiver. Use the SLOT()
+	 * macro for \a receiver.
+	 * 
+	 * If \a connectionType is \c Qt::AutoConnection (The default value),
+	 * then the connection type will be chosen at invocation-time.
+	 * It will be \c Qt::DirectConnection if \a receiver lives in the
+	 * current thread. If it lives in another thread,
+	 * \c Qt::BlockingQueuedConnection is chosen when the callback returns
+	 * something (as in, is non-void), else \c Qt::QueuedConnection is used.
+	 */
+	bool setCallback (QObject *receiver, const char *slot,
+	                  Qt::ConnectionType connectionType = Qt::AutoConnection);
 	
 	// Convenience assignment operators
 	template< typename Ret, typename ... Args >

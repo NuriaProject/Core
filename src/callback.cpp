@@ -29,6 +29,7 @@
 // Callback types. We store them outside to easily add more options in the
 // future without rendering the Callback to be too heavy.
 struct CallbackSlot {
+	Qt::ConnectionType type;
 	QPointer< QObject > qobj;
 	QMetaMethod method;
 	const char *name;
@@ -103,13 +104,14 @@ Nuria::Callback::Callback ()
 	this->d->ref.ref ();
 }
 
-Nuria::Callback::Callback (QObject *receiver, const char *slot, bool variadic)
+Nuria::Callback::Callback (QObject *receiver, const char *slot, bool variadic,
+                           Qt::ConnectionType connectionType)
 	: d (new CallbackPrivate)
 {
 	
 	this->d->ref.ref ();
 	this->d->variadic = variadic;
-	setCallback (receiver, slot);
+	setCallback (receiver, slot, connectionType);
 	
 }
 
@@ -165,7 +167,7 @@ QList< int > Nuria::Callback::argumentTypes () const {
 	return this->d->args;
 }
 
-bool Nuria::Callback::setCallback (QObject *receiver, const char *slot) {
+bool Nuria::Callback::setCallback (QObject *receiver, const char *slot, Qt::ConnectionType connectionType) {
 	
 	this->d->freeBoundValues ();
 	this->d->clear ();
@@ -174,6 +176,7 @@ bool Nuria::Callback::setCallback (QObject *receiver, const char *slot) {
 	this->d->ptr.slot = new CallbackSlot;
 	this->d->ptr.slot->qobj = receiver;
 	this->d->ptr.slot->name = slot + 1;
+	this->d->ptr.slot->type = connectionType;
 	
 	// Read arguments
 	const QMetaObject *meta = receiver->metaObject ();
@@ -487,9 +490,12 @@ QVariant Nuria::Callback::invokeInternal (int count, void **args, int *types) co
 		// Does the QObject live in another thread?
 		// Use call-and-forget if we don't expect a result.
 		bool voidRet = (this->d->retType == 0 || this->d->retType == QMetaType::Void);
-		Qt::ConnectionType type = (this->d->ptr.slot->qobj->thread () == QThread::currentThread ())
-					  ? Qt::DirectConnection
-					  : (voidRet ? Qt::QueuedConnection : Qt::BlockingQueuedConnection);
+		Qt::ConnectionType type = this->d->ptr.slot->type;
+		if (type == Qt::AutoConnection) {
+			type = (this->d->ptr.slot->qobj->thread () == QThread::currentThread ())
+			       ? Qt::DirectConnection
+			       : (voidRet ? Qt::QueuedConnection : Qt::BlockingQueuedConnection);
+		}
 		
 		// Create array of generic arguments
 		QGenericArgument gArgs[10];
