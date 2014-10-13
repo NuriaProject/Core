@@ -489,7 +489,7 @@ QVariant Nuria::Callback::invokeInternal (int count, void **args, int *types) co
 		bool voidRet = (this->d->retType == 0 || this->d->retType == QMetaType::Void);
 		Qt::ConnectionType type = (this->d->ptr.slot->qobj->thread () == QThread::currentThread ())
 					  ? Qt::DirectConnection
-					  : (voidRet ? Qt::BlockingQueuedConnection : Qt::QueuedConnection);
+					  : (voidRet ? Qt::QueuedConnection : Qt::BlockingQueuedConnection);
 		
 		// Create array of generic arguments
 		QGenericArgument gArgs[10];
