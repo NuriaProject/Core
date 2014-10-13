@@ -38,8 +38,6 @@ SET(NuriaCore_SRC
     src/nuria/lazyevaluation.hpp
     src/metaobject.cpp
     src/nuria/metaobject.hpp
-    src/minilexer.cpp
-    src/nuria/minilexer.hpp
     src/qtmetaobjectwrapper.cpp
     src/nuria/qtmetaobjectwrapper.hpp
     src/referencedevice.cpp
