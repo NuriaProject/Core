@@ -25,13 +25,13 @@
 #include <QMap>
 
 // 
-struct Dependency {
+struct Instance {
 	int type;
 	void *object;
 };
 
 typedef std::function< QObject *() > Creator;
-typedef QMap< QByteArray, Dependency > DependencyMap;
+typedef QMap< QByteArray, Instance > DependencyMap;
 typedef QMap< QByteArray, Creator > CreatorMap;
 
 // 
@@ -170,7 +170,7 @@ void Nuria::DependencyManager::setCreator (const QByteArray &name, const std::fu
 
 void Nuria::DependencyManager::freeAllObjects () {
 	
-	for (const Dependency &cur : this->d_ptr->objects) {
+	for (const Instance &cur : this->d_ptr->objects) {
 		delete static_cast< QObject * > (cur.object);
 	}
 	

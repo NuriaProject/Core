@@ -35,6 +35,8 @@ private slots:
 	// 
 	void verifyMultithreading ();
 	void useCreator ();
+	void dependencyTemplateSimple ();
+	void dependencyTemplateNamed ();
 	
 };
 
@@ -138,6 +140,24 @@ void DependencyManagerTest::useCreator () {
 	inst->setCreator ("test", []() { qDebug("creator"); return new TestClass ("Test"); });
 	QVERIFY(inst->get< TestClass > ("test"));
 	QCOMPARE(inst->get< TestClass > ("test")->message, QString ("Test"));
+	
+}
+
+void DependencyManagerTest::dependencyTemplateSimple () {
+	Dependency< TestClass > obj;
+	
+	QVERIFY(obj.get ());
+	QCOMPARE(obj->message, QString ("Works"));
+}
+
+void DependencyManagerTest::dependencyTemplateNamed () {
+	DependencyManager *inst = DependencyManager::instance ();
+	inst->storeObject ("named", new TestClass ("Named"));
+	
+	Dependency< TestClass > obj ("named");
+	
+	QVERIFY(obj.get ());
+	QCOMPARE(obj->message, QString ("Named"));
 	
 }
 

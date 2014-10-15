@@ -26,7 +26,7 @@ namespace Nuria {
 class DependencyManagerPrivate;
 
 /**
- * \brief DepedencyManager enables easy to use dependency injection.
+ * \brief Dependency injection manager.
  * 
  * Dependency injection is interesting whenever a class has dependencies
  * to other utility classes. Those classes usually only have a single
@@ -213,8 +213,71 @@ private:
 	DependencyManagerPrivate *d_ptr;
 };
 
-}
+/**
+ * \brief Smart pointer class for dependency injection.
+ * 
+ * Smart pointer which lazy-loads a referenced dependency from
+ * DependencyManager.
+ * 
+ * \par Usage
+ * 
+ * For objects with the default name, it's sufficient to use the default
+ * constructor:
+ * \code
+ * Dependency< MyType > myType;
+ * \endcode
+ * 
+ * If you're using a different object name, you can pass it:
+ * \code
+ * Dependency< MyType > myType (QByteArrayLiteral("someType"));
+ * \endcode
+ * 
+ * To access the instance, use operator-> as you'd any other pointer:
+ * \code
+ * Dependency< MyType > myType;
+ * myType->doSomething ();
+ * \endcode
+ * 
+ * \sa DependencyManager
+ */
+template< typename T >
+class Dependency {
+	mutable T *m_obj = nullptr;
+	QByteArray m_name;
+public:
+	
+	/**
+	 * Constructor. Takes an optional argument \a objectName. If not set,
+	 * the name of the type of \c T is used.
+	 */
+	Dependency (const QByteArray &objectName = QByteArray ())
+	        : m_name (objectName)
+	{
+		if (objectName.isEmpty ()) {
+			const char *name = QMetaType::typeName (qMetaTypeId< T * > ());
+			this->m_name.setRawData (name, ::qstrlen (name));
+		}
+		
+	}
+	
+	/** Convenience accessor. See get(). */
+	T *operator-> () const
+	{ return get (); }
+	
+	/**
+	 * Returns the referenced instance. On first invocation, it will be
+	 * fetched from the DependencyManager.
+	 */
+	T *get () const {
+		if (!this->m_obj) {
+			this->m_obj = DependencyManager::get< T > (this->m_name);
+		}
+		
+		return this->m_obj;
+	}
+	
+};
 
-#define NURIA_DEPENDENCY(T) Nuria::DependencyManager::get< T > (QByteArrayLiteral(#T))
+}
 
 #endif // NURIA_DEPEDENCYMANAGER_HPP
