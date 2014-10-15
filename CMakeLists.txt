@@ -126,3 +126,7 @@ add_unittest(NAME tst_tokenizer)
 if (UNIX)
     add_unittest(NAME tst_unixsignalhandler)
 endif (UNIX)
+
+if (HasTria)
+    add_unittest(NAME tst_tria SOURCES tst_header.hpp)
+endif (HasTria)
