@@ -31,8 +31,8 @@ struct Dependency {
 };
 
 typedef std::function< QObject *() > Creator;
-typedef QMap< QString, Dependency > DependencyMap;
-typedef QMap< QString, Creator > CreatorMap;
+typedef QMap< QByteArray, Dependency > DependencyMap;
+typedef QMap< QByteArray, Creator > CreatorMap;
 
 // 
 #define GUARD_BEGIN \
@@ -91,7 +91,7 @@ Nuria::DependencyManager::DependencyManager (QObject *parent)
 }
 
 Nuria::DependencyManager::~DependencyManager () {
-	
+	// 
 }
 
 static void *createObjectByType (int type) {
@@ -111,7 +111,7 @@ static void *createObjectByType (int type) {
 	
 }
 
-static void *getObjectFromMap (DependencyMap &map, const CreatorMap &creators, const QString &name, int type) {
+static void *getObjectFromMap (DependencyMap &map, const CreatorMap &creators, const QByteArray &name, int type) {
 	auto it = map.constFind (name);
 	if (it != map.constEnd ()) {
 		if (type != -1 && it->type != type)
@@ -136,7 +136,7 @@ static void *getObjectFromMap (DependencyMap &map, const CreatorMap &creators, c
 	
 }
 
-void *Nuria::DependencyManager::objectByName (const QString &name, int type, ThreadingPolicy policy) {
+void *Nuria::DependencyManager::objectByName (const QByteArray &name, int type, ThreadingPolicy policy) {
 	GUARD_BEGIN;
 	void *ptr = getObjectFromMap (map, this->d_ptr->creators, name, type);
 	GUARD_END;
@@ -144,7 +144,7 @@ void *Nuria::DependencyManager::objectByName (const QString &name, int type, Thr
 	return ptr;
 }
 
-int Nuria::DependencyManager::objectType (const QString &name, ThreadingPolicy policy) const {
+int Nuria::DependencyManager::objectType (const QByteArray &name, ThreadingPolicy policy) const {
 	int type = -1;
 	
 	GUARD_BEGIN;
@@ -157,14 +157,14 @@ int Nuria::DependencyManager::objectType (const QString &name, ThreadingPolicy p
 	return type;
 }
 
-void Nuria::DependencyManager::storeObject (const QString &name, void *object,
+void Nuria::DependencyManager::storeObject (const QByteArray &name, void *object,
 					    int type, ThreadingPolicy policy) {
 	GUARD_BEGIN;
 	map.insert (name, { type, object });
 	GUARD_END;
 }
 
-void Nuria::DependencyManager::setCreator (const QString &name, const std::function< QObject *() > &creator) {
+void Nuria::DependencyManager::setCreator (const QByteArray &name, const std::function< QObject *() > &creator) {
 	this->d_ptr->creators.insert (name, creator);
 }
 

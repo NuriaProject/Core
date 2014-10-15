@@ -153,17 +153,17 @@ public:
 	 * 
 	 * \sa getDependency NURIA_DEPENDENCY objectType
 	 */
-	void *objectByName (const QString &name, int type = -1, ThreadingPolicy policy = DefaultPolicy);
+	void *objectByName (const QByteArray &name, int type = -1, ThreadingPolicy policy = DefaultPolicy);
 	
 	/**
 	 * Returns the meta type of object \a name or \c -1 if not found.
 	 */
-	int objectType (const QString &name, ThreadingPolicy policy = DefaultPolicy) const;
+	int objectType (const QByteArray &name, ThreadingPolicy policy = DefaultPolicy) const;
 	
 	/**
 	 * Returns \c true if there is object \a name.
 	 */
-	inline bool hasObject (const QString &name, ThreadingPolicy policy = DefaultPolicy) const
+	inline bool hasObject (const QByteArray &name, ThreadingPolicy policy = DefaultPolicy) const
 	{ return objectType (name, policy) != -1; }
 	
 	/**
@@ -173,12 +173,12 @@ public:
 	 * 
 	 * \sa Q_DECLARE_METATYPE qRegisterMetaType
 	 */
-	void storeObject (const QString &name, void *object, int type,
+	void storeObject (const QByteArray &name, void *object, int type,
 			  ThreadingPolicy policy = DefaultPolicy);
 	
 	/** \overload */
 	template< typename T >
-	void storeObject (const QString &name, T *object)
+	void storeObject (const QByteArray &name, T *object)
 	{ storeObject (name, object, qMetaTypeId< T * > ()); }
 	
 	/**
@@ -192,14 +192,14 @@ public:
 	 * 
 	 * \note \a creator must be thread-safe!
 	 */
-	void setCreator (const QString &name, const std::function< QObject *() > &creator);
+	void setCreator (const QByteArray &name, const std::function< QObject *() > &creator);
 	
 	/**
 	 * Tries to find object \a name of type \a T.
 	 * On failure, \c nullptr is returned.
 	 */
 	template< typename T >
-	inline static T *get (const QString &name, ThreadingPolicy policy = DefaultPolicy) {
+	inline static T *get (const QByteArray &name, ThreadingPolicy policy = DefaultPolicy) {
 		return static_cast< T * > (instance ()->objectByName (name, qMetaTypeId< T * > (), policy));
 	}
 	
@@ -215,6 +215,6 @@ private:
 
 }
 
-#define NURIA_DEPENDENCY(T) Nuria::DependencyManager::get< T > (#T)
+#define NURIA_DEPENDENCY(T) Nuria::DependencyManager::get< T > (QByteArrayLiteral(#T))
 
 #endif // NURIA_DEPEDENCYMANAGER_HPP
