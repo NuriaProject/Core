@@ -24,13 +24,17 @@
 #include <QMutex>
 #include <QMap>
 
+// 
 struct Dependency {
 	int type;
 	void *object;
 };
 
+typedef std::function< QObject *() > Creator;
 typedef QMap< QString, Dependency > DependencyMap;
+typedef QMap< QString, Creator > CreatorMap;
 
+// 
 #define GUARD_BEGIN \
 	policy = (policy == DefaultPolicy) ? this->d_ptr->policy : policy; \
 	DependencyMap &map = (policy == ThreadLocal) ? this->d_ptr->local.localData () : this->d_ptr->objects; \
@@ -53,6 +57,7 @@ public:
 	
 	QMutex mutex; // ApplicationGlobal
 	DependencyMap objects; // ApplicationGlobal and SingleThread
+	CreatorMap creators;
 	QThreadStorage< DependencyMap > local; // ThreadLocal
 	
 };
@@ -106,7 +111,7 @@ static void *createObjectByType (int type) {
 	
 }
 
-static void *getObjectFromMap (DependencyMap &map, const QString &name, int type) {
+static void *getObjectFromMap (DependencyMap &map, const CreatorMap &creators, const QString &name, int type) {
 	auto it = map.constFind (name);
 	if (it != map.constEnd ()) {
 		if (type != -1 && it->type != type)
@@ -115,8 +120,16 @@ static void *getObjectFromMap (DependencyMap &map, const QString &name, int type
 		
 	}
 	
-	// 
-	void *instance = createObjectByType (type);
+	// Construct object
+	void *instance = nullptr;
+	auto creator = creators.find (name);
+	if (creator != creators.end ()) {
+		 instance = (*creator) ();
+	} else { // Try to invoke constructor
+		instance = createObjectByType (type);
+	}
+	
+	// Store and return
 	if (instance)
 		map.insert (name, { type, instance });
 	return instance;
@@ -125,7 +138,7 @@ static void *getObjectFromMap (DependencyMap &map, const QString &name, int type
 
 void *Nuria::DependencyManager::objectByName (const QString &name, int type, ThreadingPolicy policy) {
 	GUARD_BEGIN;
-	void *ptr = getObjectFromMap (map, name, type);
+	void *ptr = getObjectFromMap (map, this->d_ptr->creators, name, type);
 	GUARD_END;
 	
 	return ptr;
@@ -149,6 +162,10 @@ void Nuria::DependencyManager::storeObject (const QString &name, void *object,
 	GUARD_BEGIN;
 	map.insert (name, { type, object });
 	GUARD_END;
+}
+
+void Nuria::DependencyManager::setCreator (const QString &name, const std::function< QObject *() > &creator) {
+	this->d_ptr->creators.insert (name, creator);
 }
 
 void Nuria::DependencyManager::freeAllObjects () {

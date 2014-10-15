@@ -19,6 +19,7 @@
 #define NURIA_DEPEDENCYMANAGER_HPP
 
 #include "essentials.hpp"
+#include <functional>
 #include <QObject>
 
 namespace Nuria {
@@ -36,32 +37,51 @@ class DependencyManagerPrivate;
  * 2. It's really hard to test classes which rely on singletons.
  * 
  * \par Usage
+ * 
  * First, you'll need to register all classes which you want to use as
  * dependencies to the Qt meta system:
- * \codeline Q_DECLARE_METATYPE(MyType*)
+ * 
+ * \code
+ * Q_DECLARE_METATYPE(MyType*)
+ * \endcode
  * 
  * This line should come right after the class definition. Please note that
  * the macro itself \b must be invoked on the global scope.
  * 
+ * \note 'MyType' must inherit QObject.
+ * 
  * After this, you can start using it right away with the NURIA_DEPENDENCY
  * macro:
- * \codeline MyType *myType = NURIA_DEPENDENCY(MyType)
+ * 
+ * \code
+ * MyType *myType = NURIA_DEPENDENCY(MyType)
+ * \endcode
  * 
  * \par Requirements for dependency classes
  * If DependencyManager should create instances on-demand, a constructor which
  * takes zero (Or only optional ones) arguments must be annotated using
  * \a Q_INVOKABLE. 
  * 
- * \par Advanced usage
+ * \par Using creators
+ * 
+ * If the name of the object doesn't match the typename, or if you need to
+ * do further initialisation work alongside the constructor, you can set
+ * a 'creator' using setCreator().
+ * 
+ * \note This is especially helpful in multi-threaded applications!
+ * 
+ * \par Usage in unit-tests
+ * 
  * For more fine-grained control, please see the methods this class offers.
- * If you're writing unit tests, then you're probably most interested in
+ * If you're writing unit tests, then you're probably interested in
  * storeObject(). Example:
- * \codeline Nuria::DependencyManager::instance ()->storeObject ("MyType", myType);
+ * 
+ * \code
+ * Nuria::DependencyManager::instance ()->storeObject ("MyType", myType);
+ * \endcode
  * 
  * \note You have to supply a name here as the code won't be able to figure
- * out the name itself. You may want to consider writing a simple macro for
- * convenience:
- * \codeline #define STORE_DEP(T, Inst) Nuria::DependencyManager::instance ()->storeObject (#T, Inst);
+ * out the name itself.
  * 
  */
 class NURIA_CORE_EXPORT DependencyManager : public QObject {
@@ -94,7 +114,7 @@ public:
 		 * One pool per thread. Objects are freed when the thread gets
 		 * destroyed, though some structures can only be freed upon
 		 * application exit.
-		 * \note This is the default behavious
+		 * \note This is the default behaviour
 		 */
 		ThreadLocal
 	};
@@ -150,17 +170,29 @@ public:
 	 * Stores \a object of \a type as \a name. If there is already a object
 	 * of the same name, it will be overwritten. \a object \b must be a
 	 * registered type.
+	 * 
 	 * \sa Q_DECLARE_METATYPE qRegisterMetaType
 	 */
 	void storeObject (const QString &name, void *object, int type,
 			  ThreadingPolicy policy = DefaultPolicy);
 	
-	/**
-	 * \overload
-	 */
+	/** \overload */
 	template< typename T >
 	void storeObject (const QString &name, T *object)
 	{ storeObject (name, object, qMetaTypeId< T * > ()); }
+	
+	/**
+	 * Sets the creator of object \a name to \a creator. When the object
+	 * \a name is read and has not been created yet, \a creator will be
+	 * called.
+	 * 
+	 * Please note that this function is \b not thread-safe, as you'll
+	 * use this function at the start of your application and then start
+	 * threads.
+	 * 
+	 * \note \a creator must be thread-safe!
+	 */
+	void setCreator (const QString &name, const std::function< QObject *() > &creator);
 	
 	/**
 	 * Tries to find object \a name of type \a T.

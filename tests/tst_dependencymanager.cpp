@@ -15,6 +15,9 @@
 
 #include <QtTest/QtTest>
 #include <QObject>
+#include <QThread>
+
+using namespace Nuria;
 
 class DependencyManagerTest : public QObject {
 	Q_OBJECT
@@ -29,6 +32,10 @@ private slots:
 	void storeAndRetrieveThreadLocal ();
 	void retrieveDefaultInstance ();
 	
+	// 
+	void verifyMultithreading ();
+	void useCreator ();
+	
 };
 
 Q_DECLARE_METATYPE(DependencyManagerTest*)
@@ -39,7 +46,7 @@ class TestClass : public QObject {
 public:
 	
 	Q_INVOKABLE
-	TestClass () : message ("Works") { }
+	TestClass (const QString &msg = "Works") : message (msg) { }
 	
 	QString message;
 };
@@ -52,33 +59,27 @@ DependencyManagerTest::DependencyManagerTest () {
 }
 
 void DependencyManagerTest::storeAndRetrieveApplicationGlobal () {
-	Nuria::DependencyManager *inst = Nuria::DependencyManager::instance ();
-	inst->setDefaultThreadingPolicy (Nuria::DependencyManager::ApplicationGlobal);
-	inst->storeObject ("DependencyManagerTest", this);
+	DependencyManager *inst = DependencyManager::instance ();
+	inst->setDefaultThreadingPolicy (DependencyManager::ApplicationGlobal);
+	inst->storeObject ("Global", this);
 	
-	QCOMPARE(inst->get< DependencyManagerTest > ("DependencyManagerTest"), this);
-	QCOMPARE(NURIA_DEPENDENCY(DependencyManagerTest), this);
-	
+	QCOMPARE(inst->get< DependencyManagerTest > ("Global"), this);
 }
 
 void DependencyManagerTest::storeAndRetrieveSingleThread () {
-	Nuria::DependencyManager *inst = Nuria::DependencyManager::instance ();
-	inst->setDefaultThreadingPolicy (Nuria::DependencyManager::SingleThread);
-	inst->storeObject ("DependencyManagerTest", this);
+	DependencyManager *inst = DependencyManager::instance ();
+	inst->setDefaultThreadingPolicy (DependencyManager::SingleThread);
+	inst->storeObject ("Single", this);
 	
-	QCOMPARE(inst->get< DependencyManagerTest > ("DependencyManagerTest"), this);
-	QCOMPARE(NURIA_DEPENDENCY(DependencyManagerTest), this);
-	
+	QCOMPARE(inst->get< DependencyManagerTest > ("Single"), this);
 }
 
 void DependencyManagerTest::storeAndRetrieveThreadLocal () {
-	Nuria::DependencyManager *inst = Nuria::DependencyManager::instance ();
-	inst->setDefaultThreadingPolicy (Nuria::DependencyManager::ThreadLocal);
-	inst->storeObject ("DependencyManagerTest", this);
+	DependencyManager *inst = DependencyManager::instance ();
+	inst->setDefaultThreadingPolicy (DependencyManager::ThreadLocal);
+	inst->storeObject ("Thread", this);
 	
-	QCOMPARE(inst->get< DependencyManagerTest > ("DependencyManagerTest"), this);
-	QCOMPARE(NURIA_DEPENDENCY(DependencyManagerTest), this);
-	
+	QCOMPARE(inst->get< DependencyManagerTest > ("Thread"), this);
 }
 
 void DependencyManagerTest::retrieveDefaultInstance () {
@@ -87,6 +88,57 @@ void DependencyManagerTest::retrieveDefaultInstance () {
 	QVERIFY(test);
 	QCOMPARE(test->message, QString("Works"));
 	QCOMPARE(test, NURIA_DEPENDENCY(TestClass));
+}
+
+class Thread : public QThread {
+	Q_OBJECT
+public:
+	
+	QString message;
+	TestClass *read = nullptr;
+	
+	Thread (QString m) : QThread (qApp), message (m) {}
+	
+	void run () override {
+		this->read = NURIA_DEPENDENCY(TestClass);
+		this->read->message = this->message;
+	}
+	
+};
+
+void DependencyManagerTest::verifyMultithreading () {
+	DependencyManager *inst = DependencyManager::instance ();
+	inst->setDefaultThreadingPolicy (DependencyManager::ThreadLocal);
+	
+	Thread *a = new Thread ("a");
+	Thread *b = new Thread ("b");
+	
+	// Run and wait ..
+	a->start ();
+	b->start ();
+	
+	a->wait ();
+	b->wait ();
+	
+	// 
+	QVERIFY(a->read);
+	QVERIFY(b->read);
+	QVERIFY(a->read != b->read);
+	QCOMPARE(a->read->message, QString("a"));
+	QCOMPARE(b->read->message, QString("b"));
+	
+}
+
+void DependencyManagerTest::useCreator () {
+	DependencyManager *inst = DependencyManager::instance ();
+	inst->setDefaultThreadingPolicy (DependencyManager::SingleThread);
+	
+	// 
+	QTest::ignoreMessage (QtDebugMsg, "creator");
+	inst->setCreator ("test", []() { qDebug("creator"); return new TestClass ("Test"); });
+	QVERIFY(inst->get< TestClass > ("test"));
+	QCOMPARE(inst->get< TestClass > ("test")->message, QString ("Test"));
+	
 }
 
 QTEST_MAIN(DependencyManagerTest)
