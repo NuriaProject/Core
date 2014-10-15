@@ -239,6 +239,15 @@ private:
  * \endcode
  * 
  * \sa DependencyManager
+ * 
+ * \par Comparison operators
+ * 
+ * Dependency offers operators for equality (==) and inequality (!=).
+ * Both operators only compare the object name.
+ * 
+ * A operator for implicit conversion to \c bool is offered for compatibility
+ * with raw pointers. This operator fetches the instance (If not already done)
+ * and returns \c true, if the instance is not \c nullptr.
  */
 template< typename T >
 class Dependency {
@@ -259,6 +268,18 @@ public:
 		}
 		
 	}
+	
+	/** Equality operator. */
+	bool operator== (const Dependency< T > &other) const
+	{ return (this->m_name == other.m_name); }
+	
+	/** Inequality operator. */
+	bool operator!= (const Dependency< T > &other) const
+	{ return (this->m_name != other.m_name); }
+	
+	/** Raw-pointer compatibility bool operator. */
+	operator bool () const
+	{ return (get () != nullptr); }
 	
 	/** Convenience accessor. See get(). */
 	T *operator-> () const

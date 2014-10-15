@@ -37,6 +37,7 @@ private slots:
 	void useCreator ();
 	void dependencyTemplateSimple ();
 	void dependencyTemplateNamed ();
+	void verifyOperators ();
 	
 };
 
@@ -85,11 +86,11 @@ void DependencyManagerTest::storeAndRetrieveThreadLocal () {
 }
 
 void DependencyManagerTest::retrieveDefaultInstance () {
-	TestClass *test = NURIA_DEPENDENCY(TestClass);
+	TestClass *test = DependencyManager::get< TestClass > ("TestClass");
 	
 	QVERIFY(test);
 	QCOMPARE(test->message, QString("Works"));
-	QCOMPARE(test, NURIA_DEPENDENCY(TestClass));
+	QCOMPARE(test, DependencyManager::get< TestClass > ("TestClass"));
 }
 
 class Thread : public QThread {
@@ -97,12 +98,11 @@ class Thread : public QThread {
 public:
 	
 	QString message;
-	TestClass *read = nullptr;
+	Dependency< TestClass > read;
 	
 	Thread (QString m) : QThread (qApp), message (m) {}
 	
 	void run () override {
-		this->read = NURIA_DEPENDENCY(TestClass);
 		this->read->message = this->message;
 	}
 	
@@ -125,7 +125,7 @@ void DependencyManagerTest::verifyMultithreading () {
 	// 
 	QVERIFY(a->read);
 	QVERIFY(b->read);
-	QVERIFY(a->read != b->read);
+	QVERIFY(a->read.get () != b->read.get ());
 	QCOMPARE(a->read->message, QString("a"));
 	QCOMPARE(b->read->message, QString("b"));
 	
@@ -158,6 +158,17 @@ void DependencyManagerTest::dependencyTemplateNamed () {
 	
 	QVERIFY(obj.get ());
 	QCOMPARE(obj->message, QString ("Named"));
+	
+}
+
+void DependencyManagerTest::verifyOperators () {
+	Dependency< TestClass > a;
+	Dependency< TestClass > b;
+	Dependency< TestClass > c ("named");
+	
+	QVERIFY(a == b);
+	QVERIFY(a != c);
+	QVERIFY(a);
 	
 }
 
