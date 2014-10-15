@@ -15,7 +15,7 @@
  *       distribution.
  */
 
-#include <nuria/variant.hpp>
+#include "nuria/variant.hpp"
 
 void *Nuria::Variant::stealPointer (QVariant &variant) {
 	QVariant::Private &data = variant.data_ptr ();
