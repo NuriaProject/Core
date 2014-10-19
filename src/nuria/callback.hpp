@@ -201,6 +201,11 @@ public:
 	Callback (Class *instance, Ret (Class::*func)(Args ...), bool variadic = false)
 		: d (0) { setCallback (instance, func); setVariadic (variadic); }
 	
+	/** Constructs a callback from a constant member method. */
+	template< typename Class, typename Ret, typename ... Args >
+	Callback (Class *instance, Ret (Class::*func)(Args ...)const, bool variadic = false)
+	        : d (0) { setCallback (instance, func); setVariadic (variadic); }
+	
 	template< typename Ret, typename ... Args >
 	Callback (const std::function< Ret(Args ...) > &func, bool variadic = false)
 		: d (0) { setCallback (func); setVariadic (variadic); }
@@ -262,6 +267,12 @@ public:
 	}
 	
 	// Member methods
+	template< typename Class, typename Ret, typename ... Args >
+	bool setCallback (Class *instance, Ret (Class::*func)(Args ...)const) {
+		typedef Ret(Class::*WithoutConst)(Args ...);
+		return setCallback (instance, (WithoutConst)func);
+	}
+	
 	template< typename Class, typename Ret, typename ... Args >
 	bool setCallback (Class *instance, Ret (Class::*func)(Args ...)) {
 		QList< int > args;
