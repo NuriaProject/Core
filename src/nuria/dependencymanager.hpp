@@ -264,7 +264,7 @@ public:
 	{
 		if (objectName.isEmpty ()) {
 			const char *name = QMetaType::typeName (qMetaTypeId< T * > ());
-			this->m_name.setRawData (name, ::qstrlen (name));
+			this->m_name.setRawData (name, ::qstrlen (name) - 1);
 		}
 		
 	}
