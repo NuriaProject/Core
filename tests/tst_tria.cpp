@@ -29,6 +29,7 @@ private slots:
 	void getTypesByAnnotation ();
 	void getTypesByBase ();
 	
+	void verifyBehaviourWithAbstractTypes ();
 	void verifyTypeA ();
 	void verifyTypeB ();
 	void verifyTypeD ();
@@ -101,7 +102,10 @@ void TriaTest::getAllTypes () {
 				 { "Test::B", MetaObject::byName ("Test::B") },
 				 { "Test::C", MetaObject::byName ("Test::C") },
 				 { "Test::D", MetaObject::byName ("Test::D") },
-				 { "Test::E", MetaObject::byName ("Test::E") } };
+				 { "Test::E", MetaObject::byName ("Test::E") },
+	                         { "Test::AbstractType", MetaObject::byName ("Test::AbstractType") },
+		                 { "Test::VirtualType", MetaObject::byName ("Test::VirtualType") },
+	                       };
 	MetaObjectMap result = MetaObject::allTypes ();
 	
 	QCOMPARE(result, expected);
@@ -125,6 +129,24 @@ void TriaTest::getTypesByBase () {
 	MetaObjectMap result = MetaObject::typesInheriting ("Test::A");
 	
 	QCOMPARE(result, expected);
+	
+}
+
+void TriaTest::verifyBehaviourWithAbstractTypes () {
+	Nuria::MetaObject *abstr = Nuria::MetaObject::byName ("Test::AbstractType");
+	Nuria::MetaObject *virt = Nuria::MetaObject::byName ("Test::VirtualType");
+	
+	QVERIFY(abstr);
+	QVERIFY(virt);
+	QCOMPARE(abstr->metaTypeId (), 0);
+	QCOMPARE(virt->metaTypeId (), 0);
+	
+	Nuria::MetaMethod ctorAbstr = abstr->method ({ "" });
+	Nuria::MetaMethod ctorVirt = virt->method ({ "" });
+	QVERIFY(ctorAbstr.isValid ());
+	QVERIFY(ctorVirt.isValid ());
+	QVERIFY(!ctorAbstr.callback ().isValid ());
+	QVERIFY(ctorVirt.callback ().isValid ());
 	
 }
 

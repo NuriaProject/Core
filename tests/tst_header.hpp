@@ -204,6 +204,29 @@ struct NURIA_INTROSPECT E : NoValueSemantics {
 	int a;
 };
 
+// Skip abstract types
+struct NURIA_INTROSPECT AbstractType {
+	int foo;
+	virtual void func () = 0;
+};
+
+// But take this one which has no abstract ("pure") methods
+struct NURIA_INTROSPECT VirtualType : public AbstractType {
+	VirtualType () { }
+	void func () override {  }
+};
+
+// Templates and their child structures are ignored
+template< typename T >
+struct NURIA_INTROSPECT Template {
+	int foo;
+	
+	struct NURIA_INTROSPECT Child {
+		int bar;
+	};
+	
+};
+
 // This struct will NOT be made available.
 struct Ignored {};
 
