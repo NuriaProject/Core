@@ -379,6 +379,7 @@ private:
 	template< typename T > struct removeRef { typedef T type; };
         template< typename T > struct removeRef< T & >; // Not allowed!
 	template< typename T > struct removeRef< const T & > { typedef T type; };
+	template< typename T > struct removeRef< const T * > { typedef T* type; };
 	
 	/**
 	 * \internal
