@@ -41,11 +41,6 @@ namespace Nuria {
 class CallbackPrivate : public QSharedData {
 public:
 	
-	CallbackPrivate ()
-		: type (Callback::Invalid), boundValues (nullptr), boundTypes (nullptr),
-		  boundCount (0), variadic (false), retType (0)
-	{ }
-	
 	~CallbackPrivate () {
 		clear ();
 		freeBoundValues ();
@@ -80,20 +75,20 @@ public:
 	}
 	
 	// Data
-	Callback::Type type;
+	Callback::Type type = Callback::Invalid;
 	union {
 		Callback::TrampolineBase *base;
 		CallbackSlot *slot;
 	} ptr;
 	
 	// Binding
-	void **boundValues;
-	int *boundTypes;
-	int boundCount;
-	bool variadic;
+	void **boundValues = nullptr;
+	int *boundTypes = nullptr;
+	int boundCount = 0;
+	bool variadic = false;
 	
 	// 
-	int retType;
+	int retType = 0;
 	QList< int > args;
 };
 }
@@ -284,8 +279,8 @@ static bool argumentHelper (void **args, bool *delMe, void *value, int valType,
 	// Expects a QVariant?
 	if (type == QMetaType::QVariant) {
 		args[pos + off] = (valType == QMetaType::QVariant)
-				  ? reinterpret_cast< QVariant * > (value)
-				  : new QVariant (valType, value);
+		                  ? reinterpret_cast< QVariant * > (value)
+		                  : new QVariant (valType, value);
 		delMe[pos] = (valType != QMetaType::QVariant);
 		return true;
 	}
@@ -328,7 +323,7 @@ QVariant Nuria::Callback::invoke (const QVariantList &arguments) const {
 	
 	// Is this a variadic callback?
 	if (this->d->variadic) {
-		return invokePrepared (QVariantList() << QVariant(arguments));
+		return invokePrepared ({ QVariant(arguments) });
 	}
 	
 	return invokePrepared (arguments);
@@ -412,11 +407,7 @@ QVariant Nuria::Callback::invokeInternal (int count, void **args, int *types) co
 	QVariant retVal;
 	if (this->d->retType == QMetaType::QVariant) {
 		rawArgs[0] = &retVal;
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
 	} else if (this->d->retType != 0 && this->d->retType != QMetaType::Void) {
-#else
-	} else if (this->d->retType != 0) {
-#endif
 		retVal = QVariant (this->d->retType, (const void *)0);
 		rawArgs[0] = retVal.data ();
 	}
@@ -514,12 +505,11 @@ QVariant Nuria::Callback::invokeInternal (int count, void **args, int *types) co
 		
 		// Invoke!
 		if (!this->d->ptr.slot->method.invoke (this->d->ptr.slot->qobj, type, retArg,
-				    gArgs[0], gArgs[1], gArgs[2], gArgs[3], gArgs[4],
-				    gArgs[5], gArgs[6], gArgs[7], gArgs[8], gArgs[9])) {
+		                                       gArgs[0], gArgs[1], gArgs[2], gArgs[3], gArgs[4],
+		                                       gArgs[5], gArgs[6], gArgs[7], gArgs[8], gArgs[9])) {
 			nError() << "Failed to invoke slot" << this->d->ptr.slot->name
-				 << "on" << this->d->ptr.slot->qobj;
+			         << "on" << this->d->ptr.slot->qobj;
 		}
-		
 		
 		// Done.
 		return retVal;
