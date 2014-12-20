@@ -21,9 +21,9 @@ using namespace Nuria;
 
 class RuntimeMetaObjectTest : public QObject {
 	Q_OBJECT
-public:
-	
 private slots:
+	
+	void initTestCase ();
 	
 	void testMetaTypeIds ();
 	void testClassAnnotations ();
@@ -45,7 +45,29 @@ private slots:
 	void testFieldSetter ();
 	void testReadOnlyField ();
 	
+	void findByName ();
+	void findByTypeId ();
+	void findByPointerTypeId ();
+	
+private:
+	RuntimeMetaObject *testMeta;
+	
 };
+
+struct Test { };
+Q_DECLARE_METATYPE(Test);
+Q_DECLARE_METATYPE(Test*);
+
+void RuntimeMetaObjectTest::initTestCase () {
+	RuntimeMetaObject *meta = new RuntimeMetaObject ("Test");
+	meta->setQtMetaTypeId (qMetaTypeId< Test > ());
+	meta->setQtMetaTypePointerId (qMetaTypeId< Test * > ());
+	
+	meta->finalize ();
+	MetaObject::registerMetaObject (meta);
+	
+	this->testMeta = meta;
+}
 
 void RuntimeMetaObjectTest::testMetaTypeIds () {
 	RuntimeMetaObject meta ("A");
@@ -350,6 +372,19 @@ void RuntimeMetaObjectTest::testReadOnlyField () {
 	MetaField f = meta.field (0);
 	QCOMPARE(f.access (), MetaField::ReadOnly);
 	QVERIFY(!f.write (this, 123));
+}
+
+// Move this into a new tst_metaobject?
+void RuntimeMetaObjectTest::findByName () {
+	QCOMPARE(MetaObject::byName ("Test"), (MetaObject *)this->testMeta);
+}
+
+void RuntimeMetaObjectTest::findByTypeId () {
+	QCOMPARE(MetaObject::byTypeId (qMetaTypeId< Test > ()), (MetaObject *)this->testMeta);
+}
+
+void RuntimeMetaObjectTest::findByPointerTypeId () {
+	QCOMPARE(MetaObject::byTypeId (qMetaTypeId< Test * > ()), (MetaObject *)this->testMeta);
 }
 
 QTEST_MAIN(RuntimeMetaObjectTest)

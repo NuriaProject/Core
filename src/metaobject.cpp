@@ -109,6 +109,29 @@ Nuria::MetaObject *Nuria::MetaObject::byName (const QByteArray &type) {
 	return meta;
 }
 
+Nuria::MetaObject *Nuria::MetaObject::byTypeId (int typeId) {
+	const char *typeName = QMetaType::typeName (typeId);
+	if (!typeName) {
+		return nullptr;
+	}
+	
+	// Look for it
+	QByteArray name = QByteArray::fromRawData (typeName, strlen (typeName));
+	QReadLocker lock (&g_lock);
+	if (MetaObject *meta = g_metaObjects.value (name)) {
+		return meta;
+	}
+	
+	// Failed. Is it a pointer type?
+	if (name.endsWith ('*')) {
+		name.chop (1);
+		return g_metaObjects.value (name);
+	}
+	
+	// Failed.
+	return nullptr;
+}
+
 Nuria::MetaObjectMap Nuria::MetaObject::typesInheriting (const QByteArray &typeName) {
 	MetaObjectMap map;
 	
