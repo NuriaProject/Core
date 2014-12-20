@@ -323,7 +323,10 @@ void Nuria::Debug::qtMessageHandler (QtMsgType type, const QMessageLogContext &c
 	}
 	
 	// Output.
-	Debug out (t, context.category, context.file, context.line, context.function, 0);
+	const char *category = (context.category) ? context.category : "";
+	const char *file = (context.file) ? context.file : "";
+	const char *function = (context.function) ? context.function : "";
+	Debug out (t, category, file, context.line, function, nullptr);
 	out.setBuffer (message);
 	
 }

@@ -260,11 +260,19 @@ void DebugTest::testQtMessageHandler () {
 	QCOMPARE(type, Nuria::Debug::CriticalMsg);
 	QCOMPARE(typeName.data (), "Critical");
 	QCOMPARE(moduleName.data (), "default");
+	QCOMPARE(message.data (), expectedMessage);
+	
+#ifdef QT_DEBUG
+	QCOMPARE(methodName.data (), "testQtMessageHandler");
+	QCOMPARE(className.data (), "DebugTest");
 	QCOMPARE(file.data (), "tst_debug.cpp");
 	QCOMPARE(line, expectedLine);
-	QCOMPARE(className.data (), "DebugTest");
-	QCOMPARE(methodName.data (), "testQtMessageHandler");
-	QCOMPARE(message.data (), expectedMessage);
+#else
+	QCOMPARE(methodName.data (), "");
+	QCOMPARE(className.data (), "");
+	QCOMPARE(file.data (), "");
+	QCOMPARE(line, 0);
+#endif
 	
 	Nuria::Debug::uninstallOutputHandler (cb);
 	Nuria::Debug::setOutputDisabled (false);
