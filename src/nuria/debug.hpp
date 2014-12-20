@@ -218,7 +218,7 @@ public:
 	 * stream. If \a format is \c 0 the default format will be used.
 	 * 
 	 * \note The default output format is:
-	 * "[%TIME%] %TYPE%/%MODULE%: %FILE%:%LINE% - %CLASS%::%METHOD%: %MESSAGE%"
+	 * "[%TIME%] %TYPE%/%MODULE%: %FILE%:%LINE% - %CLASS%::%METHOD%: %BODY%"
 	 * 
 	 * \par Identifiers
 	 * - %DATE% The current date (MM/DD/YYYY)

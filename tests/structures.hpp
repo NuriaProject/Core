@@ -20,6 +20,7 @@
 
 #include <nuria/essentials.hpp>
 #include <QDateTime>
+#include <QMetaType>
 #include <QString>
 #include <QMap>
 
