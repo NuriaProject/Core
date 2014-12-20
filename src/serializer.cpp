@@ -24,6 +24,7 @@ public:
 	
 	Serializer::InstanceCreator factory;
 	Serializer::MetaObjectFinder finder;
+	Serializer::ValueConverter converter;
 	
 	QVector< QByteArray > excluded;
 	QVector< QByteArray > additionalTypes;
@@ -36,12 +37,14 @@ public:
 
 }
 
-Nuria::Serializer::Serializer (MetaObjectFinder metaObjectFinder, InstanceCreator instanceCreator)
+Nuria::Serializer::Serializer (MetaObjectFinder metaObjectFinder, InstanceCreator instanceCreator,
+                               ValueConverter valueConverter)
 	: d (new SerializerPrivate)
 {
 	
 	this->d->factory = instanceCreator;
 	this->d->finder = metaObjectFinder;
+	this->d->converter = valueConverter;
 	
 }
 
@@ -165,18 +168,12 @@ bool Nuria::Serializer::variantToField (QVariant &value, const QByteArray &targe
 		
 	}
 	
-	// Convert to the target type.
-	QVariant result (value);
-	if (result.convert (targetId)) {
-		value.swap (result);
-		return true;
-	}
-	
-	return false;
+	// Convert using the user converter
+	return this->d->converter (value, targetId);
 }
 
 bool Nuria::Serializer::fieldToVariant (QVariant &value, bool &ignore) {
-	QByteArray typeName = QByteArray (value.typeName (), -1);
+	QByteArray typeName = QByteArray (value.typeName ());
 	MetaObject *meta = this->d->finder (typeName);
 	
 	if (meta) {
@@ -188,21 +185,15 @@ bool Nuria::Serializer::fieldToVariant (QVariant &value, bool &ignore) {
 		
 		if (this->d->curDepth == 1) {
 			ignore = true;
-		} else {
-			value = serializeImpl (dataPtr, meta);
+			return false;
 		}
 		
+		value = serializeImpl (dataPtr, meta);
 		return true;
 	}
 	
-	// Convert to a string.
-	QVariant result (value);
-	if (result.convert (QMetaType::QString)) {
-		value.swap (result);
-		return true;
-	}
-	
-	return false;
+	// Convert using the user converter
+	return this->d->converter (value, QMetaType::QString);
 }
 
 bool Nuria::Serializer::readField (void *object, Nuria::MetaField &field, QVariantMap &data) {
@@ -216,16 +207,12 @@ bool Nuria::Serializer::readField (void *object, Nuria::MetaField &field, QVaria
 	}
 	
 	bool ignore = false;
-	if (fieldToVariant (value, ignore)) {
-		
-		if (!ignore) {
-			data.insert (name, value);
-		}
-		
-		return true;
+	if (!fieldToVariant (value, ignore)) {
+		return ignore;
 	}
 	
-	return false;
+	data.insert (name, value);
+	return true;
 }
 
 bool Nuria::Serializer::writeField (void *object, Nuria::MetaField &field, const QVariantMap &data) {
@@ -244,7 +231,9 @@ bool Nuria::Serializer::writeField (void *object, Nuria::MetaField &field, const
 	int targetId = QMetaType::type (typeName.constData ());
 	
 	if (sourceId != targetId && targetId != QMetaType::QVariant) {
-		variantToField (value, typeName, targetId, sourceId, pointerId, ignored);
+		if (!variantToField (value, typeName, targetId, sourceId, pointerId, ignored)) {
+			return false;
+		}
 		
 		if (ignored) {
 			return true;
@@ -374,4 +363,8 @@ void *Nuria::Serializer::defaultInstanceCreator (Nuria::MetaObject *metaObject, 
 	
 	QVariant instance = ctor.callback () ();
 	return Variant::stealPointer (instance);
+}
+
+bool Nuria::Serializer::defaultValueConverter (QVariant &variant, int toType) {
+	return variant.convert (toType);
 }

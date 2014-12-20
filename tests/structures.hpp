@@ -86,6 +86,13 @@ struct NURIA_INTROSPECT WithCustomType {
 	SomeCustomType custom;
 };
 
+struct NURIA_INTROSPECT CustomConverter {
+	int integer;
+	
+	bool a;
+	bool b;
+};
+
 Q_DECLARE_METATYPE(SomeCustomType)
 Q_DECLARE_METATYPE(Simple*)
 
