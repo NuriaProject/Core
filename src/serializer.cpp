@@ -17,7 +17,7 @@
 
 #include "nuria/serializer.hpp"
 #include "nuria/variant.hpp"
-#include "nuria/debug.hpp"
+#include <QVector>
 
 namespace Nuria {
 class SerializerPrivate {
@@ -404,19 +404,75 @@ Nuria::MetaObject *Nuria::Serializer::defaultMetaObjectFinder (const QByteArray 
 	return meta;
 }
 
-void *Nuria::Serializer::defaultInstanceCreator (Nuria::MetaObject *metaObject, QVariantMap &data) {
-	Q_UNUSED(data);
+template< typename Result, typename Map >
+static Result mapFind (Map &map, const QByteArray &key) {
+	auto end = map.end ();
+	for (auto it = map.begin (); it != end; ++it) {
+		if (it.key () == key) return it;
+	}
 	
-	MetaMethod ctor = metaObject->method (QVector< QByteArray > { QByteArray () });
+	return end;
+}
+
+static inline bool mapContainsKey (const QVariantMap &map, const QByteArray &key) {
+	return (mapFind< QVariantMap::const_iterator > (map, key) != map.end ());
+}
+
+static bool checkCtor (int idx, Nuria::MetaObject *meta, const QVariantMap &data) {
+	Nuria::MetaMethod ctor = meta->method (idx);
+	QVector< QByteArray > args = ctor.argumentNames ();
 	
-	if (!ctor.isValid ()) {
+	// Skip copy constructors
+	int count = args.length ();
+	if (count == 1 && ctor.argumentTypes ().first () == meta->className ()) {
+		return false;
+	}
+	
+	// Check ..
+	int i = 0;
+	for (; i < count && mapContainsKey (data, args.at (i)); i++);
+	return (i == count);
+}
+
+static QVariantList getConstructorArguments (const QVector< QByteArray > &names, QVariantMap &data) {
+	QVariantList list;
+	list.reserve (names.length ());
+	
+	// Transfer all 'names' elements from 'data' into 'list'.
+	for (int i = 0, count = names.length (); i < count; i++) {
+		auto it = mapFind< QVariantMap::iterator > (data, names.at (i));
+		list.append (*it);
+		data.erase (it);
+	}
+	
+	return list;
+}
+
+void *Nuria::Serializer::defaultInstanceCreator (MetaObject *metaObject, QVariantMap &data) {
+	int first = metaObject->methodLowerBound (QByteArray ());
+	int last = metaObject->methodUpperBound (QByteArray ());
+	
+	if (first == -1) {
 		return nullptr;
 	}
 	
-	QVariant instance = ctor.callback () ();
+	// Find constructor
+	int i;
+	for (i = last; i >= first && !checkCtor (i, metaObject, data); i--);
+	
+	// Nothing found?
+	if (i < first) {
+		return nullptr;
+	}
+	
+	// 
+	MetaMethod ctor = metaObject->method (i);
+	QVector< QByteArray > names = ctor.argumentNames ();
+	QVariant instance = ctor.callback ().invoke (getConstructorArguments (names, data));
 	return Variant::stealPointer (instance);
 }
 
 bool Nuria::Serializer::defaultValueConverter (QVariant &variant, int toType) {
 	return variant.convert (toType);
 }
+
