@@ -16,6 +16,7 @@
  */
 
 #include "nuria/serializer.hpp"
+#include "nuria/variant.hpp"
 #include "nuria/debug.hpp"
 
 namespace Nuria {
@@ -146,6 +147,44 @@ void putObjectIntoVariant (QVariant &variant, void *object, int typeId, int poin
 	
 }
 
+// 
+static bool castVariant (QVariant &value, int targetType, bool toPointer) {
+	if (toPointer) {
+		return false;
+	}
+	
+	// We can cast T* -> T, but with the current API, not T -> T*,
+	// as the value we need to point to needs to be owned by someone
+	// for it to be freed later ..
+	// TODO: Embed the casting more deeply for less overhead and more options
+	
+	void *ptr = Nuria::Variant::getPointer (value);
+	value = QVariant (targetType, ptr); // Copy constructor
+	return value.isValid ();
+}
+
+// Check for T -> T* or T* -> T casts
+static bool tryPointerConversion (QVariant &value, int sourceId, int targetId, const QByteArray &targetType) {
+	const char *sourceNamePtr = QMetaType::typeName (sourceId);
+	QByteArray sourceType = QByteArray::fromRawData (sourceNamePtr, strlen (sourceNamePtr));
+	
+	bool sourcePtr = sourceType.endsWith ('*');
+	bool targetPtr = targetType.endsWith ('*');
+	
+	// Preliminary check if both are be 'T' length-wise
+	if (sourcePtr != targetPtr &&
+	    sourceType.length () - sourcePtr == targetType.length () - targetPtr) {
+		int len = std::min (sourceType.length (), targetType.length ());
+		if (!::memcmp (sourceType.constData (), targetType.constData (), len)) {
+			return castVariant (value, targetId, targetPtr);
+		}
+		
+	}
+	
+	// 
+	return false;
+}
+
 bool Nuria::Serializer::variantToField (QVariant &value, const QByteArray &targetType,
 					int targetId, int sourceId, int pointerId,
 					bool &ignored) {
@@ -153,7 +192,7 @@ bool Nuria::Serializer::variantToField (QVariant &value, const QByteArray &targe
 	if (sourceId == QMetaType::QVariantMap) {
 		if (this->d->curDepth == 1) {
 			ignored = true;
-			return true;
+			return false;
 		}
 		
 		// 
@@ -166,6 +205,8 @@ bool Nuria::Serializer::variantToField (QVariant &value, const QByteArray &targe
 			return true;
 		}
 		
+	} else if (tryPointerConversion (value, sourceId, targetId, targetType)) {
+		return true;
 	}
 	
 	// Convert using the user converter
@@ -219,30 +260,40 @@ bool Nuria::Serializer::writeField (void *object, Nuria::MetaField &field, const
 	QVariant value = data.value (QString::fromLatin1 (field.name ()));
 	QByteArray typeName = field.typeName ();
 	bool isPointer = typeName.endsWith ('*');
+	int sourceId = value.userType ();
 	bool ignored = false;
 	int pointerId = 0;
+	
+	if (!value.isValid ()) {
+		return true;
+	}
 	
 	if (isPointer) {
 		pointerId = QMetaType::type (typeName.constData ());
 		typeName.chop (1);
+		
+		// Ignore the field if it's a pointer type and the value is 'invalid'.
+		if (!value.isValid () || sourceId == pointerId) {
+			return field.write (object, value);
+		}
+		
 	}
 	
-	int sourceId = value.userType ();
 	int targetId = QMetaType::type (typeName.constData ());
+	if (sourceId == QMetaType::UnknownType || targetId == QMetaType::UnknownType) {
+		return false;
+	}
 	
 	if (sourceId != targetId && targetId != QMetaType::QVariant) {
 		if (!variantToField (value, typeName, targetId, sourceId, pointerId, ignored)) {
-			return false;
+			return ignored;
 		}
 		
-		if (ignored) {
-			return true;
-		}
-		
+		// 
+		sourceId = targetId;
 	}
 	
-	if ((isPointer && value.isValid ()) || value.userType () == targetId ||
-	    targetId == QMetaType::QVariant) {
+	if ((isPointer && value.isValid ()) || sourceId == targetId || targetId == QMetaType::QVariant) {
 		return field.write (object, value);
 	}
 	
@@ -260,6 +311,7 @@ bool Nuria::Serializer::populate (void *object, Nuria::MetaObject *meta, const Q
 
 bool Nuria::Serializer::populateImpl (void *object, Nuria::MetaObject *meta, const QVariantMap &data) {
 	this->d->curDepth--;
+	int failedCount = this->d->failed.length ();
 	
 	if (!this->d->curDepth) {
 		this->d->curDepth++;
@@ -282,7 +334,7 @@ bool Nuria::Serializer::populateImpl (void *object, Nuria::MetaObject *meta, con
 	}
 	
 	this->d->curDepth++;
-	return this->d->failed.isEmpty ();
+	return (this->d->failed.length () == failedCount);
 }
 
 bool Nuria::Serializer::populate (void *object, const QByteArray &typeName, const QVariantMap &data) {
