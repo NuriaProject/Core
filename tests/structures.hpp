@@ -93,6 +93,21 @@ struct NURIA_INTROSPECT CustomConverter {
 	bool b;
 };
 
+struct NURIA_INTROSPECT WithConstructor {
+	
+	WithConstructor (int integer) {
+		this->integer = integer;
+		qDebug("int %i", integer);
+	}
+	
+	WithConstructor () {
+		qDebug("Wrong ctor!");
+	}
+	
+	int integer;
+	QString string;
+};
+
 Q_DECLARE_METATYPE(SomeCustomType)
 Q_DECLARE_METATYPE(Simple*)
 

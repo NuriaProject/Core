@@ -218,9 +218,8 @@ public:
 	static MetaObject *defaultMetaObjectFinder (const QByteArray &typeName);
 	
 	/**
-	 * Default instance creator. It simply tries to find the default
-	 * constructor for the type in \a metaObject and returns a new instance.
-	 * \a data is ignored.
+	 * Default instance creator. It will try to find the constructor of the
+	 * type with the most arguments which have a key-value-pair in \a data.
 	 */
 	static void *defaultInstanceCreator (MetaObject *metaObject, QVariantMap &data);
 	

@@ -43,6 +43,7 @@ private slots:
 	void deserializeWithNuriaConversion ();
 	void deserializeWithQtConversion ();
 	void deserializeWithCustomConverter ();
+	void deserializeUsingConstructor ();
 	
 };
 
@@ -371,6 +372,20 @@ void SerializerTest::deserializeWithCustomConverter () {
 	QCOMPARE(conv->b, true);
 	
 	delete conv;
+}
+
+void SerializerTest::deserializeUsingConstructor () {
+	QVariantMap data { { "integer", 123 }, { "string", "foo" } };
+	Serializer serializer;
+	
+	QTest::ignoreMessage (QtDebugMsg, "int 123");
+	WithConstructor *constr = (WithConstructor *)serializer.deserialize (data, "WithConstructor");
+	
+	QVERIFY(constr);
+	QCOMPARE(constr->integer, 123);
+	QCOMPARE(constr->string, QString ("foo"));
+	
+	delete constr;
 }
 
 QTEST_MAIN(SerializerTest)
