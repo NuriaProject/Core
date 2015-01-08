@@ -32,3 +32,16 @@ void *Nuria::Variant::stealPointer (QVariant &variant) {
 	
 	return result;
 }
+
+void *Nuria::Variant::getPointer (QVariant &variant) {
+	QVariant::Private &data = variant.data_ptr ();
+	if (data.is_null || data.type == QMetaType::UnknownType || data.type < uint(QVariant::Char)) {
+		return nullptr;
+	}
+	
+	if (data.is_shared) {
+		return data.data.shared->ptr;
+	}
+	
+	return data.data.ptr;
+}

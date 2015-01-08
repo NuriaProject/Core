@@ -20,6 +20,7 @@
 
 #include <nuria/essentials.hpp>
 #include <QDateTime>
+#include <QMetaType>
 #include <QString>
 #include <QMap>
 
@@ -83,6 +84,13 @@ struct NURIA_INTROSPECT WithCustomType {
 	WithCustomType () {}
 	
 	SomeCustomType custom;
+};
+
+struct NURIA_INTROSPECT CustomConverter {
+	int integer;
+	
+	bool a;
+	bool b;
 };
 
 Q_DECLARE_METATYPE(SomeCustomType)

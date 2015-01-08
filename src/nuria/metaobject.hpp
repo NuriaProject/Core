@@ -620,6 +620,13 @@ public:
 	static MetaObject *byName (const QByteArray &type);
 	
 	/**
+	 * Returns the MetaObject for the type \a typeId. If \a typeId may be
+	 * the Qt type id for \c T* or \c T. If no matching meta object is
+	 * found \c nullptr is returned. 
+	 */
+	static MetaObject *byTypeId (int typeId);
+	
+	/**
 	 * Returns all types which inherit \a typeName.
 	 * \note A type does not inherit itself.
 	 */

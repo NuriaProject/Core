@@ -56,6 +56,14 @@ public:
 	 */
 	static void *stealPointer (QVariant &variant);
 	
+	/**
+	 * Returns the pointer from \a variant, if \a variant contains a pointer
+	 * type. Works both for \c T and \c T*. Ownership of the returned
+	 * pointer is not taken from \a variant and \a variant itself is not
+	 * changed. If the operation failed, \c nullptr is returned.
+	 */
+	static void *getPointer (QVariant &variant);
+	
 private:
 	
 	/** \internal Helper for buildListImpl. */

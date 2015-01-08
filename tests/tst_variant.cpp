@@ -17,13 +17,26 @@
 
 using namespace Nuria;
 
+struct TestStruct { int a = 0; };
+Q_DECLARE_METATYPE(TestStruct)
+
 class VariantTest : public QObject {
 	Q_OBJECT
+public:
+	
+	VariantTest () {
+		qRegisterMetaType< TestStruct > ();
+	}
+	
 private slots:
 	
 	void verifyBuildList ();
 	void verifyStealPointer ();
 	void stealPointerReturnsNullptr ();
+	void getPointerWorksForSharedType ();
+	void getPointerWorksForPointerType ();
+	void getPointerFailsOnPodType ();
+	void getPointerFailsOnInvalidVariant ();
 	
 };
 
@@ -48,11 +61,7 @@ void VariantTest::verifyStealPointer () {
 	QVERIFY(v.isNull ());
 }
 
-struct TestStruct { int a = 0; };
-Q_DECLARE_METATYPE(TestStruct)
-
 void VariantTest::stealPointerReturnsNullptr () {
-	qRegisterMetaType< TestStruct > ();
 	QVariant v = QVariant::fromValue (TestStruct ());
 	
 	QVERIFY(v.data ());
@@ -65,6 +74,46 @@ void VariantTest::stealPointerReturnsNullptr () {
 	QVERIFY(v.isValid ());
 	QVERIFY(!v.isNull ());
 	
+}
+
+void VariantTest::getPointerWorksForSharedType () {
+	TestStruct test;
+	test.a = 456;
+	
+	QVariant v = QVariant::fromValue (test);
+	
+	QVERIFY(v.data ());
+	QVERIFY(v.isValid ());
+	QVERIFY(Variant::getPointer (v));
+	QCOMPARE(((TestStruct *)Variant::getPointer (v))->a, 456);
+	QVERIFY(v.data ());
+	QVERIFY(v.isValid ());
+}
+
+void VariantTest::getPointerWorksForPointerType () {
+	QVariant v = QVariant::fromValue< QObject * > (this);
+	
+	QVERIFY(v.data ());
+	QVERIFY(v.isValid ());
+	QCOMPARE(Variant::getPointer (v), (void *)this);
+	QVERIFY(v.data ());
+	QVERIFY(v.isValid ());
+}
+
+void VariantTest::getPointerFailsOnPodType () {
+	QVariant v (double (12.34));
+	
+	QCOMPARE(v.userType (), int (QMetaType::Double));
+	QVERIFY(!Variant::getPointer (v));
+	QVERIFY(v.isValid ());
+}
+
+void VariantTest::getPointerFailsOnInvalidVariant () {
+	QVariant v;
+	
+	QVERIFY(!v.isValid ());
+	QVERIFY(!Variant::getPointer (v));
+	QVERIFY(!v.isValid ());
 }
 
 QTEST_MAIN(VariantTest)

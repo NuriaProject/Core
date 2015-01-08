@@ -33,6 +33,7 @@ private slots:
 	void serializeWithFailedField ();
 	void serializeWithNuriaConversion ();
 	void serializeWithQtConversion ();
+	void serializeWithCustomConverter ();
 	
 	void deserializeSimple ();
 	void deserializeComplex ();
@@ -41,6 +42,7 @@ private slots:
 	void deserializeWithFailedField ();
 	void deserializeWithNuriaConversion ();
 	void deserializeWithQtConversion ();
+	void deserializeWithCustomConverter ();
 	
 };
 
@@ -189,6 +191,31 @@ void SerializerTest::serializeWithQtConversion () {
 	QCOMPARE(result, expected);
 }
 
+static bool dateTimeToString (QVariant &v, int toType) {
+	if (v.userType () != QMetaType::QDateTime) return Serializer::defaultValueConverter (v, toType);
+	
+	v = v.toDateTime ().toString (Qt::ISODate);
+	qDebug("dateTimeToString %i %s", toType, qPrintable(v.toString ()));
+	return true;
+}
+
+void SerializerTest::serializeWithCustomConverter () {
+	QDateTime theDateTime (QDate (2014, 12, 20), QTime (21, 27, 39));
+	QVariantMap expected { { "foo", 123 }, { "dateTime", theDateTime.toString (Qt::ISODate) } };
+	
+	Custom custom;
+	custom.foo = 123;
+	custom.dateTime = theDateTime;
+	
+	// 
+	Serializer serializer (Serializer::defaultMetaObjectFinder, Serializer::defaultInstanceCreator,
+	                       dateTimeToString);
+	QTest::ignoreMessage (QtDebugMsg, "dateTimeToString 10 2014-12-20T21:27:39");
+	QVariantMap result = serializer.serialize (&custom, "Custom");
+	
+	QCOMPARE(result, expected);
+}
+
 void SerializerTest::deserializeSimple () {
 	QVariantMap data { { "digit", 123 }, { "string", "hello" },
 			   { "number", 12.34f }, { "boolean", true } };
@@ -320,6 +347,30 @@ void SerializerTest::deserializeWithQtConversion () {
 	QCOMPARE(custom->dateTime, theDateTime);
 	
 	delete custom;
+}
+
+static bool stringToBool (QVariant &v, int toType) {
+	if (toType != QMetaType::Bool) return Serializer::defaultValueConverter (v, toType);
+	
+	qDebug("stringToBool: %s", qPrintable(v.toString ()));
+	v = (v.toString () == "true");
+	return true;
+}
+
+void SerializerTest::deserializeWithCustomConverter () {
+	QVariantMap data { { "integer", "123" }, { "a", true }, { "b", "true" } };
+	
+	Serializer serializer (Serializer::defaultMetaObjectFinder, Serializer::defaultInstanceCreator, stringToBool);
+	
+	QTest::ignoreMessage (QtDebugMsg, "stringToBool: true");
+	CustomConverter *conv = (CustomConverter *)serializer.deserialize (data, "CustomConverter");
+	
+	QVERIFY(conv);
+	QCOMPARE(conv->integer, 123);
+	QCOMPARE(conv->a, true);
+	QCOMPARE(conv->b, true);
+	
+	delete conv;
 }
 
 QTEST_MAIN(SerializerTest)

@@ -46,7 +46,7 @@ class SerializerPrivate;
  * 
  * - If it's a QVariantMap, then it'll be tried to find a MetaObject for the
  *   type of the field and tried to deserialize.
- * - QVariant::convert is tried if the map element is a string (QString -> T)
+ * - The converter is invoked. The default one uses QVariant::convert().
  * 
  * If all above steps fail, it'll be noted in the failed list.
  * \sa failedFields
@@ -62,7 +62,8 @@ class SerializerPrivate;
  * - If the field type is in the allowed types vector, it'll be used.
  * - If the field type is known to the Nuria meta system, serialize() will
  * recurse into it
- * - QVariant::convert is tried (T -> QString)
+ * - The converter is invoked to convert it to a QString. The default one uses
+ * QVariant::convert().
  * 
  * If all above steps fail, it'll be noted in the failed list.
  * \sa failedFields
@@ -95,10 +96,18 @@ public:
 	typedef std::function< void *(MetaObject * /* metaObject */, QVariantMap & /* data */) > InstanceCreator;
 	
 	/**
+	 * Prototype for the value converter in the deserialization process.
+	 * The passed variant is to be converted to the Qt type id as given in
+	 * the passed integer. Return \c true on success.
+	 */
+	typedef std::function< bool(QVariant & /* variant */, int /* toType */) > ValueConverter;
+	
+	/**
 	 * Constructor.
 	 */
 	Serializer (MetaObjectFinder metaObjectFinder = defaultMetaObjectFinder,
-		    InstanceCreator instanceCreator = defaultInstanceCreator);
+		    InstanceCreator instanceCreator = defaultInstanceCreator,
+	            ValueConverter valueConverter = defaultValueConverter);
 	
 	/** Destructor. */
 	~Serializer ();
@@ -214,6 +223,12 @@ public:
 	 * \a data is ignored.
 	 */
 	static void *defaultInstanceCreator (MetaObject *metaObject, QVariantMap &data);
+	
+	/**
+	 * Default value converter. Tries QVariant::convert() to convert
+	 * \a variant to \a toType.
+	 */
+	static bool defaultValueConverter (QVariant &variant, int toType);
 	
 private:
 	SerializerPrivate *d;
