@@ -145,7 +145,9 @@ public:
 	 * qDebug() etc. will still use the log paths you defined.
 	 * 
 	 * With Qt5 this message handler also supports output of file name,
-	 * line numbers and method names.
+	 * line numbers and method names in debug mode. These will not be
+	 * available in release mode.
+	 * 
 	 * \sa installMessageHandler
 	 */
 	static void qtMessageHandler (QtMsgType type, const QMessageLogContext &context, const QString &message);
@@ -218,7 +220,7 @@ public:
 	 * stream. If \a format is \c 0 the default format will be used.
 	 * 
 	 * \note The default output format is:
-	 * "[%TIME%] %TYPE%/%MODULE%: %FILE%:%LINE% - %CLASS%::%METHOD%: %MESSAGE%"
+	 * "[%TIME%] %TYPE%/%MODULE%: %FILE%:%LINE% - %CLASS%::%METHOD%: %BODY%"
 	 * 
 	 * \par Identifiers
 	 * - %DATE% The current date (MM/DD/YYYY)
