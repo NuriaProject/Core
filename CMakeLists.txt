@@ -52,8 +52,6 @@ SET(NuriaCore_SRC
     src/nuria/sessionmanager.hpp
     src/temporarybufferdevice.cpp
     src/nuria/temporarybufferdevice.hpp
-    src/test.cpp
-    src/nuria/test.hpp
     src/nuria/threadlocal.hpp
     src/variant.cpp
     src/nuria/variant.hpp
