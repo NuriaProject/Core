@@ -57,6 +57,7 @@ SET(NuriaCore_SRC
     src/nuria/variant.hpp
     src/tokenizer.cpp
     src/nuria/tokenizer.hpp
+    src/nuria/bitutils.hpp
 )
 
 if (UNIX)
