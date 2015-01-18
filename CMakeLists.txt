@@ -57,6 +57,8 @@ SET(NuriaCore_SRC
     src/nuria/variant.hpp
     src/tokenizer.cpp
     src/nuria/tokenizer.hpp
+    src/stringutils.cpp
+    src/nuria/stringutils.hpp
     src/nuria/bitutils.hpp
 )
 
@@ -119,6 +121,7 @@ add_unittest(NAME tst_temporarybufferdevice)
 add_unittest(NAME tst_lazyevaluation)
 add_unittest(NAME tst_qtmetaobjectwrapper)
 add_unittest(NAME tst_variant)
+add_unittest(NAME tst_stringutils)
 add_unittest(NAME tst_referencedevice)
 add_unittest(NAME tst_tokenizer)
 
