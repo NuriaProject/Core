@@ -78,6 +78,7 @@ set_target_properties(
     NuriaCore PROPERTIES
     VERSION ${NURIA_VERSION}
     SOVERSION ${NURIA_SOVERSION}
+    COMPILE_FLAGS "-msse2"
 )
 
 # Add public include directories to target
