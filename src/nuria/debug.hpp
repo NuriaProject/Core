@@ -14,8 +14,8 @@
  * If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NURIA_DEBUG_HPP
-#define NURIA_DEBUG_HPP
+#ifndef NURIA_LOGGER_HPP
+#define NURIA_LOGGER_HPP
 
 #include "essentials.hpp"
 #include "callback.hpp"
@@ -24,39 +24,39 @@
 namespace Nuria {
 
 /**
- * \brief Debugging and logging class of the Nuria Framework.
+ * \brief Logging class of the Nuria Framework.
  * 
  * This class provides an easy way for outputting useful logging messages.
  * You can use this as a drop-in replacement for QDebug.
  * 
- * Defining NURIA_DEBUG_NO_{DEBUG,LOG,WARN,ERROR,CRITICAL} will disable
+ * Defining NURIA_LOGGER_NO_{DEBUG,LOG,WARN,ERROR,CRITICAL} will disable
  * the level at compile-time, causing the corresponding logging macro to
  * create code the compiler can optimize out.
  * 
  * \par Redirecting output
  * By default all output is sent to stdout. 
  * 
- * You can redirect it using setDestination(). Use installOutputHandler()
+ * You can redirect it using setOutputDevice(). Use setOutputHandler()
  * to redirect logging data to a method of yours instead.
  * 
- * \par QDebug and Nuria::Debug
- * Nuria::Debug is meant as drop-in replacement for QDebug. You can still use
- * qDebug(), qWarning(), ... directly but still let Nuria::Debug do the work.
+ * \par QDebug and Nuria::Logger
+ * Nuria::Logger is meant as drop-in replacement for QDebug. You can still use
+ * qDebug(), qWarning(), ... directly but still let Nuria::Logger do the work.
  * \sa qtMessageHandler
  * 
- * \par Module
- * Nuria::Debug knows the concept of "modules". A message can be in a single
+ * \par Modules
+ * Nuria::Logger knows the concept of "modules". A message can be in a single
  * module, which is printed next to the message itself. Additionally, you can
  * use enableModule and disableModule to change the logging behaviour at
  * run-time.
  * 
  * The module name of a translation unit can be set by #defining NURIA_MODULE.
  * The value of it is expected to be a literal. The line containing the #define
- * must appear before the line where debug.hpp is #include'd.
+ * must appear before the line where logger.hpp is #include'd.
  *
  * \code
  * #define NURIA_MODULE "ModuleName"
- * #include <nuria/debug.hpp>
+ * #include <nuria/logger.hpp>
  * \endcode
  * 
  * \note The default module name is "" (Empty string) which is used if you
@@ -64,7 +64,7 @@ namespace Nuria {
  * 
  * \par Example
  * \code
- * // Before including debug.hpp
+ * // Before including logger.hpp
  * #define NURIA_MODULE "Example"
  * 
  * // 
@@ -75,6 +75,15 @@ namespace Nuria {
  * nCritical() << "Some unrecoverable error occured.";
  * \endcode
  * 
+ * \par Transaction-oriented logging
+ * Nuria::Logger supports a thread-wide transaction to be set. The usage is to
+ * set the transaction name at the beginning of a transaction (E.g. a unique
+ * identifier of the action, a user id, or similar), and then reset it to the
+ * default empty one when you're done. You can use LoggerTransaction as helper
+ * class to manage transactions.
+ * 
+ * \sa Logger::setTransaction LoggerTransaction
+ * 
  * \par Outputting custom types
  * If you want to output custom types you simply overload operator<< for QDebug:
  * \code
@@ -82,11 +91,11 @@ namespace Nuria {
  * 	out.nospace () << "(" << instance.name () << ")";
  * }
  * \endcode
- * \note For a more complete example 
- * <a href="http://qt-project.org/doc/custom-types.html#making-the-type-printable">read this</a>
+ * \note For a more complete example see
+ * http://doc.qt.io/qt-5/custom-types.html#making-the-type-printable
  * 
  */
-class NURIA_CORE_EXPORT Debug : public QDebug {
+class NURIA_CORE_EXPORT Logger : public QDebug {
 public:
 	
 	/** Type enumeration. */
@@ -102,17 +111,21 @@ public:
 		
 	};
 	
+	/** Output handler */
+	typedef std::function< void(Nuria::Logger::Type /* type */, const QByteArray &/* typeName */,
+	                            const QByteArray &/* transaction */, const QByteArray &/* moduleName */,
+	                            const QByteArray &/* file */, int /* line */, const QByteArray &/* className */,
+	                            const QByteArray &/* methodName */, const QString &/* message */) > Handler;
+	
 	/**
 	 * Constructor. You usually don't use this directly.
 	 * Use nDebug, nWarn, nError, nCritical or nLog instead.
 	 */
-	Debug (Type type, const char *module, const char *fileName, int line,
+	Logger (Type type, const char *module, const char *fileName, int line,
 	       const char *className, const char *methodName);
 	
-	/**
-	 * Destructor. Writes the debug data to the output stream.
-	 */
-	~Debug ();
+	/** Destructor. Writes the output data. */
+	~Logger ();
 	
 	/**
 	 * Sets the logging level of a certain module. \a leastLevel is
@@ -132,7 +145,7 @@ public:
 	 */
 	static bool isModuleDisabled (const char *module, Type level);
 	
-	/** Fast access for logging macros. */
+	/** \internal Fast access for logging macros. */
 	static inline bool isModuleDisabled (uint32_t module, Type level) {
 		return (level < m_lowestLevel ||
 			level < m_disabledModules.value (module, DefaultLowestMsgLevel));
@@ -140,7 +153,7 @@ public:
 	
 	/**
 	 * Use this function in combination with qInstallMsgHandler to tunnel
-	 * all QDebug data through Debug. This way legacy code which uses
+	 * all QDebug data through Logger. This way legacy code which uses
 	 * qDebug() etc. will still use the log paths you defined.
 	 * 
 	 * With Qt5 this message handler also supports output of file name,
@@ -158,7 +171,7 @@ public:
 	 * Use this method to disable or enable the default output method.
 	 * By default the default output method is enabled.
 	 * \note This only affects the usage of the \c default output
-	 * which you can manipulate through setDestination. It does not
+	 * which you can manipulate through setOutputDevice. It does not
 	 * disable your output handlers.
 	 */
 	static void setOutputDisabled (bool disabled);
@@ -171,60 +184,45 @@ public:
 	/**
 	 * Use this method to redirect the logging output to some other
 	 * destination. By default \c stdout is used.
-	 * \note Debug takes ownership of \a handle.
+	 * 
+	 * \note Logger takes ownership of \a handle.
 	 */
-	static void setDestination (FILE *handle);
+	static void setOutputDevice (FILE *handle);
 	
 	/**
-	 * \overload
-	 * Uses \a device for output.
-	 * \note Debug takes ownership of \a device.
+	 * \overload Uses \a device as output device.
+	 * 
+	 * \warning \a device must be thread-safe for write-access when the
+	 * application uses multi-threading.
 	 */
-	static void setDestination (QIODevice *device);
+	static void setOutputDevice (QIODevice *device);
 	
 	/**
-	 * Installs an output handler. A output handler is called each time the
-	 * logging interface is used. You can use this if you need  more control
-	 * over logging in your application, for example if a single output file
-	 * isn't enough for you.
+	 * Installs \a handler as output handler, which is called every time a
+	 * logging message should be written or otherwise processed.
 	 * 
-	 * The prototype for the callback looks like this:
-	 * \code
-	 * void (Nuria::Debug::Type type, QByteArray typeName,
-	 *	 QByteArray moduleName, QByteArray file, int line,
-	 *	 QByteArray className, QByteArray methodName,
-	 *	 QString message);
-	 * \endcode
+	 * There can only be one output handler at any given time. When there's
+	 * already one installed, the old one will be overridden.
 	 * 
-	 * \param type The type of this message
-	 * \param typeName A human-readable representation of \a type
-	 * \param moduleName The module name
-	 * \param file The file name (As generated by the __FILE__ macro)
-	 * \param line The line number (As generated by the __LINE__ macro)
-	 * \param className The name of the class that sent the message
-	 * \param methodName The method name which sent the message
-	 * \param message The message itself
+	 * \warning \a handler will be called from the thread logging data. This
+	 * means it must be thread-safe in multi-threaded applications.
 	 * 
-	 * \sa uninstallOutputHandler
+	 * \sa setOutputDisabled
 	 */
-	static void installOutputHandler (const Callback &callback);
-	
-	/**
-	 * Removes an output handler.
-	 */
-	static void uninstallOutputHandler (const Callback &callback);
+	static void setOutputHandler (const Handler &handler);
 	
 	/**
 	 * Sets the format which is used to write a message into the output
 	 * stream. If \a format is \c 0 the default format will be used.
 	 * 
 	 * \note The default output format is:
-	 * "[%TIME%] %TYPE%/%MODULE%: %FILE%:%LINE% - %CLASS%::%METHOD%: %BODY%"
+	 * "[%TIME%] %TRANSACTION% %TYPE%/%MODULE%: %FILE%:%LINE% - %CLASS%::%METHOD%: %BODY%"
 	 * 
 	 * \par Identifiers
 	 * - %DATE% The current date (MM/DD/YYYY)
 	 * - %TIME% The current time (HH:MM:SS)
 	 * - %TYPE% The message type ("Debug", "Warning", ...)
+	 * - %TRANSACTION% Transaction name
 	 * - %MODULE% The module name
 	 * - %FILE% The source file name
 	 * - %LINE% The line number inside %FILE%
@@ -237,6 +235,15 @@ public:
 	 * A new-line character is automatically appended.
 	 */
 	static void setOutputFormat (const char *format);
+	
+	/**
+	 * Returns the current transaction. The default transactions name is
+	 * empty.
+	 */
+	static QByteArray transaction ();
+	
+	/** Sets \a transaction for the current thread only. */
+	static void setTransaction (const QByteArray &transaction);
 	
 private:
 	
@@ -257,57 +264,78 @@ private:
 };
 
 /**
- * \brief Helper class for Nuria::Debug, which does nothing.
+ * \brief Helper class for temporarily setting the logger transaction
+ * 
+ * This is a simplistic class which when constructed sets the threads' current
+ * transaction to the passed name and resets it to the old one in its
+ * destructor.
  */
-class NURIA_CORE_EXPORT DebugIgnore {
+class NURIA_CORE_EXPORT LoggerTransaction {
+public:
+	
+	/**
+	 * Constructor. Will set \a transaction as this threads' current logging
+	 * transaction.
+	 */
+	LoggerTransaction (const QByteArray &transaction = QByteArray ());
+	
+	/** Destructor. Resets the transaction. */
+	~LoggerTransaction ();
+	
+private:
+	QByteArray m_oldTransaction;
+	
+};
+
+class NURIA_CORE_EXPORT LoggerIgnore {
 public:
 	template< typename T >
-	inline DebugIgnore &operator<< (const T &)
+	inline LoggerIgnore &operator<< (const T &)
 	{ return *this; }
 };
 
 }
 
-Q_DECLARE_METATYPE(Nuria::Debug::Type)
+Q_DECLARE_METATYPE(Nuria::Logger::Type)
 
 // Macro magic
 #ifndef NURIA_MODULE
 # define NURIA_MODULE ""
 #endif
 
-#define NURIA_DEBUG(type) \
-	if (Nuria::Debug::isModuleDisabled \
+#define NURIA_LOGGER(type) \
+	if (Nuria::Logger::isModuleDisabled \
 	(Nuria::jenkinsHash (NURIA_MODULE, sizeof(NURIA_MODULE) - 1), type)) {} else \
-	Nuria::Debug(type, NURIA_MODULE, __FILE__, __LINE__, Q_FUNC_INFO, 0)
+	Nuria::Logger(type, NURIA_MODULE, __FILE__, __LINE__, Q_FUNC_INFO, 0)
 
-#ifndef NURIA_DEBUG_NO_DEBUG
-#define nDebug() NURIA_DEBUG(Nuria::Debug::DebugMsg)
+#ifndef NURIA_LOGGER_NO_DEBUG
+#define nDebug() NURIA_LOGGER(Nuria::Logger::DebugMsg)
 #else
-#define nDebug() Nuria::DebugIgnore()
+#define nDebug() Nuria::LoggerIgnore()
 #endif
 
-#ifndef NURIA_DEBUG_NO_LOG
-#define nLog() NURIA_DEBUG(Nuria::Debug::LogMsg)
+#ifndef NURIA_LOGGER_NO_LOG
+#define nLog() NURIA_LOGGER(Nuria::Logger::LogMsg)
 #else
-#define nLog() Nuria::DebugIgnore()
+#define nLog() Nuria::LoggerIgnore()
 #endif
 
-#ifndef NURIA_DEBUG_NO_WARN
-#define nWarn() NURIA_DEBUG(Nuria::Debug::WarnMsg)
+#ifndef NURIA_LOGGER_NO_WARN
+#define nWarn() NURIA_LOGGER(Nuria::Logger::WarnMsg)
 #else
-#define nWarn() Nuria::DebugIgnore()
+#define nWarn() Nuria::LoggerIgnore()
 #endif
 
-#ifndef NURIA_DEBUG_NO_ERROR
-#define nError() NURIA_DEBUG(Nuria::Debug::ErrorMsg)
+#ifndef NURIA_LOGGER_NO_ERROR
+#define nError() NURIA_LOGGER(Nuria::Logger::ErrorMsg)
 #else
-#define nError() Nuria::DebugIgnore()
+#define nError() Nuria::LoggerIgnore()
 #endif
 
-#ifndef NURIA_DEBUG_NO_CRITICAL
-#define nCritical() NURIA_DEBUG(Nuria::Debug::CriticalMsg)
+#ifndef NURIA_LOGGER_NO_CRITICAL
+#define nCritical() NURIA_LOGGER(Nuria::Logger::CriticalMsg)
 #else
-#define nCritical() Nuria::DebugIgnore()
+#define nCritical() Nuria::LoggerIgnore()
 #endif
 
-#endif // NURIA_DEBUG_HPP
+#endif // NURIA_LOGGER_HPP

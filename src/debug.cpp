@@ -24,28 +24,22 @@
 #include <time.h>
 #include <QFile>
 
-// Enables recursion protection
-//#define RECURSION_PROTECTION
-
 // Static variables
-Nuria::Debug::Type Nuria::Debug::m_lowestLevel = Nuria::Debug::DefaultLowestMsgLevel;
-QMap< uint32_t, Nuria::Debug::Type > Nuria::Debug::m_disabledModules;
+Nuria::Logger::Type Nuria::Logger::m_lowestLevel = Nuria::Logger::DefaultLowestMsgLevel;
+QMap< uint32_t, Nuria::Logger::Type > Nuria::Logger::m_disabledModules;
 
 static QIODevice *g_device = nullptr;
 static bool g_isFile = false;
 static bool g_deviceDisabled = false;
-static QVector< Nuria::Callback > g_handlers;
+static Nuria::Logger::Handler g_handler;
+static QThreadStorage< QByteArray > g_transaction;
 
-#ifdef RECURSION_PROTECTION
-QThreadStorage< bool > g_outputActive;
-#endif
-
-#define FORMAT_STRING "[%TIME%] %TYPE%/%MODULE%: %FILE%:%LINE% - %CLASS%::%METHOD%: %BODY%"
-static int g_formatDefaultOffset[] = {0, 1, 6, 2, 6, 1, 8, 2, 6, 1, 6, 3, 7, 2, 8, 2, 6, 0, -1};
-static const char *g_format = 0;
+#define FORMAT_STRING "[%TIME%] %TRANSACTION% %TYPE%/%MODULE%: %FILE%:%LINE% - %CLASS%::%METHOD%: %BODY%"
+static int g_formatDefaultOffset[] = {0, 1, 6, 2, 13, 1, 6, 1, 8, 2, 6, 1, 6, 3, 7, 2, 8, 2, 6, 0, -1};
+static const char *g_format = nullptr;
 static int *g_formatOffset = g_formatDefaultOffset;
 
-Nuria::Debug::Debug (Type type, const char *module, const char *fileName,
+Nuria::Logger::Logger (Type type, const char *module, const char *fileName,
 		     int line, const char *className, const char *methodName)
 	: QDebug (&m_buffer), m_type (type), m_line (line), m_module (module),
 	  m_file (0), m_class (className), m_method (methodName)
@@ -66,7 +60,7 @@ Nuria::Debug::Debug (Type type, const char *module, const char *fileName,
 	
 	// Init the output device if not already done.
 	if (!g_device) {
-		setDestination (stdout);
+		setOutputDevice (stdout);
 	}
 	
 }
@@ -116,6 +110,8 @@ static void writeOutput (const char *type, const char *module, const char *file,
 				output.append (timeString);
 			} else if (a == 'T' && b == 'Y') { // TYPE
 				output.append (type);
+			} else if (a == 'T' && b == 'R') { // TRANSACTION
+				output.append (g_transaction.localData ());
 			} else if (a == 'M' && b == 'O') { // MODULE
 				output.append (module);
 			} else if (a == 'F' && b == 'I') { // FILE
@@ -138,7 +134,6 @@ static void writeOutput (const char *type, const char *module, const char *file,
 	}
 	
 	// Append "\n" and write output to device
-	
 	if (!output.isEmpty ()) {
 		
 		// 
@@ -166,22 +161,13 @@ static void writeOutput (const char *type, const char *module, const char *file,
 	
 }
 
-Nuria::Debug::~Debug () {
-	
-	// 
-#ifdef RECURSION_PROTECTION
-	if (g_outputActive.localData ()) {
-		return;
-	}
-	
-	g_outputActive.setLocalData (true);
-#endif
+Nuria::Logger::~Logger () {
 	
 	// Remove trailing space
 	if (this->m_buffer.endsWith (QLatin1Char (' ')))
 		this->m_buffer.chop (1);
 	
-	char *temporary = 0;
+	char *temporary = nullptr;
 	
 	// If m_method is 0, the complete definition is in m_class.
 	if (!this->m_method.latin1 ()) {
@@ -250,35 +236,26 @@ Nuria::Debug::~Debug () {
 	}
 	
 	// Invoke additional output handlers
-	if (g_handlers.size () > 0) {
+	if (g_handler) {
 		
 		// 
 		QByteArray typeName (typeString);
-		QByteArray moduleName (this->m_module.latin1 ());
-		QByteArray fileName (this->m_file.latin1 ());
-		QByteArray className (this->m_class.latin1 ());
-		QByteArray methodName (this->m_method.latin1 ());
+		QByteArray moduleName (this->m_module.latin1 (), this->m_module.size ());
+		QByteArray fileName (this->m_file.latin1 (), this->m_file.size ());
+		QByteArray className (this->m_class.latin1 (), this->m_class.size ());
+		QByteArray methodName (this->m_method.latin1 (), this->m_method.size ());
 		
-		for (int i = 0; i < g_handlers.size (); i++) {
-			Callback cb = g_handlers.at (i);
-			
-			cb (this->m_type, typeName, moduleName, fileName, this->m_line,
-			    className, methodName, this->m_buffer);
-			
-		}
+		g_handler (this->m_type, g_transaction.localData (), typeName, moduleName, fileName,
+		           this->m_line, className, methodName, this->m_buffer);
 		
 	}
 	
 	// Clean up
 	delete[] temporary;
 	
-#ifdef RECURSION_PROTECTION
-	g_outputActive.setLocalData (false);
-#endif
-	
 }
 
-void Nuria::Debug::setModuleLevel (const char *module, Nuria::Debug::Type leastLevel) {
+void Nuria::Logger::setModuleLevel (const char *module, Nuria::Logger::Type leastLevel) {
 	if (!module) {
 		m_lowestLevel = leastLevel;
 		return;
@@ -293,7 +270,7 @@ void Nuria::Debug::setModuleLevel (const char *module, Nuria::Debug::Type leastL
 	
 }
 
-bool Nuria::Debug::isModuleDisabled (const char *module, Nuria::Debug::Type level) {
+bool Nuria::Logger::isModuleDisabled (const char *module, Nuria::Logger::Type level) {
 	if (!module) {
 		return (level < m_lowestLevel);
 	}
@@ -302,7 +279,7 @@ bool Nuria::Debug::isModuleDisabled (const char *module, Nuria::Debug::Type leve
 	return isModuleDisabled (hash, level);
 }
 
-void Nuria::Debug::qtMessageHandler (QtMsgType type, const QMessageLogContext &context,
+void Nuria::Logger::qtMessageHandler (QtMsgType type, const QMessageLogContext &context,
 				     const QString &message) {
 	
 	Type t = DebugMsg;
@@ -325,35 +302,35 @@ void Nuria::Debug::qtMessageHandler (QtMsgType type, const QMessageLogContext &c
 	const char *category = (context.category) ? context.category : "";
 	const char *file = (context.file) ? context.file : "";
 	const char *function = (context.function) ? context.function : "";
-	Debug out (t, category, file, context.line, function, nullptr);
+	Logger out (t, category, file, context.line, function, nullptr);
 	out.setBuffer (message);
 	
 }
 
-void Nuria::Debug::installMessageHandler () {
+void Nuria::Logger::installMessageHandler () {
 	qInstallMessageHandler (qtMessageHandler);
 }
 
-void Nuria::Debug::setOutputDisabled (bool disabled) {
+void Nuria::Logger::setOutputDisabled (bool disabled) {
 	g_deviceDisabled = disabled;
 }
 
-bool Nuria::Debug::isOutputDisabled () {
+bool Nuria::Logger::isOutputDisabled () {
 	return g_deviceDisabled;
 }
 
-void Nuria::Debug::setDestination (FILE *handle) {
+void Nuria::Logger::setOutputDevice (FILE *handle) {
 	
 	// Create a QFile from handle
 	QFile *device = new QFile;
 	device->open (handle, QIODevice::WriteOnly);
 	
 	// Set device
-	setDestination (device);
+	setOutputDevice (device);
 	
 }
 
-void Nuria::Debug::setDestination (QIODevice *device) {
+void Nuria::Logger::setOutputDevice (QIODevice *device) {
 	
 	// Delete old device
 	delete g_device;
@@ -367,30 +344,11 @@ void Nuria::Debug::setDestination (QIODevice *device) {
 	
 }
 
-void Nuria::Debug::installOutputHandler (const Callback &callback) {
-	
-	// Already registered?
-	if (g_handlers.contains (callback)) {
-		return;
-	}
-	
-	// Store and return
-	g_handlers.append (callback);
-	
+void Nuria::Logger::setOutputHandler (const Handler &handler) {
+	g_handler = handler;
 }
 
-void Nuria::Debug::uninstallOutputHandler (const Callback &callback) {
-	
-	// Remove.
-	int idx = g_handlers.indexOf (callback);
-	
-	if (idx != -1) {
-		g_handlers.remove (idx);
-	}
-	
-}
-
-void Nuria::Debug::setOutputFormat (const char *format) {
+void Nuria::Logger::setOutputFormat (const char *format) {
 	
 	if (g_format) {
 		delete[] g_format;
@@ -398,7 +356,7 @@ void Nuria::Debug::setOutputFormat (const char *format) {
 	}
 	
 	// 
-	g_format = (!format) ? 0 : qstrdup (format);
+	g_format = (!format) ? nullptr : qstrdup (format);
 	
 	// Do we need to calculate the offset array?
 	if (!g_format) {
@@ -444,6 +402,25 @@ void Nuria::Debug::setOutputFormat (const char *format) {
 	
 }
 
-void Nuria::Debug::setBuffer (const QString &buffer) {
+QByteArray Nuria::Logger::transaction () {
+	return g_transaction.localData ();
+}
+
+void Nuria::Logger::setTransaction (const QByteArray &transaction) {
+	g_transaction.setLocalData (transaction);
+}
+
+void Nuria::Logger::setBuffer (const QString &buffer) {
 	this->m_buffer = buffer;
+}
+
+
+Nuria::LoggerTransaction::LoggerTransaction (const QByteArray &transaction)
+        : m_oldTransaction (g_transaction.localData ())
+{
+	g_transaction.setLocalData (transaction);
+}
+
+Nuria::LoggerTransaction::~LoggerTransaction () {
+	g_transaction.setLocalData (this->m_oldTransaction);
 }
