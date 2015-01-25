@@ -24,7 +24,7 @@
 #include <fcntl.h>
 #include <memory>
 
-#include "nuria/debug.hpp"
+#include "nuria/logger.hpp"
 
 // Global for easy access from signal handler
 static int g_pipe[2];

@@ -25,8 +25,8 @@ SET(NuriaCore_SRC
     src/conditionevaluator.cpp
     src/nuria/conditionevaluator.hpp
     src/nuria/core_global.hpp
-    src/debug.cpp
-    src/nuria/debug.hpp
+    src/logger.cpp
+    src/nuria/logger.hpp
     src/dependencymanager.cpp
     src/nuria/dependencymanager.hpp
     src/nuria/essentials.hpp

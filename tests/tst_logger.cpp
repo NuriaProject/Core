@@ -20,7 +20,7 @@
 #include <QtTest>
 
 #define NURIA_MODULE "Test"
-#include <nuria/debug.hpp>
+#include <nuria/logger.hpp>
 
 class LoggerTest : public QObject {
 	Q_OBJECT

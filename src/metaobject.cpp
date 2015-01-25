@@ -19,7 +19,7 @@
 #include <QReadWriteLock>
 #include <functional>
 
-#include "nuria/debug.hpp"
+#include "nuria/logger.hpp"
 
 enum Categories {
 	ObjectCategory = 0,

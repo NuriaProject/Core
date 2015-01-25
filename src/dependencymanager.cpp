@@ -15,7 +15,7 @@
  */
 
 #include "nuria/dependencymanager.hpp"
-#include "nuria/debug.hpp"
+#include "nuria/logger.hpp"
 
 #include <QCoreApplication>
 #include <QThreadStorage>

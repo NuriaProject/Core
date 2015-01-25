@@ -15,7 +15,7 @@
  */
 
 #include "nuria/referencedevice.hpp"
-#include "nuria/debug.hpp"
+#include "nuria/logger.hpp"
 
 namespace Nuria {
 class ReferenceDevicePrivate {

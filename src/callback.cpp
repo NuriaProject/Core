@@ -23,7 +23,7 @@
 #include <QThread>
 
 #include "nuria/variant.hpp"
-#include "nuria/debug.hpp"
+#include "nuria/logger.hpp"
 
 // Callback types. We store them outside to easily add more options in the
 // future without rendering the Callback to be too heavy.

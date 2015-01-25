@@ -16,7 +16,7 @@
 
 #include "nuria/lazyevaluation.hpp"
 #include "nuria/conditionevaluator.hpp"
-#include "nuria/debug.hpp"
+#include "nuria/logger.hpp"
 
 namespace Nuria {
 
