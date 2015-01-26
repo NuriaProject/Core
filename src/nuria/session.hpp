@@ -110,6 +110,9 @@ public:
 	/** Returns \c true if there's a value for \a key. */
 	bool contains (const QString &key) const;
 	
+	/** Sets \a key to \a value. The session will be marked dirty. */
+	void insert (const QString &key, const QVariant &value);
+	
 	/**
 	 * Returns the value known as \a key. If there's no value for \a key
 	 * yet, a invalid QVariant will be inserted and the reference to it

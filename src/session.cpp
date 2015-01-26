@@ -94,6 +94,11 @@ bool Nuria::Session::contains (const QString &key) const {
 	return this->d->data.contains (key);
 }
 
+void Nuria::Session::insert (const QString &key, const QVariant &value) {
+	this->d->dirty = true;
+	this->d->data.insert (key, value);
+}
+
 QVariant &Nuria::Session::operator[] (const QString &key) {
 	this->d->dirty = true;
 	return this->d->data[key];

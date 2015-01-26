@@ -27,6 +27,9 @@ private slots:
 	void writeAccessSetsTheDirtyFlag ();
 	void verifyReferenceCounting ();
 	void verifyCleanDirtyMethods ();
+	
+	void valueDoesNotSetDirtyFlag ();
+	void insertStoresAndSetsDirty ();
 };
 
 void SessionTest::verifyDefaultConstructedSession () {
@@ -59,7 +62,6 @@ void SessionTest::gettingNonExistantValueDoesNotAlterSession () {
 	QVERIFY(!session.isDirty ());
 	QVERIFY(session.contains ("foo"));
 	QVERIFY(session.value ("foo").isValid ());
-	QVERIFY(!session.isDirty ());
 	
 }
 
@@ -106,6 +108,29 @@ void SessionTest::verifyCleanDirtyMethods () {
 	
 	session.markClean ();
 	QVERIFY(!session.isDirty ());
+	
+}
+
+void SessionTest::valueDoesNotSetDirtyFlag () {
+	Nuria::Session session;
+	QVERIFY(!session.isDirty ());
+	
+	session.insert ("foo", 123);
+	session.markClean ();
+	
+	QCOMPARE(session.value ("foo"), QVariant (123));
+	QVERIFY(!session.isDirty ());
+}
+
+void SessionTest::insertStoresAndSetsDirty () {
+	Nuria::Session session;
+	QVERIFY(!session.isDirty ());
+	
+	session.insert ("foo", 123);
+	
+	QVERIFY(session.isDirty ());
+	QCOMPARE(session.value ("foo"), QVariant (123));
+	QVERIFY(session.isDirty ()); // Not altered by value().
 	
 }
 
