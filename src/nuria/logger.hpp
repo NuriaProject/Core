@@ -18,7 +18,7 @@
 #define NURIA_LOGGER_HPP
 
 #include "essentials.hpp"
-#include "callback.hpp"
+#include <functional>
 #include <QDebug>
 
 namespace Nuria {
