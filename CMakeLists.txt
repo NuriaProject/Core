@@ -60,6 +60,13 @@ SET(NuriaCore_SRC
     src/stringutils.cpp
     src/nuria/stringutils.hpp
     src/nuria/bitutils.hpp
+    src/resource.cpp
+    src/nuria/resource.hpp
+    src/invocation.cpp
+    src/nuria/invocation.hpp
+    src/private/invocationwaitobject.hpp
+    src/objectwrapperresource.cpp
+    src/nuria/objectwrapperresource.hpp
 )
 
 if (UNIX)
@@ -125,6 +132,8 @@ add_unittest(NAME tst_variant)
 add_unittest(NAME tst_stringutils)
 add_unittest(NAME tst_referencedevice)
 add_unittest(NAME tst_tokenizer)
+add_unittest(NAME tst_resource)
+add_unittest(NAME tst_objectwrapperresource)
 
 if (UNIX)
     add_unittest(NAME tst_unixsignalhandler)
