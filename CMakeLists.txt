@@ -67,6 +67,8 @@ SET(NuriaCore_SRC
     src/private/invocationwaitobject.hpp
     src/objectwrapperresource.cpp
     src/nuria/objectwrapperresource.hpp
+    src/private/streamingjsonhelper.cpp
+    src/private/streamingjsonhelper.hpp
 )
 
 if (UNIX)
@@ -135,8 +137,14 @@ add_unittest(NAME tst_tokenizer)
 add_unittest(NAME tst_resource)
 add_unittest(NAME tst_objectwrapperresource)
 
+if(NOT WIN32)
+  add_unittest(NAME tst_streamingjsonhelper)
+else()
+  add_unittest(NAME tst_streamingjsonhelper)
+endif()
+
 if (UNIX)
-    add_unittest(NAME tst_unixsignalhandler)
+  add_unittest(NAME tst_unixsignalhandler)
 endif (UNIX)
 
 if (HasTria)
