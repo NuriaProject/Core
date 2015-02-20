@@ -26,13 +26,20 @@ Nuria::Internal::StreamingJsonHelper::~StreamingJsonHelper () {
 	
 }
 
-Nuria::Internal::StreamingJsonHelper::Status Nuria::Internal::StreamingJsonHelper::appendData (QByteArray data) {
+void Nuria::Internal::StreamingJsonHelper::resetBuffer () {
+	this->m_skipFirst = 0;
+	this->m_inString = false;
+	this->m_depthStack.clear ();
+	this->m_buffer.clear ();
+}
+
+Nuria::Internal::StreamingJsonHelper::Status Nuria::Internal::StreamingJsonHelper::appendData (const char *data,
+                                                                                               int length) {
 	int i = this->m_skipFirst;
 	this->m_skipFirst = 0;
 	
 	// Iterate over 'data'
-	const char *raw = data.constData ();
-	int length = data.length ();
+	const char *raw = data;
 	for (; i < length; i++) {
 		char c = raw[i];
 		
@@ -82,6 +89,10 @@ Nuria::Internal::StreamingJsonHelper::Status Nuria::Internal::StreamingJsonHelpe
 	
 	// Done
 	return this->m_elements.isEmpty () ? Premature : ElementComplete;
+}
+
+int Nuria::Internal::StreamingJsonHelper::waitingElementCount () const {
+	return this->m_elements.length ();
 }
 
 bool Nuria::Internal::StreamingJsonHelper::hasWaitingElement () const {

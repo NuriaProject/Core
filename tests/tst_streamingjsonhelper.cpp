@@ -47,6 +47,7 @@ void StreamingJsonHelperTest::verifyOneElement () {
 	
 	StreamingJsonHelper h;
 	QCOMPARE(h.appendData (data), StreamingJsonHelper::ElementComplete);
+	QCOMPARE(h.waitingElementCount (), 1);
 	QVERIFY(h.hasWaitingElement ());
 	QCOMPARE(h.nextWaitingElement (), data);
 	QVERIFY(!h.hasWaitingElement ());
@@ -60,6 +61,7 @@ void StreamingJsonHelperTest::verifyTwoElements () {
 	
 	StreamingJsonHelper h;
 	QCOMPARE(h.appendData (data), StreamingJsonHelper::ElementComplete);
+	QCOMPARE(h.waitingElementCount (), 2);
 	QVERIFY(h.hasWaitingElement ());
 	QCOMPARE(h.nextWaitingElement (), first);
 	QVERIFY(h.hasWaitingElement ());
@@ -85,6 +87,7 @@ void StreamingJsonHelperTest::rootMayContainAnyValue () {
 	
 	StreamingJsonHelper h;
 	QCOMPARE(h.appendData (json), StreamingJsonHelper::ElementComplete);
+	QCOMPARE(h.waitingElementCount (), 1);
 	QVERIFY(h.hasWaitingElement ());
 	QCOMPARE(h.nextWaitingElement (), json);
 	QVERIFY(!h.hasWaitingElement ());
@@ -96,6 +99,7 @@ void StreamingJsonHelperTest::prematureForIncompleteElement () {
 	
 	StreamingJsonHelper h;
 	QCOMPARE(h.appendData (data), StreamingJsonHelper::Premature);
+	QCOMPARE(h.waitingElementCount (), 0);
 	QVERIFY(!h.hasWaitingElement ());
 	
 }
@@ -105,6 +109,7 @@ void StreamingJsonHelperTest::jsonErrorForBrokenJsonData () {
 	
 	StreamingJsonHelper h;
 	QCOMPARE(h.appendData (data), StreamingJsonHelper::JsonError);
+	QCOMPARE(h.waitingElementCount (), 0);
 	QVERIFY(!h.hasWaitingElement ());
 	
 }

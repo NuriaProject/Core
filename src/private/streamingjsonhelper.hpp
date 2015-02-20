@@ -36,7 +36,14 @@ public:
 	StreamingJsonHelper ();
 	~StreamingJsonHelper ();
 	
-	Status appendData (QByteArray data);
+	void resetBuffer ();
+	
+	inline Status appendData (const QByteArray &data)
+	{ return appendData (data.constData (), data.length ()); }
+	
+	Status appendData (const char *data, int length);
+	
+	int waitingElementCount () const;
 	bool hasWaitingElement () const;
 	QByteArray nextWaitingElement ();
 	

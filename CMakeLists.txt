@@ -67,6 +67,8 @@ SET(NuriaCore_SRC
     src/private/invocationwaitobject.hpp
     src/objectwrapperresource.cpp
     src/nuria/objectwrapperresource.hpp
+    src/jsonstreamreader.cpp
+    src/nuria/jsonstreamreader.hpp
     src/private/streamingjsonhelper.cpp
     src/private/streamingjsonhelper.hpp
 )
@@ -136,6 +138,7 @@ add_unittest(NAME tst_referencedevice)
 add_unittest(NAME tst_tokenizer)
 add_unittest(NAME tst_resource)
 add_unittest(NAME tst_objectwrapperresource)
+add_unittest(NAME tst_jsonstreamreader)
 
 if(NOT WIN32)
   add_unittest(NAME tst_streamingjsonhelper)
