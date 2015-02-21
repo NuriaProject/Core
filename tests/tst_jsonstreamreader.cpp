@@ -33,6 +33,8 @@ private slots:
 	void discardReinitializesReader ();
 	void verifyErrorBehaviour ();
 	
+	void jsonParserErrorDoesNotAffectReader ();
+	
 };
 
 void JsonStreamReaderTest::verifyInitialState () {
@@ -196,6 +198,28 @@ void JsonStreamReaderTest::verifyErrorBehaviour () {
 	
 	// 
 	QCOMPARE(reader.nextPendingElement ().toVariant ().toList (), QVariantList ({ 1, 2, 3 }));
+	QCOMPARE(reader.hasPendingElement (), false);
+	
+}
+
+void JsonStreamReaderTest::jsonParserErrorDoesNotAffectReader () {
+	JsonStreamReader reader;
+	QSignalSpy error (&reader, SIGNAL(error()));
+	QSignalSpy newPendingElement (&reader, SIGNAL(newPendingElement()));
+	
+	// Json error
+	reader.write ("{ 123: true }");
+	QCOMPARE(error.length (), 0);
+	QCOMPARE(reader.hasError (), false);
+	QCOMPARE(newPendingElement.length (), 1);
+	QCOMPARE(reader.hasPendingElement (), true);
+	
+	QJsonParseError err;
+	QVERIFY(reader.nextPendingElement (&err).isNull ());
+	QVERIFY(err.error != QJsonParseError::NoError);
+	
+	QCOMPARE(error.length (), 0);
+	QCOMPARE(reader.hasError (), false);
 	QCOMPARE(reader.hasPendingElement (), false);
 	
 }
