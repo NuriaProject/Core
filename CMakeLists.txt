@@ -62,6 +62,8 @@ SET(NuriaCore_SRC
     src/nuria/bitutils.hpp
     src/resource.cpp
     src/nuria/resource.hpp
+    src/directoryresource.cpp
+    src/nuria/directoryresource.hpp
     src/invocation.cpp
     src/nuria/invocation.hpp
     src/private/invocationwaitobject.hpp
@@ -137,6 +139,7 @@ add_unittest(NAME tst_stringutils)
 add_unittest(NAME tst_referencedevice)
 add_unittest(NAME tst_tokenizer)
 add_unittest(NAME tst_resource)
+add_unittest(NAME tst_directoryresource)
 add_unittest(NAME tst_objectwrapperresource)
 add_unittest(NAME tst_jsonstreamreader)
 
