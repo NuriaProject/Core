@@ -214,6 +214,13 @@ public:
 		/** Destructor. */
 		~Property ();
 		
+		/**
+		 * Returns \c true if \a other and this instance share the same
+		 * type, name, arguments and result type. Two invalid instances
+		 * are equal.
+		 */
+		bool operator== (const Property &other) const;
+		
 		/** Returns \c true if this is a valid instance. */
 		bool isValid () const;
 		

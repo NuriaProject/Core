@@ -59,6 +59,9 @@ private slots:
 	
 	void invocationResultWaitThreaded_data ();
 	void invocationResultWaitThreaded ();
+	
+	void propertyEqual_data ();
+	void propertyEqual ();
 };
 
 QString TestResource::interfaceName () const {
@@ -318,6 +321,35 @@ void ResourceTest::invocationResultWaitThreaded () {
 	Callback (&thread, SLOT(quit())) ();
 	thread.wait ();
 	
+}
+
+void ResourceTest::propertyEqual_data () {
+	QTest::addColumn< bool > ("equal");
+	QTest::addColumn< Resource::Property > ("a");
+	QTest::addColumn< Resource::Property > ("b");
+	
+	Resource::Property a (Resource::Property::Slot, "foo", { { "argument", 123 } }, 456);
+	Resource::Property type (Resource::Property::Signal, "foo", { { "argument", 123 } }, 456);
+	Resource::Property name (Resource::Property::Slot, "bar", { { "argument", 123 } }, 456);
+	Resource::Property args (Resource::Property::Slot, "foo", { { "argument", 123 }, { "asd", 789 } }, 456);
+	Resource::Property resultType (Resource::Property::Slot, "foo", { { "argument", 123 } }, 789);
+	
+	QTest::newRow ("invalid-equal") << true << Resource::Property () << Resource::Property ();
+	QTest::newRow ("valid-invalid") << false << a << Resource::Property ();
+	QTest::newRow ("invalid-valid") << false << Resource::Property () << a;
+	QTest::newRow ("different-type") << false << a << type;
+	QTest::newRow ("different-name") << false << a << name;
+	QTest::newRow ("different-args") << false << a << args;
+	QTest::newRow ("different-resultType") << false << a << resultType;
+	
+}
+
+void ResourceTest::propertyEqual () {
+	QFETCH(bool, equal);
+	QFETCH(Resource::Property, a);
+	QFETCH(Resource::Property, b);
+	
+	QCOMPARE(a == b, equal);
 }
 
 QTEST_MAIN(ResourceTest)

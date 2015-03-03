@@ -152,6 +152,22 @@ Nuria::Resource::Property::~Property () {
 	// 
 }
 
+bool Nuria::Resource::Property::operator== (const Property &other) const {
+	if (this->d == other.d) { // Same d pointer (also: Both are NULL)
+		return true;
+	}
+	
+	if (!this->d || !other.d) { // One d-ptr is NULL
+		return false;
+	}
+	
+	// Both have valid d-pointers, check them.
+	return (this->d->type == other.d->type && this->d->name == other.d->name &&
+	        this->d->resultType == other.d->resultType &&
+	        this->d->arguments == other.d->arguments);
+	
+}
+
 bool Nuria::Resource::Property::isValid () const {
 	return (this->d && this->d->type != Invalid);
 }
