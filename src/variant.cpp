@@ -33,7 +33,11 @@ void *Nuria::Variant::stealPointer (QVariant &variant) {
 }
 
 void *Nuria::Variant::getPointer (QVariant &variant) {
-	QVariant::Private &data = variant.data_ptr ();
+	return const_cast< void * > (getPointer (static_cast< const QVariant & > (variant)));
+}
+
+const void *Nuria::Variant::getPointer (const QVariant &variant) {
+	const QVariant::Private &data = variant.data_ptr ();
 	if (data.is_null || data.type == QMetaType::UnknownType || data.type < uint(QVariant::Char)) {
 		return nullptr;
 	}

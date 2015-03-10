@@ -63,6 +63,9 @@ public:
 	 */
 	static void *getPointer (QVariant &variant);
 	
+	/** \overload */
+	static const void *getPointer (const QVariant &variant);
+	
 private:
 	
 	/** \internal Helper for buildListImpl. */
