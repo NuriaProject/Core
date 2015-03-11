@@ -86,6 +86,9 @@ private slots:
 	void testSignals_data ();
 	void testSignals ();
 	
+	void errorBehaviour_data ();
+	void errorBehaviour ();
+	
 	void signalCanBeCancelled ();
 	void multipleConnectionsAreHandled ();
 	
@@ -102,12 +105,6 @@ ObjectWrapperResourceTest::ObjectWrapperResourceTest () {
 
 void ObjectWrapperResourceTest::verifyInterfaceName () {
 	QCOMPARE(this->wrapper->interfaceName (), QString ("Foo"));
-}
-
-static bool operator== (const Resource::Property &a, const Resource::Property &b) {
-	return (a.type () == b.type () &&
-	        a.name () == b.name () &&
-	        a.arguments () == b.arguments ());
 }
 
 static QDebug operator<< (QDebug &dbg, const Resource::Property &p) {
@@ -336,6 +333,33 @@ void ObjectWrapperResourceTest::testSignals () {
 	
 	conn.cancel ();
 	
+}
+
+void ObjectWrapperResourceTest::errorBehaviour_data () {
+	QTest::addColumn< QString > ("name");
+	QTest::addColumn< QVariantMap > ("arguments");
+	QTest::addColumn< Resource::InvokeResultState > ("expected");
+	
+	// 
+	QTest::newRow ("unknown-error") << "doesNotExist" << QVariantMap { } << Resource::UnknownError;
+	QTest::newRow ("bad-argument-error") << "overloaded" << QVariantMap { {"A", 123 } }
+	                                     << Resource::BadArgumentError;
+}
+
+void ObjectWrapperResourceTest::errorBehaviour () {
+	QFETCH(QString, name);
+	QFETCH(QVariantMap, arguments);
+	QFETCH(Nuria::Resource::InvokeResultState, expected);
+	
+	Resource::InvokeResultState state = Resource::Success;
+	
+	auto cb = [&](Resource::InvokeResultState s, QVariant) {
+		state = s;
+	};
+	
+	// 
+	this->wrapper->invoke (name, arguments, cb);
+	QCOMPARE(state, expected);
 }
 
 void ObjectWrapperResourceTest::signalCanBeCancelled () {

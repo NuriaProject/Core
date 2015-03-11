@@ -33,6 +33,11 @@ struct Method {
 	int propertyIndex = 0;
 };
 
+enum FindMethodResults {
+	UnknownMethod = -1,
+	UnknownArguments = -2
+};
+
 namespace Nuria {
 class ObjectWrapperResourcePrivate : public QObject {
 public:
@@ -223,7 +228,7 @@ Nuria::Resource::InvokeResultState Nuria::ObjectWrapperResourcePrivate::invoke (
 	// Find slot
 	int idx = findMethod (QMetaMethod::Slot, slot, arguments);
 	if (idx < 0) {
-		return Resource::UnknownError;
+		return (idx == UnknownArguments) ? Resource::BadArgumentError : Resource::UnknownError;
 	}
 	
 	// 
@@ -263,20 +268,26 @@ static bool hasMethodRequiredArguments (const Method &method, const QVariantMap 
 
 int Nuria::ObjectWrapperResourcePrivate::findMethod (QMetaMethod::MethodType type, const QString &name,
                                                      const QVariantMap &arguments) {
+	int error = UnknownMethod;
+	
 	int i = QObject::staticMetaObject.methodCount ();
 	for (; i < this->meta->methodCount (); i++) {
 		QMetaMethod m = this->meta->method (i);
 		const Method &method = this->methods.value (i);
 		
-		if (m.methodType () == type && m.name () == name &&
-		    (type == QMetaMethod::Signal || hasMethodRequiredArguments (method, arguments))) {
-			return i;
+		if (m.methodType () == type && m.name () == name) {
+			if (type == QMetaMethod::Signal || hasMethodRequiredArguments (method, arguments)) {
+				return i;
+			} else {
+				error = UnknownArguments;
+			}
+			
 		}
 		
 	}
 	
 	// Not found
-	return -1;
+	return error;
 }
 
 void Nuria::ObjectWrapperResourcePrivate::initMethods () {
